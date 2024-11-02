@@ -4,14 +4,17 @@
  */
 package ifaces;
 
+import java.util.ArrayList;
+import pojos.Symptom;
+
 /**
  *
  * @author carmengarciaprieto
  */
-public class SymptomManager {
+public interface SymptomManager {
             public void insertSymptom(Symptom symptom);
-            public List<Symptom> getSymptomsByEpisode(int episode_id);
-            public List<Symptom> getSymptomsByPatient(int patient_id);
+            public ArrayList<Symptom> getSymptomsByEpisode(int episode_id);
+            public ArrayList<Symptom> getSymptomsByPatient(int patient_id);
             public Symptom getSymptomById(int symptom_id);
             public void assignSymptomToEpisode(int symptom_id, int episode_id);
 }

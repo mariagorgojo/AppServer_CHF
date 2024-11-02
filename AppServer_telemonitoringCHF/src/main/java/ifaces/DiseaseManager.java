@@ -4,14 +4,17 @@
  */
 package ifaces;
 
+import java.util.ArrayList;
+import pojos.Disease;
+
 /**
  *
  * @author carmengarciaprieto
  */
-public class DiseaseManager {
+public interface DiseaseManager {
             public void insertDisease(Disease disease);
-            public List<Disease> getDiseasesByEpisode(int episode_id);
-            public List<Disease> getDiseasesByPatient(int patient_id);
+            public ArrayList<Disease> getDiseasesByEpisode(int episode_id);
+            public ArrayList<Disease> getDiseasesByPatient(int patient_id);
             public Disease getDiseaseById(int disease_id);
             public void assignDiseaseToEpisode(int disease_id, int episode_id);
 }

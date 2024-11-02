@@ -4,15 +4,19 @@
  */
 package ifaces;
 
+import java.util.ArrayList;
+import pojos.Doctor;
+import pojos.Patient;
+
 /**
  *
  * @author carmengarciaprieto
  */
-public class PatientManager {
+public interface PatientManager {
     public void insertPatient(Patient patient, Doctor doctor);
-    public List<Patient> searchPatientsByDoctor(int d_id);
+    public ArrayList<Patient> searchPatientsByDoctor(int d_id);
     public Patient getPatient(int p_id);
-    public List<Patient> searchPatientByName(String name);
+    public ArrayList<Patient> searchPatientByName(String name);
     public Patient getPatientByEmail(String email); 
     public Patient getPatientByPhone(Integer phone);
 }
