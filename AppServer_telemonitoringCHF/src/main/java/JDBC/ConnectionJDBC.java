@@ -74,28 +74,44 @@ public class ConnectionJDBC {
                                         + " FOREIGN KEY (medicalhistory_id) REFERENCES Medicalhistory(id) ON DELETE SET NULL);";
 			s.executeUpdate(table_Patient);
 			
-                          String table_Medicalhistory = "CREATE TABLE MedicalHistory ("
-					+ " id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                                        + " date DATE NUT NULL,"
-					+ " weigth INTEGER NOT NULL,"
-					+ " heigth INTEGER NOT NULL,"
-					+ " diseases," //lista de texto o tabla por separado
-                                        + " surgeries," //lista de texto o tabla por separado 
-					+ " FOREIGN KEY (patient_id) REFERENCES Patient(id) ON DELETE SET NULL);";
-			s.executeUpdate(table_Patient);
-			
-                            String table_Bitalinosignals = "CREATE TABLE Bitalinosignals ("
-					+ " id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                                        + " date DATE NUT NULL,"
-					+ " type TEXT NOT NULL,"
-					+ " duration INTEGER NOT NULL,"
-					+ " filepath TEXT NOT NULL,"
-                                        + " symptoms,"
-                                        + " data,"  //BLOB si es todo en binario, TEXT O VARCHAR para texto
-					+ " FOREIGN KEY (patient_id) REFERENCES Patient(id) ON DELETE SET NULL);";
-			s.executeUpdate(table_Patient);
-                        
-                        
+                         String table_Surgery = "CREATE TABLE Surgery ("
+                                                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                                                + "surgery TEXT NOT NULL);"; 
+                         s.executeUpdate(table_Surgery); 
+                         
+                         String table_Symptom = "CREATE TABLE Symptom ("
+                                                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                                                + "symptom TEXT NOT NULL);"; 
+                         s.executeUpdate(table_Symptom); 
+                         
+                        String table_Disease = "CREATE TABLE Disease ("
+                                                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                                                + "disease TEXT NOT NULL);"; 
+                         s.executeUpdate(table_Disease); 
+                         
+                        String table_Episode_Surgery = "CREATE TABLE Episode_Surgery ("
+                                                + "episode_id INTEGER,"
+                                                + "surgery_id INTEGER,"
+                                                + "FOREIGN KEY (episode_id) REFERENCES Episode(id) ON DELETE SET NULL,"
+                                                + "FOREIGN KEY (surgery_id) REFERENCES Surgery(id) ON DELETE SET NULL,"
+                                                + "PRIMARY KEY (episode_id, surgery_id));"; 
+                         s.executeUpdate(table_Episode_Surgery); 
+                         
+                         String table_Episode_Symptom = "CREATE TABLE Episode_Symptom ("
+                                                + "episode_id INTEGER,"
+                                                + "symptom_id INTEGER,"
+                                                + "FOREIGN KEY (episode_id) REFERENCES Episode(id) ON DELETE SET NULL,"
+                                                + "FOREIGN KEY (symptom_id) REFERENCES Symptom(id) ON DELETE SET NULL),"
+                                                + "PRIMARY KEY (episode_id, symptom_id));";
+                         s.executeUpdate(table_Episode_Symptom); 
+                         
+                         String table_Episode_Disease = "CREATE TABLE Episode_Disease ("
+                                                + "episode_id INTEGER,"
+                                                + "disease_id INTEGER,"
+                                                + "FOREIGN KEY (episode_id) REFERENCES Episode(id) ON DELETE SET NULL,"
+                                                + "FOREIGN KEY (disease_id) REFERENCES Disease(id) ON DELETE SET NULL,"
+                                                + "PRIMARY KEY (episode_id, disease_id));";
+                         s.executeUpdate(table_Episode_Disease); 
 			s.close();
                         
 		} catch (SQLException e) {
