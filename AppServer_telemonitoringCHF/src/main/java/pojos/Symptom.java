@@ -52,6 +52,10 @@ public class Symptom {
 	public String toString() {
 		return "Symptom: " + symptom;
 	}
+
+    public String getSymptom() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
         
 }
 

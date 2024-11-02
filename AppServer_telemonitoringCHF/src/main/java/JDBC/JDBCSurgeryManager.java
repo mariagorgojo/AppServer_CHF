@@ -4,6 +4,16 @@
  */
 package JDBC;
 
+import ifaces.SurgeryManager;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+import pojos.Surgery;
+
 /**
  *
  * @author carmengarciaprieto
@@ -46,15 +56,15 @@ public class JDBCSurgeryManager implements SurgeryManager {
             }
     }
         @Override
-	public List<Surgery> getSurgeriesByEpisode(int episode_id){
-		List<Surgery> list = new ArrayList<Surgery>();
+	public ArrayList<Surgery> getSurgeriesByEpisode(int episode_id){
+		ArrayList<Surgery> list = new ArrayList<Surgery>();
 		try {
 			String sql = "SELECT surgery_id FROM Episode_Surgery WHERE episode_id LIKE ?";
 			PreparedStatement p = c.prepareStatement(sql);
 			p.setInt(1, episode_id);
 			ResultSet rs = p.executeQuery();
 			while (rs.next()) {				
-				Surgery s = new Surgery(rs.getInt("id"), rs.getString("surgery");
+				Surgery s = new Surgery(rs.getInt("id"), rs.getString("surgery"));
 				list.add(s);
 			}
 		} catch (SQLException e) {
@@ -63,4 +73,39 @@ public class JDBCSurgeryManager implements SurgeryManager {
 		}
 		return list;
 	}
+        @Override
+        public ArrayList<Surgery> getSurgeriesByPatient(int patient_id){
+            	ArrayList<Surgery> list = new ArrayList<Surgery>();
+		try {
+			String sql = "SELECT Surgery.* FROM Surgery JOIN Episode_Surgery ON Surgery.id = Episode_Surgery.surgery_id JOIN Episode ON Episode_Surgery.episode_id = Episode.id WHERE Episode.patient_id = ?;";
+			PreparedStatement p = c.prepareStatement(sql);
+			p.setInt(1, patient_id);
+			ResultSet rs = p.executeQuery();
+			while (rs.next()) {				
+				Surgery s = new Surgery(rs.getInt("id"), rs.getString("surgery"));
+				list.add(s);
+			}
+		} catch (SQLException e) {
+			System.out.println("database error");
+			e.printStackTrace();
+		}
+		return list;
+        }
+        @Override
+        public String getSurgeryById(int surgery_id){
+                try {
+			String sql = "SELECT surgery FROM Surgery WHERE id LIKE ?";
+			PreparedStatement p = c.prepareStatement(sql);
+			p.setInt(1, surgery_id); 
+			ResultSet rs = p.executeQuery();
+			String name=rs.getString("surgery");
+			rs.close();
+		    p.close();
+			return name;
+		} catch (SQLException e) {
+			System.out.println("database error");
+			e.printStackTrace();
+		}
+		return null;
+        }
 }

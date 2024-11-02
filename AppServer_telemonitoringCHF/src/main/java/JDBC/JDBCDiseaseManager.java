@@ -4,6 +4,17 @@
  */
 package JDBC;
 
+import ifaces.DiseaseManager;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+import pojos.Disease;
+import pojos.Symptom;
+
 /**
  *
  * @author carmengarciaprieto
@@ -46,15 +57,15 @@ public class JDBCDiseaseManager implements DiseaseManager{
                 }
         }
 	@Override
-	public List<Disease> getDiseasesByEpisode(int episode_id){
-		List<Disease> list = new ArrayList<Disease>();
+	public ArrayList<Disease> getDiseasesByEpisode(int episode_id){
+		ArrayList<Disease> list = new ArrayList<Disease>();
 		try {
 			String sql = "SELECT disease_id FROM Episode_Disease WHERE episode_id LIKE ?";
 			PreparedStatement p = c.prepareStatement(sql);
 			p.setInt(1, episode_id);
 			ResultSet rs = p.executeQuery();
 			while (rs.next()) {				
-				Disease d = new Disease(rs.getInt("id"), rs.getString("disease");
+				Disease d = new Disease(rs.getInt("id"), rs.getString("disease"));
 				list.add(d);
 			}
 		} catch (SQLException e) {
@@ -63,4 +74,39 @@ public class JDBCDiseaseManager implements DiseaseManager{
 		}
 		return list;
 	}
+        
+        public ArrayList<Disease> getDiseasesByPatient(int patient_id){
+                ArrayList<Disease> list = new ArrayList<Disease>();
+		try {
+			String sql = "SELECT Disease.* FROM Disease JOIN Episode_Disease ON Disease.id = Episode_Disease.disease_id JOIN Episode ON Episode_Disease.episode_id = Episode.id WHERE Episode.patient_id = ?;";
+			PreparedStatement p = c.prepareStatement(sql);
+			p.setInt(1, patient_id);
+			ResultSet rs = p.executeQuery();
+			while (rs.next()) {				
+				Disease d = new Disease(rs.getInt("id"), rs.getString("disease"));
+				list.add(d);
+			}
+		} catch (SQLException e) {
+			System.out.println("database error");
+			e.printStackTrace();
+		}
+		return list;
+        }
+        
+        public String getDiseaseById(int disease_id){
+                try {
+			String sql = "SELECT disease FROM Disease WHERE id LIKE ?";
+			PreparedStatement p = c.prepareStatement(sql);
+			p.setInt(1, disease_id); 
+			ResultSet rs = p.executeQuery();
+			String name=rs.getString("disease");
+			rs.close();
+		    p.close();
+			return name;
+		} catch (SQLException e) {
+			System.out.println("database error");
+			e.printStackTrace();
+		}
+		return null;
+        }
 }

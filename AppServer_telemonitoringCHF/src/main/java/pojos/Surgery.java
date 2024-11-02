@@ -48,6 +48,10 @@ public class Surgery {
 	public String toString() {
 		return "Surgery: " + surgery + "]";
 	}
+
+    public String getSurgery() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
     
     
     
