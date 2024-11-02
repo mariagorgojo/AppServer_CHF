@@ -46,7 +46,7 @@ public class JDBCDiseaseManager implements DiseaseManager{
                 }
         }
 	@Override
-	public List<Disease> searchDiseasesByEpisode(int episode_id){
+	public List<Disease> getDiseasesByEpisode(int episode_id){
 		List<Disease> list = new ArrayList<Disease>();
 		try {
 			String sql = "SELECT disease_id FROM Episode_Disease WHERE episode_id LIKE ?";

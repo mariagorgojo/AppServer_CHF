@@ -46,7 +46,7 @@ public class JDBCSurgeryManager implements SurgeryManager {
             }
     }
         @Override
-	public List<Surgery> searchSurgeriesByEpisode(int episode_id){
+	public List<Surgery> getSurgeriesByEpisode(int episode_id){
 		List<Surgery> list = new ArrayList<Surgery>();
 		try {
 			String sql = "SELECT surgery_id FROM Episode_Surgery WHERE episode_id LIKE ?";

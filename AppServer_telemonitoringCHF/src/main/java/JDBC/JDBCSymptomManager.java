@@ -46,7 +46,7 @@ public class JDBCSymptomManager implements SymptomManager{
                 }
         }
         @Override
-	public List<Symptom> searchSymptomsByEpisode(int episode_id){
+	public List<Symptom> getSymptomsByEpisode(int episode_id){
 		List<Symptom> list = new ArrayList<Symptom>();
 		try {
 			String sql = "SELECT symptom_id FROM Episode_Symptom WHERE episode_id LIKE ?";
