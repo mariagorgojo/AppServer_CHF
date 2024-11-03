@@ -115,12 +115,12 @@ public class ConnectionManager {
 
         
 
-        String table_Episodes = "CREATE TABLE Episodes ("
+        String table_Episode = "CREATE TABLE Episode ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + "patient_id INTEGER,"
                 + "date DATE NOT NULL,"                
                 + "FOREIGN KEY (patient_id) REFERENCES Patient(id) ON DELETE SET NULL);";
-        s.executeUpdate(table_Episodes);
+        s.executeUpdate(table_Episode);
         
         String table_Recording = "CREATE TABLE Recording ("
         + "id INTEGER PRIMARY KEY AUTOINCREMENT,"

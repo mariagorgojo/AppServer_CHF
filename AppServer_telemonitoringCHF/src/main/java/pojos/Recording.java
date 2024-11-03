@@ -48,8 +48,12 @@ public class Recording {
     public Recording(Integer id) {
         this.id = id;
     }
+
+    public Recording(Integer id, Type recordingType, Integer duration, LocalDate date, String signal_path, Integer data, Integer episode_id) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
     
-    
+    //Ese constructor hay que borrarlo si data es un ArrayList<Integer> 
     
     
     public Integer getId() {

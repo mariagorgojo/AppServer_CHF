@@ -15,7 +15,7 @@ import pojos.Recording.Type;
 public interface RecordingManager {
         public void insertRecording(Recording recording);
     	public ArrayList<Recording> getRecordingsByEpisode(int episode_id);
-        public ArrayList<Recording> getRecordingsByType(int episode_id, Type type); 
+        public ArrayList<Recording> getRecordingsByType(Type type, int episode_id); 
         public Recording getRecordingById(int recording_id); 
 }
 

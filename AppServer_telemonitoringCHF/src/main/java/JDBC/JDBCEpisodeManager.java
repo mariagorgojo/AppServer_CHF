@@ -4,27 +4,27 @@
  */
 package JDBC;
 
-import ifaces.EpisodesManager;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import pojos.Episodes;
+import pojos.Episode;
+import ifaces.EpisodeManager;
 
 
-public class JDBCEpisodesManager implements EpisodesManager {
+public class JDBCEpisodeManager implements EpisodeManager {
 
 
     private Connection c;
 
-    public JDBCEpisodesManager(Connection c) {
+    public JDBCEpisodeManager(Connection c) {
         this.c = c;
     }
 
     @Override
-    public void insertEpisode(Episodes episode) {
+    public void insertEpisode(Episode episode) {
         try {
             String sql = "INSERT INTO Episodes (patient_id, date) VALUES (?, ?)";
             PreparedStatement prep = c.prepareStatement(sql);
@@ -39,15 +39,15 @@ public class JDBCEpisodesManager implements EpisodesManager {
     }
 
     @Override
-    public ArrayList<Episodes> getEpisodesByPatient(int patient_id) {
-        ArrayList<Episodes> episodesList = new ArrayList<>();
+    public ArrayList<Episode> getEpisodesByPatient(int patient_id) {
+        ArrayList<Episode> episodesList = new ArrayList<>();
         try {
             String sql = "SELECT * FROM Episodes WHERE patient_id = ?";
             PreparedStatement prep = c.prepareStatement(sql);
             prep.setInt(1, patient_id);
             ResultSet rs = prep.executeQuery();
             while (rs.next()) {
-                Episodes episode = new Episodes(
+                Episode episode = new Episode(
                     rs.getInt("id"),
                     LocalDate.parse(rs.getString("date")),
                     rs.getInt("patient_id")
@@ -64,8 +64,8 @@ public class JDBCEpisodesManager implements EpisodesManager {
     }
 
     @Override
-    public ArrayList<Episodes> getEpisodesByDate(int patient_id, LocalDate date) {
-        ArrayList<Episodes> episodesList = new ArrayList<>();
+    public ArrayList<Episode> getEpisodesByDate(int patient_id, LocalDate date) {
+        ArrayList<Episode> episodesList = new ArrayList<>();
         try {
             String sql = "SELECT * FROM Episodes WHERE patient_id = ? AND date = ?";
             PreparedStatement prep = c.prepareStatement(sql);
@@ -73,7 +73,7 @@ public class JDBCEpisodesManager implements EpisodesManager {
             prep.setString(2, date.toString());
             ResultSet rs = prep.executeQuery();
             while (rs.next()) {
-                Episodes episode = new Episodes(
+                Episode episode = new Episode(
                     rs.getInt("id"),
                     LocalDate.parse(rs.getString("date")),
                     rs.getInt("patient_id")
@@ -90,8 +90,8 @@ public class JDBCEpisodesManager implements EpisodesManager {
     }
 
     @Override
-    public Episodes getEpisodeById(int patient_id, int episode_id) {
-        Episodes episode = null;
+    public Episode getEpisodeById(int patient_id, int episode_id) {
+        Episode episode = null;
         try {
             String sql = "SELECT * FROM Episodes WHERE patient_id = ? AND id = ?";
             PreparedStatement prep = c.prepareStatement(sql);
@@ -99,7 +99,7 @@ public class JDBCEpisodesManager implements EpisodesManager {
             prep.setInt(2, episode_id);
             ResultSet rs = prep.executeQuery();
             if (rs.next()) {
-                episode = new Episodes(
+                episode = new Episode(
                     rs.getInt("id"),
                     LocalDate.parse(rs.getString("date")),
                     rs.getInt("patient_id")
