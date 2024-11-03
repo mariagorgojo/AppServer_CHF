@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
+             version="2.0">
+
+    <!-- Define la unidad de persistencia -->
+    <persistence-unit name="AppServer_telemonitoringCHF-provider" transaction-type="RESOURCE_LOCAL">
+        
+        <!-- Proveedor de JPA (EclipseLink) -->
+        <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+
+        <!-- Clases de entidad -->
+        <class>pojos.User</class>
+        <class>pojos.Role</class>
+        
+        <properties>    
+            <!-- Configuración de conexión JDBC para SQLite -->
+            <property name="javax.persistence.jdbc.driver" value="org.sqlite.JDBC" />
+            <property name="javax.persistence.jdbc.url" value="jdbc:sqlite:./db/mi_base_de_datos.db" />
+            <property name="javax.persistence.jdbc.user" value="" />
+            <property name="javax.persistence.jdbc.password" value="" />
+
+            <!-- Configuración de EclipseLink -->
+            <property name="eclipselink.logging.level" value="INFO" />
+            <property name="eclipselink.ddl-generation" value="create-tables" />
+        </properties>
+    </persistence-unit>
+</persistence>

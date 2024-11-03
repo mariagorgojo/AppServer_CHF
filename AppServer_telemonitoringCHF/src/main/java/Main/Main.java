@@ -4,6 +4,14 @@
  */
 package Main;
 
+import JDBC.ConnectionManager;
+import JDBC.JDBCDiseaseManager;
+import JDBC.JDBCDoctorManager;
+import JDBC.JDBCEpisodeManager;
+import JDBC.JDBCPatientManager;
+import JDBC.JDBCRecordingManager;
+import JDBC.JDBCSurgeryManager;
+import JDBC.JDBCSymptomManager;
 import ifaces.*;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -30,7 +38,7 @@ public class Main {
 		doctorMan = new JDBCDoctorManager(conMan.getConnection());
 		patientMan = new JDBCPatientManager(conMan.getConnection());
 		episodeMan = new JDBCEpisodeManager(conMan.getConnection());
-		RecordingMan = new JDBCRecordingManager(conMan.getConnection());
+		recordingMan = new JDBCRecordingManager(conMan.getConnection());
 		surgeryMan = new JDBCSurgeryManager(conMan.getConnection());
                 diseaseMan = new JDBCDiseaseManager(conMan.getConnection());
 		symptomMan = new JDBCSymptomManager(conMan.getConnection());

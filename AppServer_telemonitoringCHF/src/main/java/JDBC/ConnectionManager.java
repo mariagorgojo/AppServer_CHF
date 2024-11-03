@@ -4,6 +4,7 @@
  */
 package JDBC;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -19,6 +20,12 @@ public class ConnectionManager {
 
     public ConnectionManager() {
         try {
+            // Verificar si el directorio 'db' existe y crearlo si no
+            File dbDir = new File("./db");
+            if (!dbDir.exists()) {
+                dbDir.mkdirs(); // Crea el directorio 'db' si no existe
+            }
+
             Class.forName("org.sqlite.JDBC");
             c = DriverManager.getConnection("jdbc:sqlite:./db/telemedicine.db");
             c.createStatement().execute("PRAGMA foreign_keys=ON");
@@ -54,10 +61,10 @@ public class ConnectionManager {
                     + " name TEXT NOT NULL,"
                     + " surname TEXT NOT NULL,"
                     + " email TEXT NOT NULL,"
-                    + " phone INTEGER NUT NULL);";
+                    + " phone INTEGER NOT NULL);";
 
             s.executeUpdate(table_Doctor);
-
+            
             String table_Patient = "CREATE TABLE Patient ("
                     + " id INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + " dni TEXT NOT NULL,"
@@ -72,7 +79,14 @@ public class ConnectionManager {
                     + " FOREIGN KEY (doctor_id) REFERENCES Doctor(id) ON DELETE SET NULL,"
                     + " FOREIGN KEY (episodes_id) REFERENCES Episodes(id) ON DELETE SET NULL);";
             s.executeUpdate(table_Patient);
-
+                    
+            String table_Episode = "CREATE TABLE Episode ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "patient_id INTEGER,"
+                + "date DATE NOT NULL,"                
+                + "FOREIGN KEY (patient_id) REFERENCES Patient(id) ON DELETE SET NULL);";
+            s.executeUpdate(table_Episode);
+        
             String table_Surgery = "CREATE TABLE Surgery ("
                     + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + "surgery TEXT NOT NULL);";
@@ -100,7 +114,7 @@ public class ConnectionManager {
                     + "episode_id INTEGER,"
                     + "symptom_id INTEGER,"
                     + "FOREIGN KEY (episode_id) REFERENCES Episode(id) ON DELETE SET NULL,"
-                    + "FOREIGN KEY (symptom_id) REFERENCES Symptom(id) ON DELETE SET NULL),"
+                    + "FOREIGN KEY (symptom_id) REFERENCES Symptom(id) ON DELETE SET NULL,"
                     + "PRIMARY KEY (episode_id, symptom_id));";
             s.executeUpdate(table_Episode_Symptom);
 
@@ -111,25 +125,16 @@ public class ConnectionManager {
                     + "FOREIGN KEY (disease_id) REFERENCES Disease(id) ON DELETE SET NULL,"
                     + "PRIMARY KEY (episode_id, disease_id));";
             s.executeUpdate(table_Episode_Disease);
-            s.close();
-
+            s.close();    
         
-
-        String table_Episode = "CREATE TABLE Episode ("
+            String table_Recording = "CREATE TABLE Recording ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + "patient_id INTEGER,"
-                + "date DATE NOT NULL,"                
-                + "FOREIGN KEY (patient_id) REFERENCES Patient(id) ON DELETE SET NULL);";
-        s.executeUpdate(table_Episode);
-        
-        String table_Recording = "CREATE TABLE Recording ("
-        + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-        + "episode_id INTEGER,"
-        + "date DATE NOT NULL,"
-        + "duration INTEGER NOT NULL,"
-        + "filepath TEXT NOT NULL"               
-        + "FOREIGN KEY (episode_id) REFERENCES Episode(id) ON DELETE CASCADE);";
-        s.executeUpdate(table_Recording);
+                + "episode_id INTEGER,"
+                + "date DATE NOT NULL,"
+                + "duration INTEGER NOT NULL,"
+                + "filepath TEXT NOT NULL,"               
+                + "FOREIGN KEY (episode_id) REFERENCES Episode(id) ON DELETE CASCADE);";
+            s.executeUpdate(table_Recording);
     
         
         } catch (SQLException e) {
