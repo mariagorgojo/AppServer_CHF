@@ -52,98 +52,111 @@ public class ConnectionManager {
     }
 
     private void createTables() {
-        try {
-            Statement s = c.createStatement();
+        
+    try (Statement s = c.createStatement()) {
 
-            String table_Doctor = "CREATE TABLE Doctor ("
-                    + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                    + " dni TEXT NOT NULL,"
-                    + " name TEXT NOT NULL,"
-                    + " surname TEXT NOT NULL,"
-                    + " email TEXT NOT NULL,"
-                    + " phone INTEGER NOT NULL);";
+        // Tabla Doctor (sin dependencias)
+        String table_Doctor = "CREATE TABLE IF NOT EXISTS Doctor ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "dni TEXT NOT NULL,"
+                + "name TEXT NOT NULL,"
+                + "surname TEXT NOT NULL,"
+                + "email TEXT NOT NULL,"
+                + "phone INTEGER NOT NULL);";
+        s.executeUpdate(table_Doctor);
+        System.out.println("Table Doctor created.");
 
-            s.executeUpdate(table_Doctor);
-            
-            String table_Patient = "CREATE TABLE Patient ("
-                    + " id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                    + " dni TEXT NOT NULL,"
-                    + " name TEXT NOT NULL,"
-                    + " surname TEXT NOT NULL,"
-                    + " dob DATE NOT NULL,"
-                    + " email TEXT NOT NULL,"
-                    + " phone INTEGER NOT NULL,"
-                    + " gender TEXT NOT NULL,"
-                    + " doctor_id INTEGER,"
-                    + "episodes_id INTEGER,"
-                    + " FOREIGN KEY (doctor_id) REFERENCES Doctor(id) ON DELETE SET NULL,"
-                    + " FOREIGN KEY (episodes_id) REFERENCES Episodes(id) ON DELETE SET NULL);";
-            s.executeUpdate(table_Patient);
-                    
-            String table_Episode = "CREATE TABLE Episode ("
+        // Tabla Patient (depende de Doctor)
+        String table_Patient = "CREATE TABLE IF NOT EXISTS Patient ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "dni TEXT NOT NULL,"
+                + "name TEXT NOT NULL,"
+                + "surname TEXT NOT NULL,"
+                + "dob DATE NOT NULL,"
+                + "email TEXT NOT NULL,"
+                + "phone INTEGER NOT NULL,"
+                + "gender TEXT NOT NULL,"
+                + "doctor_id INTEGER,"
+                + "episodes_id INTEGER,"
+                + "FOREIGN KEY (doctor_id) REFERENCES Doctor(id) ON DELETE SET NULL);";
+        s.executeUpdate(table_Patient);
+        System.out.println("Table Patient created.");
+
+        // Tabla Surgery (sin dependencias)
+        String table_Surgery = "CREATE TABLE IF NOT EXISTS Surgery ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "surgery TEXT NOT NULL);";
+        s.executeUpdate(table_Surgery);
+        System.out.println("Table Surgery created.");
+
+        // Tabla Symptom (sin dependencias)
+        String table_Symptom = "CREATE TABLE IF NOT EXISTS Symptom ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "symptom TEXT NOT NULL);";
+        s.executeUpdate(table_Symptom);
+        System.out.println("Table Symptom created.");
+
+        // Tabla Disease (sin dependencias)
+        String table_Disease = "CREATE TABLE IF NOT EXISTS Disease ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "disease TEXT NOT NULL);";
+        s.executeUpdate(table_Disease);
+        System.out.println("Table Disease created.");
+
+        // Tabla Episode (depende de Patient)
+        String table_Episode = "CREATE TABLE IF NOT EXISTS Episode ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + "patient_id INTEGER,"
                 + "date DATE NOT NULL,"                
                 + "FOREIGN KEY (patient_id) REFERENCES Patient(id) ON DELETE SET NULL);";
-            s.executeUpdate(table_Episode);
-        
-            String table_Surgery = "CREATE TABLE Surgery ("
-                    + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                    + "surgery TEXT NOT NULL);";
-            s.executeUpdate(table_Surgery);
+        s.executeUpdate(table_Episode);
+        System.out.println("Table Episode created.");
 
-            String table_Symptom = "CREATE TABLE Symptom ("
-                    + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                    + "symptom TEXT NOT NULL);";
-            s.executeUpdate(table_Symptom);
+        // Tabla Episode_Surgery (depende de Episode y Surgery)
+        String table_Episode_Surgery = "CREATE TABLE IF NOT EXISTS Episode_Surgery ("
+                + "episode_id INTEGER,"
+                + "surgery_id INTEGER,"
+                + "FOREIGN KEY (episode_id) REFERENCES Episode(id) ON DELETE SET NULL,"
+                + "FOREIGN KEY (surgery_id) REFERENCES Surgery(id) ON DELETE SET NULL,"
+                + "PRIMARY KEY (episode_id, surgery_id));";
+        s.executeUpdate(table_Episode_Surgery);
+        System.out.println("Table Episode_Surgery created.");
 
-            String table_Disease = "CREATE TABLE Disease ("
-                    + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                    + "disease TEXT NOT NULL);";
-            s.executeUpdate(table_Disease);
+        // Tabla Episode_Symptom (depende de Episode y Symptom)
+        String table_Episode_Symptom = "CREATE TABLE IF NOT EXISTS Episode_Symptom ("
+                + "episode_id INTEGER,"
+                + "symptom_id INTEGER,"
+                + "FOREIGN KEY (episode_id) REFERENCES Episode(id) ON DELETE SET NULL,"
+                + "FOREIGN KEY (symptom_id) REFERENCES Symptom(id) ON DELETE SET NULL,"
+                + "PRIMARY KEY (episode_id, symptom_id));";
+        s.executeUpdate(table_Episode_Symptom);
+        System.out.println("Table Episode_Symptom created.");
 
-            String table_Episode_Surgery = "CREATE TABLE Episode_Surgery ("
-                    + "episode_id INTEGER,"
-                    + "surgery_id INTEGER,"
-                    + "FOREIGN KEY (episode_id) REFERENCES Episode(id) ON DELETE SET NULL,"
-                    + "FOREIGN KEY (surgery_id) REFERENCES Surgery(id) ON DELETE SET NULL,"
-                    + "PRIMARY KEY (episode_id, surgery_id));";
-            s.executeUpdate(table_Episode_Surgery);
+        // Tabla Episode_Disease (depende de Episode y Disease)
+        String table_Episode_Disease = "CREATE TABLE IF NOT EXISTS Episode_Disease ("
+                + "episode_id INTEGER,"
+                + "disease_id INTEGER,"
+                + "FOREIGN KEY (episode_id) REFERENCES Episode(id) ON DELETE SET NULL,"
+                + "FOREIGN KEY (disease_id) REFERENCES Disease(id) ON DELETE SET NULL,"
+                + "PRIMARY KEY (episode_id, disease_id));";
+        s.executeUpdate(table_Episode_Disease);
+        System.out.println("Table Episode_Disease created.");
 
-            String table_Episode_Symptom = "CREATE TABLE Episode_Symptom ("
-                    + "episode_id INTEGER,"
-                    + "symptom_id INTEGER,"
-                    + "FOREIGN KEY (episode_id) REFERENCES Episode(id) ON DELETE SET NULL,"
-                    + "FOREIGN KEY (symptom_id) REFERENCES Symptom(id) ON DELETE SET NULL,"
-                    + "PRIMARY KEY (episode_id, symptom_id));";
-            s.executeUpdate(table_Episode_Symptom);
-
-            String table_Episode_Disease = "CREATE TABLE Episode_Disease ("
-                    + "episode_id INTEGER,"
-                    + "disease_id INTEGER,"
-                    + "FOREIGN KEY (episode_id) REFERENCES Episode(id) ON DELETE SET NULL,"
-                    + "FOREIGN KEY (disease_id) REFERENCES Disease(id) ON DELETE SET NULL,"
-                    + "PRIMARY KEY (episode_id, disease_id));";
-            s.executeUpdate(table_Episode_Disease);
-            s.close();    
-        
-            String table_Recording = "CREATE TABLE Recording ("
+        // Tabla Recording (depende de Episode)
+        String table_Recording = "CREATE TABLE IF NOT EXISTS Recording ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + "episode_id INTEGER,"
                 + "date DATE NOT NULL,"
                 + "duration INTEGER NOT NULL,"
-                + "filepath TEXT NOT NULL,"               
+                + "filepath TEXT NOT NULL, "               
                 + "FOREIGN KEY (episode_id) REFERENCES Episode(id) ON DELETE CASCADE);";
-            s.executeUpdate(table_Recording);
-    
-        
-        } catch (SQLException e) {
-            if (e.getMessage().contains("already exist")) {
-                return;
-            }
-            System.out.println("Database error.");
-            e.printStackTrace();
-        }
+        s.executeUpdate(table_Recording);
+        System.out.println("Table Recording created.");
+
+    } catch (SQLException e) {
+        System.out.println("Database error.");
+        e.printStackTrace();
     }
+}
     
 }
