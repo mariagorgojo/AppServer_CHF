@@ -70,7 +70,7 @@ public class JDBCPatientManager implements PatientManager{
         return patients;    }
 
     @Override
-    public Patient getPatient(int p_id) {
+    public Patient getPatientById(int p_id) {
     Patient patient = null;
         try {
             String sql = "SELECT * FROM Patient WHERE id = ?";
