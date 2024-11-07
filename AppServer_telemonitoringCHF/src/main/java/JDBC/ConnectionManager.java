@@ -143,7 +143,7 @@ public class ConnectionManager {
         System.out.println("Table Episode_Disease created.");
 
         // Tabla Recording (depende de Episode)
-        String table_Recording = "CREATE TABLE Recording ("
+        String table_Recording = "CREATE TABLE IF NOT EXISTS Recording ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + "episode_id INTEGER,"
                 + "date DATE NOT NULL,"
