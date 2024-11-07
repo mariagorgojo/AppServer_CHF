@@ -42,6 +42,7 @@ public class Main {
 		surgeryMan = new JDBCSurgeryManager(conMan.getConnection());
                 diseaseMan = new JDBCDiseaseManager(conMan.getConnection());
 		symptomMan = new JDBCSymptomManager(conMan.getConnection());
+                
         }
         
 }
