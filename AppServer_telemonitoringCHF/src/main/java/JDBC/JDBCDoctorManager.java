@@ -42,13 +42,13 @@ public class JDBCDoctorManager implements DoctorManager{
         }
     }
 
-    @Override
-    public Doctor getDoctor(String d_id) {
+    /*@Override
+    public Doctor getDoctorByDNI(String dni) {
         Doctor doctor = null;
         try {
             String sql = "SELECT * FROM Doctor WHERE dni = ?";
             PreparedStatement prep = c.prepareStatement(sql);
-            prep.setString(1, d_id);
+            prep.setString(1, dni);
             ResultSet rs = prep.executeQuery();
             if (rs.next()) {
                 doctor = new Doctor(rs.getInt("id"));
@@ -65,7 +65,7 @@ public class JDBCDoctorManager implements DoctorManager{
             e.printStackTrace();
         }
         return doctor;
-    }
+    }*/
 
     @Override
     public Doctor getDoctorByEmail(String email) {
