@@ -27,12 +27,11 @@ public class JDBCSurgeryManager implements SurgeryManager {
 
 	}
         @Override
-	public void insertSurgery(Surgery surgery) {
+	public void insertSurgery(String surgery) {
 
 		try {
 			Statement s = c.createStatement();
-			String sql = "INSERT INTO Surgery (id, surgery) VALUES ('" + surgery.getId() + "', '"
-					+ surgery.getSurgery()+"')";
+			String sql = "INSERT OR IGNORE INTO Surgery (surgery) VALUES ('"+ surgery +"')";
 			s.executeUpdate(sql);
 			s.close();
 		} catch (SQLException e) {

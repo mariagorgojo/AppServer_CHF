@@ -28,12 +28,11 @@ public class JDBCDiseaseManager implements DiseaseManager{
 
 	}
         @Override
-	public void insertDisease(Disease disease) {
+	public void insertDisease(String disease) {
 
 		try {
 			Statement s = c.createStatement();
-			String sql = "INSERT INTO Disease (id, disease) VALUES ('" + disease.getId() + "', '"
-					+ disease.getDisease()+"')";
+			String sql = "INSERT OR IGNORE INTO Disease (disease) VALUES ('"+ disease +"')";
 			s.executeUpdate(sql);
 			s.close();
 		} catch (SQLException e) {

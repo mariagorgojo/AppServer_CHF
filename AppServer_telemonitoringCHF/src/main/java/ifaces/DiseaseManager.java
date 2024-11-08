@@ -12,7 +12,7 @@ import pojos.Disease;
  * @author carmengarciaprieto
  */
 public interface DiseaseManager {
-            public void insertDisease(Disease disease);
+            public void insertDisease(String disease);
             public ArrayList<Disease> getDiseasesByEpisode(int episode_id);
             public ArrayList<Disease> getDiseasesByPatient(int patient_id);
             public String getDiseaseById(int disease_id);

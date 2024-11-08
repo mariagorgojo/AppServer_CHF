@@ -28,12 +28,11 @@ public class JDBCSymptomManager implements SymptomManager{
 
 	}
         @Override
-	public void insertSymptom(Symptom symptom) {
+	public void insertSymptom(String symptom) {
 
 		try {
 			Statement s = c.createStatement();
-			String sql = "INSERT INTO Symptom (id, symptom) VALUES ('" + symptom.getId() + "', '"
-					+ symptom.getSymptom()+"')";
+			String sql = "INSERT OR IGNORE INTO Surgery (surgery) VALUES ('"+ symptom +"')";
 			s.executeUpdate(sql);
 			s.close();
 		} catch (SQLException e) {

@@ -12,7 +12,7 @@ import pojos.Symptom;
  * @author carmengarciaprieto
  */
 public interface SymptomManager {
-            public void insertSymptom(Symptom symptom);
+            public void insertSymptom(String symptom);
             public ArrayList<Symptom> getSymptomsByEpisode(int episode_id);
             public ArrayList<Symptom> getSymptomsByPatient(int patient_id);
             public String getSymptomById(int symptom_id);
