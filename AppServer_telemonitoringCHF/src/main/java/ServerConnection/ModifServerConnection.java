@@ -46,7 +46,7 @@ public class ModifServerConnection {
 
             String line;
             while ((line = bufferedReader.readLine()) != null) {
-                if (line.equals("STOP")) {
+                if (line.equals("STOP")) { // REMEMBER: MANDAR STOP SIEMPRE 
                     System.out.println("Stopping the server");
                     releaseResources(bufferedReader, printWriter, socket, serverSocket);
                     System.exit(0);
@@ -73,11 +73,20 @@ public class ModifServerConnection {
         Integer telephone = Integer.parseInt(bufferedReader.readLine());
         String email = bufferedReader.readLine();
 
-        Doctor doctor = new Doctor(dni, name, surname, telephone, email);
-        doctorDatabase.put(dni, doctor);
-        System.out.println("Doctor registered: " + doctor);
         
-        printWriter.println("Doctor registered successfully.");
+        Doctor doctorFromDatabase = doctorDatabase.get(dni); // Carmen modificar. 
+
+        // Comprobación de si el DNI ya está registrado
+        if (doctorFromDatabase != null && doctorFromDatabase.getDni().equals(dni)) {
+            printWriter.println("INVALID"); // Mensaje de error si el DNI ya está registrado
+           // System.out.println("DNI: " + dni + " already registered. Try to login.);
+        } else {
+            Doctor doctor = new Doctor(dni, name, surname, telephone, email);
+            doctorDatabase.put(dni, doctor); // Carmen modificar
+            printWriter.println("VALID"); // Mensaje de confirmación de registro exitoso
+            System.out.println("Doctor registered on db: " + doctor);
+        }
+
     }
 
     private static void handlePatientRegister(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
@@ -95,21 +104,29 @@ public class ModifServerConnection {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         LocalDate dateOfBirth = LocalDate.parse(dateOfBirthInput, formatter);
 
-        Patient patient = new Patient(dni, name, surname, email, gender, telephone, dateOfBirth);
-        patientDatabase.put(dni, patient);
-        System.out.println("Patient registered: " + patient);
+        
+         Patient patientFromDatabase = patientDatabase.get(dni); // Carmen modificar. 
 
-        printWriter.println("VALID");
+        // Comprobación de si el DNI ya está registrado
+        if (patientFromDatabase != null && patientFromDatabase.getDni().equals(dni)) {
+            printWriter.println("INVALID"); // Mensaje de error si el DNI ya está registrado
+        } else {
+            Patient patient = new Patient(dni, name, surname, email, gender, telephone, dateOfBirth);
+            patientDatabase.put(dni, patient); // Carmen modificar
+            printWriter.println("VALID"); // Mensaje de confirmación de registro exitoso
+            System.out.println("Doctor registered on db: " + patient);
+        }
     }
 
     private static void handleDoctorLogin(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
         String dni = bufferedReader.readLine();
-        String password = bufferedReader.readLine(); // Encrypted in real scenarios
+        String password = bufferedReader.readLine(); // Encrypte + adelante
+        
+        // CARMEN MODIFICAR PARA QUE: VALID SI ESTÁ REGISTRADO, SI ES DOCTOR Y SI COINCIDE LA PASSWORD CON EL DNI !!
 
-        Doctor doctor = doctorDatabase.get(dni);
-        if (doctor != null && doctor.getDni().equals(dni)) {
-            printWriter.println("VALID");
-            System.out.println("Login successful for doctor: " + doctor.getName());
+        Doctor doctor = doctorDatabase.get(dni); // Carmen modificar
+        if (doctor != null && doctor.getDni().equals(dni)) { // AÑADIR LAS VERIFICACIONES MEMCIONADAS
+            printWriter.println("VALID"); 
         } else {
             printWriter.println("INVALID");
             System.out.println("Invalid login attempt for doctor DNI: " + dni);
@@ -118,9 +135,10 @@ public class ModifServerConnection {
 
     private static void handlePatientLogin(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
         String dni = bufferedReader.readLine();
-        String password = bufferedReader.readLine(); // Encrypted in real scenarios
+        String password = bufferedReader.readLine(); // Encrypte + ADELANTE
 
-        Patient patient = patientDatabase.get(dni);
+        // CARMEN MODIFICAR PARA QUE: VALID SI ESTÁ REGISTRADO, SI ES DOCTOR Y SI COINCIDE LA PASSWORD CON EL DNI !!
+        Patient patient = patientDatabase.get(dni); // Carmen modificar.
         if (patient != null && patient.getDni().equals(dni)) {
             printWriter.println("VALID");
             System.out.println("Login successful for patient: " + patient.getName());
