@@ -29,8 +29,9 @@ import pojos.Patient.Gender;
 
 
 public class ModifServerConnection {
-
-    private static final Map<String, Doctor> doctorDatabase = new HashMap<>();
+    
+     // carmen modificar : bd ficcticia para q no me diera error
+    private static final Map<String, Doctor> doctorDatabase = new HashMap<>(); // carmen modificar 
     private static final Map<String, Patient> patientDatabase = new HashMap<>();
 
     public static void main(String args[]) throws IOException {
@@ -46,10 +47,13 @@ public class ModifServerConnection {
 
             String line;
             while ((line = bufferedReader.readLine()) != null) {
-                if (line.equals("STOP")) { // REMEMBER: MANDAR STOP SIEMPRE 
+                if (line.equals("STOP")) { // REMEMBER: MANDAR STOP SIEMPRE , CHECK CREO Q TDO OKAY??
                     System.out.println("Stopping the server");
                     releaseResources(bufferedReader, printWriter, socket, serverSocket);
-                    System.exit(0);
+                    // NS SI ES CORRECTO, XQ EN EL LOGIN MANDA STOP TB Y NO QUIRO CERRAR
+                    // CD haya + de 1 cliente ns si es correcto ponerlo asi -> cierra todos??
+                    System.exit(0);  // VOLVER: ns si cierra el socket entero para los demas clientes ??
+                    
                 }
 
                 if (line.equals("REGISTER_DOCTOR")) {
@@ -66,20 +70,19 @@ public class ModifServerConnection {
     }
 
     private static void handleDoctorRegister(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
+        
         String dni = bufferedReader.readLine();
-        String password = bufferedReader.readLine(); // Password received securely
+        String password = bufferedReader.readLine(); // Encript ...+ adelante
         String name = bufferedReader.readLine();
         String surname = bufferedReader.readLine();
         Integer telephone = Integer.parseInt(bufferedReader.readLine());
         String email = bufferedReader.readLine();
 
-        
         Doctor doctorFromDatabase = doctorDatabase.get(dni); // Carmen modificar. 
 
         // Comprobación de si el DNI ya está registrado
-        if (doctorFromDatabase != null && doctorFromDatabase.getDni().equals(dni)) {
-            printWriter.println("INVALID"); // Mensaje de error si el DNI ya está registrado
-           // System.out.println("DNI: " + dni + " already registered. Try to login.);
+        if (doctorFromDatabase != null && doctorFromDatabase.getDni().equals(dni)) { 
+            printWriter.println("INVALID"); // Enviar mensaje de error si el DNI ya está registrado
         } else {
             Doctor doctor = new Doctor(dni, name, surname, telephone, email);
             doctorDatabase.put(dni, doctor); // Carmen modificar
