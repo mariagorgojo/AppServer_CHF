@@ -13,7 +13,7 @@ import pojos.Patient;
 public interface DoctorManager {
     
     public void insertDoctor(Doctor doctor); 
-    //public Doctor getDoctor(String d_id);
+    public Doctor getDoctorByDNI(String d_id);
     public Doctor getDoctorByEmail(String email);
     public int countNumberOfDoctors();
     public Doctor getDoctorById(int id);

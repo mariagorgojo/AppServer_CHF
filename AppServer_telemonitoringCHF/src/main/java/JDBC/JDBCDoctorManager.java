@@ -24,6 +24,8 @@ public class JDBCDoctorManager implements DoctorManager{
 		this.c = c;
 
 	}
+
+        
 	@Override
     public void insertDoctor(Doctor doctor) {
         try {
@@ -42,7 +44,7 @@ public class JDBCDoctorManager implements DoctorManager{
         }
     }
 
-    /*@Override
+    @Override
     public Doctor getDoctorByDNI(String dni) {
         Doctor doctor = null;
         try {
@@ -65,7 +67,7 @@ public class JDBCDoctorManager implements DoctorManager{
             e.printStackTrace();
         }
         return doctor;
-    }*/
+    }
 
     @Override
     public Doctor getDoctorByEmail(String email) {
