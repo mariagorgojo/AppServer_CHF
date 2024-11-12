@@ -176,6 +176,35 @@ Patient patient = null;
         }
         return patient;
     }
+    
+    
+    @Override
+    public Patient getPatientByDNI(String dni) {
+        Patient patient = null;
+        try {
+            String sql = "SELECT * FROM Doctor WHERE dni = ?";
+            PreparedStatement prep = c.prepareStatement(sql);
+            prep.setString(1, dni);
+            ResultSet rs = prep.executeQuery();
+            if (rs.next()) {
+                patient = new Patient(rs.getInt("id"));
+                patient.setDni(rs.getString("dni"));
+                patient.setName(rs.getString("name"));
+                patient.setSurname(rs.getString("surname"));
+                patient.setEmail(rs.getString("email"));
+                patient.setGender(Gender.valueOf(rs.getString("gender")));
+                patient.setPhoneNumber(rs.getInt("phone"));
+                patient.setDob(rs.getObject("dob", java.time.LocalDate.class));
+           
+            }
+            rs.close();
+            prep.close();
+        } catch (SQLException e) {
+            System.out.println("Error getting doctor by DNI.");
+            e.printStackTrace();
+        }
+        return patient;
+    }
  
     
 }

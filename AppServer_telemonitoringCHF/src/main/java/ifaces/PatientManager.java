@@ -19,4 +19,5 @@ public interface PatientManager {
     public ArrayList<Patient> searchPatientByName(String name);
     public Patient getPatientByEmail(String email); 
     public Patient getPatientByPhone(Integer phone);
+    public Patient getPatientByDNI(String dni);
 }

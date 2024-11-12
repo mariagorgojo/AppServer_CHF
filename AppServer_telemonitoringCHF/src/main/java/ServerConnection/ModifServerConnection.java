@@ -50,8 +50,7 @@ public class ModifServerConnection {
         while (true) {
             Socket socket = serverSocket.accept();
             System.out.println("Client connected");
-            
-            
+
             // Maria 
             // Inicializar el ConnectionManager para la base de datos
             dataBaseManager = new ConnectionManager();
@@ -67,17 +66,20 @@ public class ModifServerConnection {
                     releaseResources(bufferedReader, printWriter, socket, serverSocket);
                     // NS SI ES CORRECTO, XQ EN EL LOGIN MANDA STOP TB Y NO QUIRO CERRAR
                     // CD haya + de 1 cliente ns si es correcto ponerlo asi -> cierra todos??
-                    System.exit(0);  // VOLVER: ns si cierra el socket entero para los demas clientes ??
+                    
+                    // CAMBIAR
+                    //System.exit(0);  // VOLVER: ns si cierra el socket entero para los demas clientes ??
 
                 }
 
                 if (line.equals("REGISTER_DOCTOR")) {
-                    handleDoctorRegister(bufferedReader, printWriter);/*
+                    handleDoctorRegister(bufferedReader, printWriter);
                 } else if (line.equals("REGISTER_PATIENT")) {
+                    // FALTA SABER QUE HACER CON EL DOCTOR DEL INSERT PATIENT
                     handlePatientRegister(bufferedReader, printWriter);
                 } else if (line.equals("LOGIN_DOCTOR")) {
-                    handleDoctorLogin(bufferedReader, printWriter);
-                } else if (line.equals("LOGIN_PATIENT")) {
+                    handleDoctorLogin(bufferedReader, printWriter);/*
+                } else if (line.equals("LOGIN_PATIENT")) 
                     handlePatientLogin(bufferedReader, printWriter);*/
                 }
             }
@@ -86,8 +88,8 @@ public class ModifServerConnection {
 
     private static void handleDoctorRegister(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
         // manager + the conncection with the database
-        JDBCDoctorManager doctorManager = new JDBCDoctorManager(connection); 
-        
+        JDBCDoctorManager doctorManager = new JDBCDoctorManager(connection);
+
         String dni = bufferedReader.readLine();
         String password = bufferedReader.readLine(); // Encript ...+ adelante
         String name = bufferedReader.readLine();
@@ -110,8 +112,9 @@ public class ModifServerConnection {
 
     }
 
-    /*
     private static void handlePatientRegister(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
+        JDBCPatientManager patientManager = new JDBCPatientManager(connection);
+
         String dni = bufferedReader.readLine();
         String password = bufferedReader.readLine(); // Password received securely
         String name = bufferedReader.readLine();
@@ -119,33 +122,38 @@ public class ModifServerConnection {
         Integer telephone = Integer.parseInt(bufferedReader.readLine());
         String email = bufferedReader.readLine();
 
+        // Verificar si el patient ya existe en la base de datos
+        Patient patientFromDatabase =patientManager.getPatientByDNI(dni);
+
         String genderInput = bufferedReader.readLine();
         Gender gender = Gender.valueOf(genderInput.toUpperCase());
 
         String dateOfBirthInput = bufferedReader.readLine();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        LocalDate dateOfBirth = LocalDate.parse(dateOfBirthInput, formatter);
-
-        Patient patientFromDatabase = patientDatabase.get(dni); // Carmen modificar. 
-
+        LocalDate dateOfBirth = LocalDate.parse(dateOfBirthInput, formatter);      
         // Comprobación de si el DNI ya está registrado
         if (patientFromDatabase != null && patientFromDatabase.getDni().equals(dni)) {
             printWriter.println("INVALID"); // Mensaje de error si el DNI ya está registrado
         } else {
             Patient patient = new Patient(dni, name, surname, email, gender, telephone, dateOfBirth);
-            patientDatabase.put(dni, patient); // Carmen modificar
+            // Falta pasarle el doctor por el constructor (mirar JDBC)
+            // EL DOCTOR SE DEBE ASIGNAR DE FORMA ALEATORIA
+            //patientManager.insertPatient(patient);
             printWriter.println("VALID"); // Mensaje de confirmación de registro exitoso
-            System.out.println("Doctor registered on db: " + patient);
+            System.out.println("Patient registered on db: " + patient);
         }
     }
 
     private static void handleDoctorLogin(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
+        JDBCDoctorManager doctorManager = new JDBCDoctorManager(connection);
+
         String dni = bufferedReader.readLine();
         String password = bufferedReader.readLine(); // Encrypte + adelante
 
-        // CARMEN MODIFICAR PARA QUE: VALID SI ESTÁ REGISTRADO, SI ES DOCTOR Y SI COINCIDE LA PASSWORD CON EL DNI !!
-        Doctor doctor = doctorDatabase.get(dni); // Carmen modificar
-        if (doctor != null && doctor.getDni().equals(dni)) { // AÑADIR LAS VERIFICACIONES MEMCIONADAS
+        // FALTA QUE COMPRUEBE TAMBIÉN LA PASSWORD!! Y COMPROBAR SI EL DNI ES DE UN PACIENTE O DEL DOCTOR!!
+        // Verificar si el doctor existe en la base de datos
+        Doctor doctorFromDatabase = doctorManager.getDoctorByDNI(dni);
+        if (doctorFromDatabase != null && doctorFromDatabase.getDni().equals(dni)) { // AÑADIR LAS VERIFICACIONES MEMCIONADAS
             printWriter.println("VALID");
         } else {
             printWriter.println("INVALID");
@@ -153,7 +161,7 @@ public class ModifServerConnection {
         }
     }
 
-    private static void handlePatientLogin(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
+    /*  private static void handlePatientLogin(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
         String dni = bufferedReader.readLine();
         String password = bufferedReader.readLine(); // Encrypte + ADELANTE
 
@@ -167,7 +175,7 @@ public class ModifServerConnection {
             System.out.println("Invalid login attempt for patient DNI: " + dni);
         }
     }
-*/
+     */
     private static void releaseResources(BufferedReader bufferedReader, PrintWriter printWriter, Socket socket, ServerSocket serverSocket) {
         try {
             if (bufferedReader != null) {
