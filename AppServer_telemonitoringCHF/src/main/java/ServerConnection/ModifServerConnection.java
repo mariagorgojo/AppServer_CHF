@@ -27,6 +27,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import pojos.Doctor;
@@ -86,7 +87,7 @@ public class ModifServerConnection {
         }
     }
 
-    private static void handleDoctorRegister(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
+ private static void handleDoctorRegister(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
         // manager + the conncection with the database
         JDBCDoctorManager doctorManager = new JDBCDoctorManager(connection);
 
@@ -114,6 +115,7 @@ public class ModifServerConnection {
 
     private static void handlePatientRegister(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
         JDBCPatientManager patientManager = new JDBCPatientManager(connection);
+        JDBCDoctorManager doctorManager = new JDBCDoctorManager(connection);
 
         String dni = bufferedReader.readLine();
         String password = bufferedReader.readLine(); // Password received securely
@@ -135,13 +137,19 @@ public class ModifServerConnection {
         if (patientFromDatabase != null && patientFromDatabase.getDni().equals(dni)) {
             printWriter.println("INVALID"); // Mensaje de error si el DNI ya está registrado
         } else {
-            Patient patient = new Patient(dni, name, surname, email, gender, telephone, dateOfBirth);
-            // Falta pasarle el doctor por el constructor (mirar JDBC)
-            // EL DOCTOR SE DEBE ASIGNAR DE FORMA ALEATORIA
-            //patientManager.insertPatient(patient);
+            int bound = doctorManager.countNumberOfDoctors();
+            //System.out.println(bound);
+            int doctor_id = generateRandomInt(bound);
+            Doctor doctor = doctorManager.getDoctorById(doctor_id);
+            Patient patient = new Patient(dni, name, surname, email, gender, telephone, dateOfBirth, doctor);
+            patientManager.insertPatient(patient, doctor);
             printWriter.println("VALID"); // Mensaje de confirmación de registro exitoso
             System.out.println("Patient registered on db: " + patient);
         }
+    }
+    public static int generateRandomInt(int bound) {
+	Random random = new Random();
+	return random.nextInt(bound) + 1;
     }
 
     private static void handleDoctorLogin(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {

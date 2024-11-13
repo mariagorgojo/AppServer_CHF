@@ -43,7 +43,19 @@ public class Patient {
         this.dob = dob;
 	episodes = new ArrayList<>();
     }
-    
+    public Patient(String dni, String name, String surname, 
+            String email, Gender gender, Integer phoneNumber, LocalDate dob, 
+            Doctor doctor) {
+        this.dni = dni;
+        this.name = name;
+        this.surname = surname;
+        this.email = email;
+        this.gender = gender;
+        this.phoneNumber = phoneNumber;
+        this.dob = dob;
+        this.doctor = doctor;
+        this.episodes = new ArrayList<>();
+    } 
     
   
 
@@ -72,11 +84,12 @@ public class Patient {
     }
     
 
-    //constructor with everything
-    public Patient(Integer id, String dni, String name, String surname, 
+
+   
+      public Patient(Integer id, String dni, String name, String surname, 
             String email, Gender gender, Integer phoneNumber, LocalDate dob, 
             Doctor doctor, Episode episodes) {
-        this.id = id;
+        this.id = id; 
         this.dni = dni;
         this.name = name;
         this.surname = surname;
@@ -86,8 +99,7 @@ public class Patient {
         this.dob = dob;
         this.doctor = doctor;
         this.episodes = new ArrayList<>();
-    }    
-    
+    } 
     public Integer getId() {
 	return id;
     }
@@ -172,8 +184,6 @@ public class Patient {
     public void setDoctor(Doctor doctor) {
             this.doctor = doctor;
     }
-
-
 
     public ArrayList<Episode> getEpisodes() {
             return episodes;
