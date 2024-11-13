@@ -123,18 +123,19 @@ public class ModifServerConnection {
         String surname = bufferedReader.readLine();
         Integer telephone = Integer.parseInt(bufferedReader.readLine());
         String email = bufferedReader.readLine();
-
-        // Verificar si el patient ya existe en la base de datos
-        Patient patientFromDatabase =patientManager.getPatientByDNI(dni);
-
-        String genderInput = bufferedReader.readLine();
-        Gender gender = Gender.valueOf(genderInput.toUpperCase());
-
         String dateOfBirthInput = bufferedReader.readLine();
+        String genderInput = bufferedReader.readLine();
+        
+        Gender gender = Gender.valueOf(genderInput.toUpperCase());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         LocalDate dateOfBirth = LocalDate.parse(dateOfBirthInput, formatter);      
-        // Comprobación de si el DNI ya está registrado
+                // Verificar si el patient ya existe en la base de datos
+        Patient patientFromDatabase =patientManager.getPatientByDNI(dni);
+
+
+// Comprobación de si el DNI ya está registrado
         if (patientFromDatabase != null && patientFromDatabase.getDni().equals(dni)) {
+            System.out.println("ERROR");
             printWriter.println("INVALID"); // Mensaje de error si el DNI ya está registrado
         } else {
             int bound = doctorManager.countNumberOfDoctors();
