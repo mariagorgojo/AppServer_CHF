@@ -127,7 +127,7 @@ public class ModifServerConnection {
         String genderInput = bufferedReader.readLine();
         
         Gender gender = Gender.valueOf(genderInput.toUpperCase());
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate dateOfBirth = LocalDate.parse(dateOfBirthInput, formatter);      
                 // Verificar si el patient ya existe en la base de datos
         Patient patientFromDatabase =patientManager.getPatientByDNI(dni);
