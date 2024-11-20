@@ -231,10 +231,29 @@ public class ModifServerConnection {
         JDBCPatientManager patientManager = new JDBCPatientManager(connection);
         
         String dni = bufferedReader.readLine();
-        List<Surgery> surgeries = surgeryManager.getSurgeriesByPatient(dni); 
-        List<Symptom> symptom = symptomManager.getSymptomsByPatient(dni);
-        List<Disease> disease = diseaseManager.getDiseasesByPatient(dni);
+        Patient patient = patientManager.getPatientByDNI(dni);
+        printWriter.println("PATIENT_INFO:" + patient.toString());
         
+        List<Surgery> surgeries = surgeryManager.getSurgeriesByPatient(dni); 
+        List<Symptom> symptoms = symptomManager.getSymptomsByPatient(dni);
+        List<Disease> diseases = diseaseManager.getDiseasesByPatient(dni);
+        
+        for (int i = 0; i < surgeries.size(); i++) {           
+            Surgery surgery = surgeries.get(i); 
+            String surgeryData = String.format("%s", surgery.getType());
+            printWriter.println(surgeryData); 
+        }
+        for (int i = 0; i < symptoms.size(); i++) {           
+            Symptom symptom = symptoms.get(i); 
+            String symptomData = String.format("%s", symptom.getType());
+            printWriter.println(symptomData); 
+        }
+        for (int i = 0; i < diseases.size(); i++) {           
+            Disease disease = diseases.get(i); 
+            String diseaseData = String.format("%s", disease.getDisease());
+            printWriter.println(diseaseData); 
+        } 
+        printWriter.println("END_OF_LIST");
     }
     
     private static void releaseResources(BufferedReader bufferedReader, PrintWriter printWriter, Socket socket, ServerSocket serverSocket) {
