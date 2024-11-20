@@ -25,6 +25,7 @@ import java.sql.Connection;
 import java.net.Socket;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import pojos.Disease;
 import pojos.Doctor;
+import pojos.Episode;
 import pojos.Patient;
 import pojos.Patient.Gender;
 import pojos.Surgery;
@@ -255,6 +257,29 @@ public class ModifServerConnection {
         printWriter.println("END_OF_LIST");
     }
     private static void handleViewPatientInformation(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException{
+        JDBCPatientManager patientManager = new JDBCPatientManager(connection);
+        String dni = bufferedReader.readLine();
+        Patient patientFromDatabase = patientManager.getPatientByDNI(dni);
+        
+       // printWriter.println(patientFromDatabase.toString());        
+      
+            String patientData = String.format("%s,%s,%s,%s,%s,%s,%s", patientFromDatabase.getDni(), patientFromDatabase.getName(), patientFromDatabase.getSurname(), 
+                    patientFromDatabase.getEmail(), patientFromDatabase.getGender().toString(),patientFromDatabase.getPhoneNumber(), patientFromDatabase.getDob().toString() );
+            printWriter.println(patientData); // Enviar los datos del paciente
+            
+            
+            // ME ESTOY LIANDO, IR A DOCTOR MENU (198) --> no se puede simplemente pasarlos episodios del paciente?
+            // enviar todos los episodios que tiene ese paciente en concreto
+        JDBCEpisodeManager episodeManager = new JDBCEpisodeManager(connection);
+      
+        ArrayList<Episode> episodes = episodeManager.getEpisodesByPatient(patientFromDatabase.getDni());
+                
+        for (int i = 0; i < episodes.size(); i++) {           
+            Episode episode = episodes.get(i);
+            String episodeData = String.format("%s", episode.getDate());
+            printWriter.println(episodeData); 
+        }
+        
         
     }
     private static void releaseResources(BufferedReader bufferedReader, PrintWriter printWriter, Socket socket, ServerSocket serverSocket) {

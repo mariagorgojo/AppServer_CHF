@@ -14,7 +14,7 @@ import pojos.Episode;
  */
 public interface EpisodeManager {
         public void insertEpisode(Episode episode);
-    	public ArrayList<Episode> getEpisodesByPatient(int patient_id); 
+    	public ArrayList<Episode> getEpisodesByPatient(String patient_dni); 
     	public ArrayList<Episode> getEpisodesByDate(int patient_id, LocalDate date); //aqui poner una funcion que acceda a los episodes del paciente y una vez ahi a los de la fecha de esee paciente
         public Episode getEpisodeById(int patient_id,int episode_id);
 }

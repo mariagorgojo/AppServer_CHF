@@ -39,12 +39,12 @@ public class JDBCEpisodeManager implements EpisodeManager {
     }
 
     @Override
-    public ArrayList<Episode> getEpisodesByPatient(int patient_id) {
+    public ArrayList<Episode> getEpisodesByPatient(String patient_dni) {
         ArrayList<Episode> episodesList = new ArrayList<>();
         try {
-            String sql = "SELECT * FROM Episodes WHERE patient_id = ?";
+            String sql = "SELECT * FROM Episodes WHERE patient_dni = ?";
             PreparedStatement prep = c.prepareStatement(sql);
-            prep.setInt(1, patient_id);
+            prep.setString(1, patient_dni);
             ResultSet rs = prep.executeQuery();
             while (rs.next()) {
                 Episode episode = new Episode(
