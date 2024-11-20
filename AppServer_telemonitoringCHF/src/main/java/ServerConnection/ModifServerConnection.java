@@ -79,9 +79,9 @@ public class ModifServerConnection {
                     // FALTA SABER QUE HACER CON EL DOCTOR DEL INSERT PATIENT
                     handlePatientRegister(bufferedReader, printWriter);
                 } else if (line.equals("LOGIN_DOCTOR")) {
-                    handleDoctorLogin(bufferedReader, printWriter);/*
-                } else if (line.equals("LOGIN_PATIENT")) 
-                    handlePatientLogin(bufferedReader, printWriter);*/
+                    handleDoctorLogin(bufferedReader, printWriter);
+                } else if (line.equals("LOGIN_PATIENT")) {
+                    handlePatientLogin(bufferedReader, printWriter);
                 }
             }
         }
@@ -164,27 +164,33 @@ public class ModifServerConnection {
         Doctor doctorFromDatabase = doctorManager.getDoctorByDNI(dni);
         if (doctorFromDatabase != null && doctorFromDatabase.getDni().equals(dni)) { // AÑADIR LAS VERIFICACIONES MEMCIONADAS
             printWriter.println("VALID");
+            System.out.println("Login successful for doctor: " + doctorFromDatabase.getName());
+
         } else {
             printWriter.println("INVALID");
             System.out.println("Invalid login attempt for doctor DNI: " + dni);
         }
     }
 
-    /*  private static void handlePatientLogin(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
-        String dni = bufferedReader.readLine();
+      private static void handlePatientLogin(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
+        JDBCPatientManager patientManager = new JDBCPatientManager(connection);
+        
+          String dni = bufferedReader.readLine();
         String password = bufferedReader.readLine(); // Encrypte + ADELANTE
 
-        // CARMEN MODIFICAR PARA QUE: VALID SI ESTÁ REGISTRADO, SI ES DOCTOR Y SI COINCIDE LA PASSWORD CON EL DNI !!
-        Patient patient = patientDatabase.get(dni); // Carmen modificar.
-        if (patient != null && patient.getDni().equals(dni)) {
+        // VALID SI ESTÁ REGISTRADO Y SI COINCIDE LA PASSWORD CON EL DNI !!
+        // falta contraseña
+        Patient patientDatabase = patientManager.getPatientByDNI(dni); 
+          System.out.println(patientDatabase.toString());
+        if (patientDatabase != null && patientDatabase.getDni().equals(dni)) {
             printWriter.println("VALID");
-            System.out.println("Login successful for patient: " + patient.getName());
+            System.out.println("Login successful for patient: " + patientDatabase.getName());
         } else {
             printWriter.println("INVALID");
             System.out.println("Invalid login attempt for patient DNI: " + dni);
         }
     }
-     */
+     
     private static void releaseResources(BufferedReader bufferedReader, PrintWriter printWriter, Socket socket, ServerSocket serverSocket) {
         try {
             if (bufferedReader != null) {

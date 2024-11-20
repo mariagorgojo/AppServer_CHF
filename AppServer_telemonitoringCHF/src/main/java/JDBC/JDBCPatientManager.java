@@ -182,7 +182,7 @@ Patient patient = null;
     public Patient getPatientByDNI(String dni) {
         Patient patient = null;
         try {
-            String sql = "SELECT * FROM Doctor WHERE dni = ?";
+            String sql = "SELECT * FROM Patient WHERE dni = ?";
             PreparedStatement prep = c.prepareStatement(sql);
             prep.setString(1, dni);
             ResultSet rs = prep.executeQuery();
