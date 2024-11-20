@@ -74,12 +74,12 @@ public class JDBCDiseaseManager implements DiseaseManager{
 		return list;
 	}
         
-        public ArrayList<Disease> getDiseasesByPatient(int patient_id){
+        public ArrayList<Disease> getDiseasesByPatient(String patient_id){
                 ArrayList<Disease> list = new ArrayList<Disease>();
 		try {
 			String sql = "SELECT Disease.* FROM Disease JOIN Episode_Disease ON Disease.id = Episode_Disease.disease_id JOIN Episode ON Episode_Disease.episode_id = Episode.id WHERE Episode.patient_id = ?;";
 			PreparedStatement p = c.prepareStatement(sql);
-			p.setInt(1, patient_id);
+			p.setString(1, patient_id);
 			ResultSet rs = p.executeQuery();
 			while (rs.next()) {				
 				Disease d = new Disease(rs.getInt("id"), rs.getString("disease"));

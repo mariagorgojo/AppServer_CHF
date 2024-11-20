@@ -14,7 +14,7 @@ import pojos.Patient;
  */
 public interface PatientManager {
     public void insertPatient(Patient patient, Doctor doctor);
-    public ArrayList<Patient> searchPatientsByDoctor(int d_id);
+    public ArrayList<Patient> searchPatientsByDoctor(String dni);
     public Patient getPatientById(int p_id);
     public ArrayList<Patient> searchPatientByName(String name);
     public Patient getPatientByEmail(String email); 

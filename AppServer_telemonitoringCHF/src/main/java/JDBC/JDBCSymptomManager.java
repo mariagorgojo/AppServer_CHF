@@ -73,12 +73,12 @@ public class JDBCSymptomManager implements SymptomManager{
 		}
 		return list;
 	}
-        public ArrayList<Symptom> getSymptomsByPatient(int patient_id){
+        public ArrayList<Symptom> getSymptomsByPatient(String patient_id){
                 ArrayList<Symptom> list = new ArrayList<Symptom>();
 		try {
 			String sql = "SELECT Symptom.* FROM Symptom JOIN Episode_Symptom ON Symptom.id = Episode_Symptom.symptom_id JOIN Episode ON Episode_Symptom.episode_id = Episode.id WHERE Episode.patient_id = ?;";
 			PreparedStatement p = c.prepareStatement(sql);
-			p.setInt(1, patient_id);
+			p.setString(1, patient_id);
 			ResultSet rs = p.executeQuery();
 			while (rs.next()) {				
 				Symptom s = new Symptom(rs.getInt("id"), rs.getString("symptom"));

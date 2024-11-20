@@ -14,7 +14,7 @@ import pojos.Disease;
 public interface DiseaseManager {
             public void insertDisease(String disease);
             public ArrayList<Disease> getDiseasesByEpisode(int episode_id);
-            public ArrayList<Disease> getDiseasesByPatient(int patient_id);
+            public ArrayList<Disease> getDiseasesByPatient(String patient_id);
             public String getDiseaseById(int disease_id);
             public void assignDiseaseToEpisode(int disease_id, int episode_id);
 }

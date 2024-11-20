@@ -14,7 +14,7 @@ import pojos.Surgery;
 public interface SurgeryManager {
             public void insertSurgery(String surgery);
             public ArrayList<Surgery> getSurgeriesByEpisode(int episode_id);
-            public ArrayList<Surgery> getSurgeriesByPatient(int patient_id);
+            public ArrayList<Surgery> getSurgeriesByPatient(String patient_id);
             public String getSurgeryById(int surgery_id);
             public void assignSurgeryToEpisode(int surgery_id, int episode_id);
 }

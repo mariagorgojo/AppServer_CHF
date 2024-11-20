@@ -73,12 +73,12 @@ public class JDBCSurgeryManager implements SurgeryManager {
 		return list;
 	}
         @Override
-        public ArrayList<Surgery> getSurgeriesByPatient(int patient_id){
+        public ArrayList<Surgery> getSurgeriesByPatient(String patient_id){
             	ArrayList<Surgery> list = new ArrayList<Surgery>();
 		try {
 			String sql = "SELECT Surgery.* FROM Surgery JOIN Episode_Surgery ON Surgery.id = Episode_Surgery.surgery_id JOIN Episode ON Episode_Surgery.episode_id = Episode.id WHERE Episode.patient_id = ?;";
 			PreparedStatement p = c.prepareStatement(sql);
-			p.setInt(1, patient_id);
+			p.setString(1, patient_id);
 			ResultSet rs = p.executeQuery();
 			while (rs.next()) {				
 				Surgery s = new Surgery(rs.getInt("id"), rs.getString("surgery"));

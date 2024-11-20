@@ -41,14 +41,13 @@ public class JDBCPatientManager implements PatientManager{
         }
         
     }
-
     @Override
-    public ArrayList<Patient> searchPatientsByDoctor(int d_id) {
- ArrayList<Patient> patients = new ArrayList<>();
+    public ArrayList<Patient> searchPatientsByDoctor(String dni) {
+        ArrayList<Patient> patients = new ArrayList<>();
         try {
             String sql = "SELECT * FROM Patient WHERE doctor_id = ?";
             PreparedStatement prep = c.prepareStatement(sql);
-            prep.setInt(1, d_id);
+            prep.setString(1, dni);
             ResultSet rs = prep.executeQuery();
             while (rs.next()) {
                 Patient patient = new Patient(rs.getInt("id"));

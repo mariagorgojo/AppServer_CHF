@@ -26,13 +26,17 @@ import java.net.Socket;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import pojos.Disease;
 import pojos.Doctor;
 import pojos.Patient;
 import pojos.Patient.Gender;
+import pojos.Surgery;
+import pojos.Symptom;
 
 public class ModifServerConnection {
 
@@ -82,6 +86,12 @@ public class ModifServerConnection {
                     handleDoctorLogin(bufferedReader, printWriter);
                 } else if (line.equals("LOGIN_PATIENT")) {
                     handlePatientLogin(bufferedReader, printWriter);
+                }else if (line.equals("VIEW_DOCTOR_DETAILS")){
+                    handleViewDoctorDetails(bufferedReader, printWriter);
+                }else if(line.equals("VIEW_DOCTOR_PATIENTS")){
+                    handleViewDoctorPatients(bufferedReader, printWriter);
+                }else if (line.equals("VIEW_PATIENT_INFORMATION")){
+                    handleViewPatientInformation(bufferedReader, printWriter); 
                 }
             }
         }
@@ -190,7 +200,43 @@ public class ModifServerConnection {
             System.out.println("Invalid login attempt for patient DNI: " + dni);
         }
     }
-     
+    
+      private static void handleViewDoctorDetails(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException{
+        JDBCDoctorManager doctorManager = new JDBCDoctorManager(connection);
+
+        String dni = bufferedReader.readLine();
+        Doctor doctorFromDatabase = doctorManager.getDoctorByDNI(dni);
+        
+        printWriter.println(doctorFromDatabase.toString());
+        
+    }
+      private static void handleViewDoctorPatients(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException{
+        JDBCPatientManager patientManager = new JDBCPatientManager(connection);
+
+        String dni = bufferedReader.readLine();
+        List<Patient> patients = patientManager.searchPatientsByDoctor(dni);
+       
+        for (int i = 0; i < patients.size(); i++) {
+            
+            Patient patient = patients.get(i); // Obtén el paciente en la posición i
+            String patientData = String.format("%s,%s,%s", patient.getDni(), patient.getName(), patient.getSurname());
+            printWriter.println(patientData); // Enviar los datos del paciente
+        }
+    }
+      
+    private static void handleViewPatientInformation(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException{
+        JDBCSurgeryManager surgeryManager = new JDBCSurgeryManager(connection);
+        JDBCSymptomManager symptomManager = new JDBCSymptomManager(connection);
+        JDBCDiseaseManager diseaseManager = new JDBCDiseaseManager(connection);
+        JDBCPatientManager patientManager = new JDBCPatientManager(connection);
+        
+        String dni = bufferedReader.readLine();
+        List<Surgery> surgeries = surgeryManager.getSurgeriesByPatient(dni); 
+        List<Symptom> symptom = symptomManager.getSymptomsByPatient(dni);
+        List<Disease> disease = diseaseManager.getDiseasesByPatient(dni);
+        
+    }
+    
     private static void releaseResources(BufferedReader bufferedReader, PrintWriter printWriter, Socket socket, ServerSocket serverSocket) {
         try {
             if (bufferedReader != null) {
@@ -209,4 +255,5 @@ public class ModifServerConnection {
             Logger.getLogger(ModifServerConnection.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
 }
