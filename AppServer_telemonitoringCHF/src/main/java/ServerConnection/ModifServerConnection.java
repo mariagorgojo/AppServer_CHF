@@ -92,6 +92,8 @@ public class ModifServerConnection {
                     handleViewDoctorPatients(bufferedReader, printWriter);
                 }else if (line.equals("VIEW_PATIENT_INFORMATION")){
                     handleViewPatientInformation(bufferedReader, printWriter); 
+                }else if(line.equals("VIEW_PATIENT_EPISODE")){
+                    handleViewPatientEpisode(bufferedReader, printWriter);
                 }
             }
         }
@@ -224,22 +226,19 @@ public class ModifServerConnection {
         }
     }
       
-    private static void handleViewPatientInformation(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException{
+    private static void handleViewPatientEpisode(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException{
         JDBCSurgeryManager surgeryManager = new JDBCSurgeryManager(connection);
         JDBCSymptomManager symptomManager = new JDBCSymptomManager(connection);
         JDBCDiseaseManager diseaseManager = new JDBCDiseaseManager(connection);
-        JDBCPatientManager patientManager = new JDBCPatientManager(connection);
+
+        Integer episode_id = Integer.valueOf(bufferedReader.readLine()); 
         
-        String dni = bufferedReader.readLine();
-        Patient patient = patientManager.getPatientByDNI(dni);
-        printWriter.println("PATIENT_INFO:" + patient.toString());
-        
-        List<Surgery> surgeries = surgeryManager.getSurgeriesByPatient(dni); 
-        List<Symptom> symptoms = symptomManager.getSymptomsByPatient(dni);
-        List<Disease> diseases = diseaseManager.getDiseasesByPatient(dni);
+        List<Surgery> surgeries = surgeryManager.getSurgeriesByEpisode(episode_id); 
+        List<Symptom> symptoms = symptomManager.getSymptomsByEpisode(episode_id);
+        List<Disease> diseases = diseaseManager.getDiseasesByEpisode(episode_id);
         
         for (int i = 0; i < surgeries.size(); i++) {           
-            Surgery surgery = surgeries.get(i); 
+            Surgery surgery = surgeries.get(i);
             String surgeryData = String.format("%s", surgery.getType());
             printWriter.println(surgeryData); 
         }
@@ -255,7 +254,9 @@ public class ModifServerConnection {
         } 
         printWriter.println("END_OF_LIST");
     }
-    
+    private static void handleViewPatientInformation(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException{
+        
+    }
     private static void releaseResources(BufferedReader bufferedReader, PrintWriter printWriter, Socket socket, ServerSocket serverSocket) {
         try {
             if (bufferedReader != null) {
