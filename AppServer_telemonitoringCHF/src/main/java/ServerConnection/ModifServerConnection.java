@@ -220,9 +220,11 @@ public class ModifServerConnection {
     }
       private static void handleViewDoctorPatients(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException{
         JDBCPatientManager patientManager = new JDBCPatientManager(connection);
-
+        JDBCDoctorManager dM= new JDBCDoctorManager(connection);
         String dni = bufferedReader.readLine();
-        List<Patient> patients = patientManager.searchPatientsByDoctor(dni);
+        Doctor doctor =dM.getDoctorByDNI(dni);
+          System.out.println(doctor.getId());
+        List<Patient> patients = patientManager.searchPatientsByDoctor(doctor.getId());
           System.out.println(patients);
         for (int i = 0; i < patients.size(); i++) {
             
@@ -288,7 +290,7 @@ public class ModifServerConnection {
             // enviar todos los episodios que tiene ese paciente en concreto
         JDBCEpisodeManager episodeManager = new JDBCEpisodeManager(connection);
       
-        ArrayList<Episode> episodes = episodeManager.getEpisodesByPatient(patientFromDatabase.getDni());
+        ArrayList<Episode> episodes = episodeManager.getEpisodesByPatient(patientFromDatabase.getId());
                 
         for (int i = 0; i < episodes.size(); i++) {           
             Episode episode = episodes.get(i);

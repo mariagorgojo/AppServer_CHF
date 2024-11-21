@@ -26,7 +26,7 @@ public class JDBCEpisodeManager implements EpisodeManager {
     @Override
     public void insertEpisode(Episode episode) {
         try {
-            String sql = "INSERT INTO Episodes (patient_id, date) VALUES (?, ?)";
+            String sql = "INSERT INTO Episode (patient_id, date) VALUES (?, ?)";
             PreparedStatement prep = c.prepareStatement(sql);
             prep.setInt(1, episode.getPatient_id());
             prep.setString(2, episode.getDate().toString());
@@ -39,12 +39,12 @@ public class JDBCEpisodeManager implements EpisodeManager {
     }
 
     @Override
-    public ArrayList<Episode> getEpisodesByPatient(String patient_dni) {
+    public ArrayList<Episode> getEpisodesByPatient(Integer patient_id) {
         ArrayList<Episode> episodesList = new ArrayList<>();
         try {
-            String sql = "SELECT * FROM Episodes WHERE patient_dni = ?";
+            String sql = "SELECT * FROM Episode WHERE patient_id = ?";
             PreparedStatement prep = c.prepareStatement(sql);
-            prep.setString(1, patient_dni);
+            prep.setInt(1, patient_id);
             ResultSet rs = prep.executeQuery();
             while (rs.next()) {
                 Episode episode = new Episode(
@@ -67,7 +67,7 @@ public class JDBCEpisodeManager implements EpisodeManager {
     public ArrayList<Episode> getEpisodesByDate(int patient_id, LocalDate date) {
         ArrayList<Episode> episodesList = new ArrayList<>();
         try {
-            String sql = "SELECT * FROM Episodes WHERE patient_id = ? AND date = ?";
+            String sql = "SELECT * FROM Episode WHERE patient_id = ? AND date = ?";
             PreparedStatement prep = c.prepareStatement(sql);
             prep.setInt(1, patient_id);
             prep.setString(2, date.toString());
@@ -93,7 +93,7 @@ public class JDBCEpisodeManager implements EpisodeManager {
     public Episode getEpisodeById(int patient_id, int episode_id) {
         Episode episode = null;
         try {
-            String sql = "SELECT * FROM Episodes WHERE patient_id = ? AND id = ?";
+            String sql = "SELECT * FROM Episode WHERE patient_id = ? AND id = ?";
             PreparedStatement prep = c.prepareStatement(sql);
             prep.setInt(1, patient_id);
             prep.setInt(2, episode_id);
