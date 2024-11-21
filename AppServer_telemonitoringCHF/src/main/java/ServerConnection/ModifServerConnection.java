@@ -92,14 +92,15 @@ public class ModifServerConnection {
                 }else if (line.equals("VIEW_DOCTOR_DETAILS")){
                     handleViewDoctorDetails(bufferedReader, printWriter);
                 }else if(line.equals("VIEW_DOCTOR_PATIENTS")){
-                    System.out.println("I'm in view doctor_patirnts before function");
+                    //System.out.println("I'm in view doctor_patirnts before function");
                     handleViewDoctorPatients(bufferedReader, printWriter);
-                    System.out.println("I'm in view doctor_patirnts after function");
-
+                   // System.out.println("I'm in view doctor_patirnts after function");
                 }else if (line.equals("VIEW_PATIENT_INFORMATION")){
                     handleViewPatientInformation(bufferedReader, printWriter); 
                 }else if(line.equals("VIEW_PATIENT_EPISODE")){
                     handleViewPatientEpisode(bufferedReader, printWriter);
+                }else if(line.equals("VIEW_PATIENT_EPISODES")){
+                    handlePatientEpisodes(bufferedReader, printWriter);
                 }
             }
         }
@@ -284,12 +285,16 @@ public class ModifServerConnection {
             String patientData = String.format("%s,%s,%s,%s,%s,%s,%s", patientFromDatabase.getDni(), patientFromDatabase.getName(), patientFromDatabase.getSurname(), 
                     patientFromDatabase.getEmail(), patientFromDatabase.getGender().toString(),patientFromDatabase.getPhoneNumber(), patientFromDatabase.getDob().toString() );
             printWriter.println(patientData); // Enviar los datos del paciente
-            
+    }       
             
             // ME ESTOY LIANDO, IR A DOCTOR MENU (198) --> no se puede simplemente pasarlos episodios del paciente?
             // enviar todos los episodios que tiene ese paciente en concreto
+    
+    private static void handlePatientEpisodes(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException{
         JDBCEpisodeManager episodeManager = new JDBCEpisodeManager(connection);
-      
+        JDBCPatientManager patientManager = new JDBCPatientManager(connection);
+        String dni = bufferedReader.readLine();
+        Patient patientFromDatabase = patientManager.getPatientByDNI(dni);
         ArrayList<Episode> episodes = episodeManager.getEpisodesByPatient(patientFromDatabase.getId());
                 
         for (int i = 0; i < episodes.size(); i++) {           
@@ -310,7 +315,7 @@ public class ModifServerConnection {
             }
             if (socket != null && !socket.isClosed()) {
                 socket.close();
-            }
+            }±
             if (serverSocket != null && !serverSocket.isClosed()) {
                 serverSocket.close();
             }
