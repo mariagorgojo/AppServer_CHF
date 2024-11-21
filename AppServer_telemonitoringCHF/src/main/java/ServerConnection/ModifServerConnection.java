@@ -37,6 +37,7 @@ import pojos.Doctor;
 import pojos.Episode;
 import pojos.Patient;
 import pojos.Patient.Gender;
+import pojos.Recording;
 import pojos.Surgery;
 import pojos.Symptom;
 
@@ -91,7 +92,10 @@ public class ModifServerConnection {
                 }else if (line.equals("VIEW_DOCTOR_DETAILS")){
                     handleViewDoctorDetails(bufferedReader, printWriter);
                 }else if(line.equals("VIEW_DOCTOR_PATIENTS")){
+                    System.out.println("I'm in view doctor_patirnts before function");
                     handleViewDoctorPatients(bufferedReader, printWriter);
+                    System.out.println("I'm in view doctor_patirnts after function");
+
                 }else if (line.equals("VIEW_PATIENT_INFORMATION")){
                     handleViewPatientInformation(bufferedReader, printWriter); 
                 }else if(line.equals("VIEW_PATIENT_EPISODE")){
@@ -219,12 +223,16 @@ public class ModifServerConnection {
 
         String dni = bufferedReader.readLine();
         List<Patient> patients = patientManager.searchPatientsByDoctor(dni);
-       
+          System.out.println(patients);
         for (int i = 0; i < patients.size(); i++) {
             
             Patient patient = patients.get(i); // Obtén el paciente en la posición i
+            System.out.println("dentro del for");
             String patientData = String.format("%s,%s,%s", patient.getDni(), patient.getName(), patient.getSurname());
             printWriter.println(patientData); // Enviar los datos del paciente
+            if (i== (patients.size()-1)){
+                printWriter.println("END_OF_LIST");
+            }
         }
     }
       
@@ -232,12 +240,14 @@ public class ModifServerConnection {
         JDBCSurgeryManager surgeryManager = new JDBCSurgeryManager(connection);
         JDBCSymptomManager symptomManager = new JDBCSymptomManager(connection);
         JDBCDiseaseManager diseaseManager = new JDBCDiseaseManager(connection);
+        JDBCRecordingManager recordingManager = new JDBCRecordingManager(connection);
 
         Integer episode_id = Integer.valueOf(bufferedReader.readLine()); 
         
         List<Surgery> surgeries = surgeryManager.getSurgeriesByEpisode(episode_id); 
         List<Symptom> symptoms = symptomManager.getSymptomsByEpisode(episode_id);
         List<Disease> diseases = diseaseManager.getDiseasesByEpisode(episode_id);
+        List<Recording> recordings =recordingManager.getRecordingsByEpisode(episode_id);
         
         for (int i = 0; i < surgeries.size(); i++) {           
             Surgery surgery = surgeries.get(i);
@@ -253,6 +263,12 @@ public class ModifServerConnection {
             Disease disease = diseases.get(i); 
             String diseaseData = String.format("%s", disease.getDisease());
             printWriter.println(diseaseData); 
+        } 
+        
+        for (int i = 0; i < recordings.size(); i++) {           
+            Recording recording = recordings.get(i); 
+            String recordingData = String.format("%s", recording.getSignal_path());
+            printWriter.println(recordingData); 
         } 
         printWriter.println("END_OF_LIST");
     }
