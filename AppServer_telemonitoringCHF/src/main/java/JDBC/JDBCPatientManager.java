@@ -22,16 +22,17 @@ public class JDBCPatientManager implements PatientManager {
     @Override
     public void insertPatient(Patient patient, Doctor doctor) {
         try {
-            String sql = "INSERT INTO Patient (dni, name, surname, email, gender, phone, dob, doctor_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO Patient (dni, password, name, surname, email, gender, phone, dob, doctor_id) VALUES (?, ?,?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement prep = c.prepareStatement(sql);
             prep.setString(1, patient.getDNI());
-            prep.setString(2, patient.getName());
-            prep.setString(3, patient.getSurname());
-            prep.setString(4, patient.getEmail());
-            prep.setString(5, patient.getGender().toString());
-            prep.setInt(6, patient.getPhoneNumber());
-            prep.setObject(7, patient.getDob());
-            prep.setInt(8, doctor != null ? doctor.getId() : null);
+            prep.setString(2, doctor.getPassword());
+            prep.setString(3, patient.getName());
+            prep.setString(4, patient.getSurname());
+            prep.setString(5, patient.getEmail());
+            prep.setString(6, patient.getGender().toString());
+            prep.setInt(7, patient.getPhoneNumber());
+            prep.setObject(8, patient.getDob());
+            prep.setInt(9, doctor != null ? doctor.getId() : null);
             prep.executeUpdate();
             prep.close();
         } catch (SQLException e) {
@@ -90,10 +91,11 @@ public class JDBCPatientManager implements PatientManager {
                 patient.setEmail(rs.getString("email"));
                 patient.setGender(Gender.valueOf(rs.getString("gender")));
                 patient.setPhoneNumber(rs.getInt("phone"));
- String dobString = rs.getString("dob");
+                String dobString = rs.getString("dob");
                 if (dobString != null) {
                     patient.setDob(LocalDate.parse(dobString)); // Asegúrate de que el formato sea 'yyyy-MM-dd'
-                }            }
+                }
+            }
             rs.close();
             prep.close();
         } catch (SQLException e) {
@@ -119,10 +121,11 @@ public class JDBCPatientManager implements PatientManager {
                 patient.setEmail(rs.getString("email"));
                 patient.setGender(Gender.valueOf(rs.getString("gender")));
                 patient.setPhoneNumber(rs.getInt("phone"));
- String dobString = rs.getString("dob");
+                String dobString = rs.getString("dob");
                 if (dobString != null) {
                     patient.setDob(LocalDate.parse(dobString)); // Asegúrate de que el formato sea 'yyyy-MM-dd'
-                }                patients.add(patient);
+                }
+                patients.add(patient);
             }
             rs.close();
             prep.close();
@@ -149,10 +152,11 @@ public class JDBCPatientManager implements PatientManager {
                 patient.setEmail(rs.getString("email"));
                 patient.setGender(Gender.valueOf(rs.getString("gender")));
                 patient.setPhoneNumber(rs.getInt("phone"));
- String dobString = rs.getString("dob");
+                String dobString = rs.getString("dob");
                 if (dobString != null) {
                     patient.setDob(LocalDate.parse(dobString)); // Asegúrate de que el formato sea 'yyyy-MM-dd'
-                }            }
+                }
+            }
             rs.close();
             prep.close();
         } catch (SQLException e) {
@@ -178,10 +182,11 @@ public class JDBCPatientManager implements PatientManager {
                 patient.setEmail(rs.getString("email"));
                 patient.setGender(Gender.valueOf(rs.getString("gender")));
                 patient.setPhoneNumber(rs.getInt("phone"));
- String dobString = rs.getString("dob");
+                String dobString = rs.getString("dob");
                 if (dobString != null) {
                     patient.setDob(LocalDate.parse(dobString)); // Asegúrate de que el formato sea 'yyyy-MM-dd'
-                }            }
+                }
+            }
             rs.close();
             prep.close();
         } catch (SQLException e) {
@@ -202,12 +207,13 @@ public class JDBCPatientManager implements PatientManager {
             if (rs.next()) {
                 patient = new Patient(rs.getInt("id"));
                 patient.setDni(rs.getString("dni"));
+                patient.setPassword(rs.getString("password"));
                 patient.setName(rs.getString("name"));
                 patient.setSurname(rs.getString("surname"));
                 patient.setEmail(rs.getString("email"));
                 patient.setGender(Gender.valueOf(rs.getString("gender")));
                 patient.setPhoneNumber(rs.getInt("phone"));
- String dobString = rs.getString("dob");
+                String dobString = rs.getString("dob");
                 if (dobString != null) {
                     patient.setDob(LocalDate.parse(dobString)); // Asegúrate de que el formato sea 'yyyy-MM-dd'
                 }

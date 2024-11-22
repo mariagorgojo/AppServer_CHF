@@ -174,15 +174,19 @@ public class ModifServerConnection {
 
         String dni = bufferedReader.readLine();
         String password = bufferedReader.readLine(); // Encrypte + adelante
-
+        
         // FALTA QUE COMPRUEBE TAMBIÉN LA PASSWORD!! Y COMPROBAR SI EL DNI ES DE UN PACIENTE O DEL DOCTOR!!
         // Verificar si el doctor existe en la base de datos
         Doctor doctorFromDatabase = doctorManager.getDoctorByDNI(dni);
-        if (doctorFromDatabase != null && doctorFromDatabase.getDni().equals(dni)) { // AÑADIR LAS VERIFICACIONES MEMCIONADAS
+        if (doctorFromDatabase != null && doctorFromDatabase.getDni().equals(dni) && 
+                doctorFromDatabase.getPassword().equals(password)) { // AÑADIR LAS VERIFICACIONES MEMCIONADAS
+                    System.out.println(password);
+
             printWriter.println("VALID");
             System.out.println("Login successful for doctor: " + doctorFromDatabase.getName());
 
         } else {
+            
             printWriter.println("INVALID");
             System.out.println("Invalid login attempt for doctor DNI: " + dni);
         }
@@ -198,7 +202,7 @@ public class ModifServerConnection {
         // falta contraseña
         Patient patientDatabase = patientManager.getPatientByDNI(dni);
         System.out.println(patientDatabase.toString());
-        if (patientDatabase != null && patientDatabase.getDNI().equals(dni)) {
+        if (patientDatabase != null && patientDatabase.getDNI().equals(dni) && patientDatabase.getPassword().equals(password)) {
             printWriter.println("VALID");
             System.out.println("Login successful for patient: " + patientDatabase.getName());
         } else {
@@ -225,15 +229,20 @@ public class ModifServerConnection {
         System.out.println(doctor.getId());
         List<Patient> patients = patientManager.searchPatientsByDoctor(doctor.getId());
         System.out.println(patients);
+        
+        if (patients.size()==0){
+            printWriter.println("EMPTY");
+        }else{
         for (int i = 0; i < patients.size(); i++) {
 
             Patient patient = patients.get(i); // Obtén el paciente en la posición i
-            System.out.println("dentro del for");
+            //System.out.println("dentro del for");
             String patientData = String.format("%s,%s,%s", patient.getDNI(), patient.getName(), patient.getSurname());
             printWriter.println(patientData); // Enviar los datos del paciente
             if (i == (patients.size() - 1)) {
                 printWriter.println("END_OF_LIST");
             }
+        }
         }
     }
 
