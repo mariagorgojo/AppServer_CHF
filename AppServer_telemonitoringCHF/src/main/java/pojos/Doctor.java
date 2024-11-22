@@ -10,7 +10,7 @@ public class Doctor {
     
     // no estan todos los atributos RW
         private Integer id;
-    	private final String dni;
+    	private String dni;
         private String password;
 	private String name;
         private String surname;
@@ -40,9 +40,17 @@ public class Doctor {
         patients = new ArrayList<>();
     }
 
+    public Doctor(Integer id) {
+        this.id = id;
+    }
+
     
     public Integer getId() {
         return id;
+    }
+
+    public void setDni(String dni) {
+        this.dni = dni;
     }
 
     public void setId(Integer id) {

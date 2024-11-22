@@ -24,7 +24,7 @@ public class JDBCPatientManager implements PatientManager {
         try {
             String sql = "INSERT INTO Patient (dni, name, surname, email, gender, phone, dob, doctor_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement prep = c.prepareStatement(sql);
-            prep.setString(1, patient.getDni());
+            prep.setString(1, patient.getDNI());
             prep.setString(2, patient.getName());
             prep.setString(3, patient.getSurname());
             prep.setString(4, patient.getEmail());
