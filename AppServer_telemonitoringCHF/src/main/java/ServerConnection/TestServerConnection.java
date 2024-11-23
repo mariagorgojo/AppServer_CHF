@@ -17,7 +17,7 @@ import pojos.Doctor;
  *
  * @author martaguzman
  */
-public class TestServerConnection {
+/*public class TestServerConnection {
     
     
     public static void main(String args[]) throws IOException {
@@ -74,3 +74,4 @@ public class TestServerConnection {
     }
     
 }
+*/

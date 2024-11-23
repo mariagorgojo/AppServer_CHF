@@ -121,7 +121,7 @@ public class ModifServerConnection {
         if (doctorFromDatabase != null && doctorFromDatabase.getDni().equals(dni)) {
             printWriter.println("INVALID"); // Enviar mensaje de error si el DNI ya está registrado
         } else {
-            Doctor doctor = new Doctor(dni, name, surname, telephone, email);
+            Doctor doctor = new Doctor(dni,password, name, surname, telephone, email);
             doctorManager.insertDoctor(doctor); // Insert doctor in the db
             printWriter.println("VALID"); // Mensaje de confirmación de registro exitoso
             System.out.println("Doctor registered on db: " + doctor);
@@ -149,7 +149,7 @@ public class ModifServerConnection {
         Patient patientFromDatabase = patientManager.getPatientByDNI(dni);
 
 // Comprobación de si el DNI ya está registrado
-        if (patientFromDatabase != null && patientFromDatabase.getDni().equals(dni)) {
+        if (patientFromDatabase != null && patientFromDatabase.getDNI().equals(dni)) {
             System.out.println("ERROR");
             printWriter.println("INVALID"); // Mensaje de error si el DNI ya está registrado
         } else {
@@ -157,7 +157,7 @@ public class ModifServerConnection {
             //System.out.println(bound);
             int doctor_id = generateRandomInt(bound);
             Doctor doctor = doctorManager.getDoctorById(doctor_id);
-            Patient patient = new Patient(dni, name, surname, email, gender, telephone, dateOfBirth, doctor);
+            Patient patient = new Patient(dni,password, name, surname, email, gender, telephone, dateOfBirth, doctor);
             patientManager.insertPatient(patient, doctor);
             printWriter.println("VALID"); // Mensaje de confirmación de registro exitoso
             System.out.println("Patient registered on db: " + patient);
@@ -174,15 +174,19 @@ public class ModifServerConnection {
 
         String dni = bufferedReader.readLine();
         String password = bufferedReader.readLine(); // Encrypte + adelante
-
+        
         // FALTA QUE COMPRUEBE TAMBIÉN LA PASSWORD!! Y COMPROBAR SI EL DNI ES DE UN PACIENTE O DEL DOCTOR!!
         // Verificar si el doctor existe en la base de datos
         Doctor doctorFromDatabase = doctorManager.getDoctorByDNI(dni);
-        if (doctorFromDatabase != null && doctorFromDatabase.getDni().equals(dni)) { // AÑADIR LAS VERIFICACIONES MEMCIONADAS
+        if (doctorFromDatabase != null && doctorFromDatabase.getDni().equals(dni) && 
+                doctorFromDatabase.getPassword().equals(password)) { // AÑADIR LAS VERIFICACIONES MEMCIONADAS
+                    System.out.println(password);
+
             printWriter.println("VALID");
             System.out.println("Login successful for doctor: " + doctorFromDatabase.getName());
 
         } else {
+            
             printWriter.println("INVALID");
             System.out.println("Invalid login attempt for doctor DNI: " + dni);
         }
@@ -198,7 +202,7 @@ public class ModifServerConnection {
         // falta contraseña
         Patient patientDatabase = patientManager.getPatientByDNI(dni);
         System.out.println(patientDatabase.toString());
-        if (patientDatabase != null && patientDatabase.getDni().equals(dni)) {
+        if (patientDatabase != null && patientDatabase.getDNI().equals(dni) && patientDatabase.getPassword().equals(password)) {
             printWriter.println("VALID");
             System.out.println("Login successful for patient: " + patientDatabase.getName());
         } else {
@@ -225,15 +229,20 @@ public class ModifServerConnection {
         System.out.println(doctor.getId());
         List<Patient> patients = patientManager.searchPatientsByDoctor(doctor.getId());
         System.out.println(patients);
+        
+        if (patients.size()==0){
+            printWriter.println("EMPTY");
+        }else{
         for (int i = 0; i < patients.size(); i++) {
 
             Patient patient = patients.get(i); // Obtén el paciente en la posición i
-            System.out.println("dentro del for");
-            String patientData = String.format("%s,%s,%s", patient.getDni(), patient.getName(), patient.getSurname());
+            //System.out.println("dentro del for");
+            String patientData = String.format("%s,%s,%s", patient.getDNI(), patient.getName(), patient.getSurname());
             printWriter.println(patientData); // Enviar los datos del paciente
             if (i == (patients.size() - 1)) {
                 printWriter.println("END_OF_LIST");
             }
+        }
         }
     }
 
@@ -412,7 +421,7 @@ public class ModifServerConnection {
         Patient patientFromDatabase = patientManager.getPatientByDNI(dni);
 
         // printWriter.println(patientFromDatabase.toString());        
-        String patientData = String.format("%s,%s,%s,%s,%s,%s,%s", patientFromDatabase.getDni(), patientFromDatabase.getName(), patientFromDatabase.getSurname(),
+        String patientData = String.format("%s,%s,%s,%s,%s,%s,%s", patientFromDatabase.getDNI(), patientFromDatabase.getName(), patientFromDatabase.getSurname(),
                 patientFromDatabase.getEmail(), patientFromDatabase.getGender().toString(), patientFromDatabase.getPhoneNumber(), patientFromDatabase.getDob().toString());
         printWriter.println(patientData); // Enviar los datos del paciente
     }

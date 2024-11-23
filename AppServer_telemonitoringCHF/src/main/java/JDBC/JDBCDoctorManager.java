@@ -29,13 +29,14 @@ public class JDBCDoctorManager implements DoctorManager{
 	@Override
     public void insertDoctor(Doctor doctor) {
         try {
-            String sql = "INSERT INTO Doctor (dni, name, surname, phone, email) VALUES (?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO Doctor (dni, password, name, surname, phone, email) VALUES (?,?, ?, ?, ?, ?)";
             PreparedStatement prep = c.prepareStatement(sql);
             prep.setString(1, doctor.getDni());
-            prep.setString(2, doctor.getName());
-            prep.setString(3, doctor.getSurname());
-            prep.setInt(4, doctor.getTelephone());
-            prep.setString(5, doctor.getEmail());
+            prep.setString(2, doctor.getPassword());
+            prep.setString(3, doctor.getName());
+            prep.setString(4, doctor.getSurname());
+            prep.setInt(5, doctor.getTelephone());
+            prep.setString(6, doctor.getEmail());
             prep.executeUpdate();
             prep.close();
         } catch (SQLException e) {
@@ -55,6 +56,7 @@ public class JDBCDoctorManager implements DoctorManager{
             if (rs.next()) {
                 doctor = new Doctor(rs.getInt("id"));
                 doctor.setDni(rs.getString("dni"));
+                doctor.setPassword(rs.getString("password"));
                 doctor.setName(rs.getString("name"));
                 doctor.setSurname(rs.getString("surname"));
                 doctor.setTelephone(rs.getInt("phone"));
