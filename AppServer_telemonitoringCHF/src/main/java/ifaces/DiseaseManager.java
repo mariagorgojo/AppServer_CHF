@@ -18,5 +18,4 @@ public interface DiseaseManager {
             public String getDiseaseById(int disease_id);
             public void assignDiseaseToEpisode(int disease_id, int episode_id);
 }
-
 //for commit
