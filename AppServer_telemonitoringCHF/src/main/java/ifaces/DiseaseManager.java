@@ -17,5 +17,6 @@ public interface DiseaseManager {
             public ArrayList<Disease> getDiseasesByPatient(String patient_id);
             public String getDiseaseById(int disease_id);
             public void assignDiseaseToEpisode(int disease_id, int episode_id);
+            public ArrayList <Disease> getAllDiseases();
 }
 //for commit

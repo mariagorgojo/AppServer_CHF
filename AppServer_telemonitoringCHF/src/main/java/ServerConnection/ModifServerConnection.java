@@ -98,6 +98,11 @@ public class ModifServerConnection {
                     handleViewPatientInformation(bufferedReader, printWriter);
                 } else if (line.equals("VIEW_PATIENT_EPISODES")) {
                     handlePatientEpisodesAndDetails(bufferedReader, printWriter); //list of episodes + select episode + select recording
+                }else if (line.equals("GET_AVAILABLE_DISEASES")){
+                    handleGetAvailableDiseases(printWriter);                    
+                }else if (line.equals("INSERT_NEW_DISEASE")){
+                    handleGetAvailableDiseases(printWriter);                    
+                handleInsertNewDisease(bufferedReader, printWriter);
                 }
             }
         }
@@ -443,6 +448,37 @@ public class ModifServerConnection {
 
     }
 
+    
+    private static void handleGetAvailableDiseases(PrintWriter printWriter) {
+    JDBCDiseaseManager diseaseManager = new JDBCDiseaseManager(connection);
+
+    try {
+        List<Disease> diseases = diseaseManager.getAllDiseases(); // Obtener todas las enfermedades
+        for (Disease disease : diseases) {
+            printWriter.println(disease.getDisease()); // Enviar cada enfermedad al cliente
+        }
+        printWriter.println("END_OF_LIST"); // Marcar el final de la lista
+    } catch (Exception e) {
+        printWriter.println("ERROR: " + e.getMessage());
+        e.printStackTrace();
+    }
+}
+
+    
+   private static void handleInsertNewDisease(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
+        String diseaseName = bufferedReader.readLine();
+    try {
+        JDBCDiseaseManager diseaseManager = new JDBCDiseaseManager(connection);
+        diseaseManager.insertDisease(diseaseName);
+        printWriter.println("SUCCESS");
+    } catch (Exception e) {
+        printWriter.println("ERROR");
+        e.printStackTrace();
+    }
+   
+   }
+    
+    
     private static void releaseResources(BufferedReader bufferedReader, PrintWriter printWriter, Socket socket, ServerSocket serverSocket) {
         try {
             if (bufferedReader != null) {
@@ -462,5 +498,7 @@ public class ModifServerConnection {
             Logger.getLogger(ModifServerConnection.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
+    
 
 }

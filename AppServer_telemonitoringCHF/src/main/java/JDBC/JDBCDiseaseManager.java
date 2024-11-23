@@ -74,6 +74,7 @@ public class JDBCDiseaseManager implements DiseaseManager{
 		return list;
 	}
         
+        @Override
         public ArrayList<Disease> getDiseasesByPatient(String patient_id){
                 ArrayList<Disease> list = new ArrayList<Disease>();
 		try {
@@ -92,6 +93,7 @@ public class JDBCDiseaseManager implements DiseaseManager{
 		return list;
         }
         
+        @Override
         public String getDiseaseById(int disease_id){
                 try {
 			String sql = "SELECT disease FROM Disease WHERE id LIKE ?";
@@ -108,4 +110,30 @@ public class JDBCDiseaseManager implements DiseaseManager{
 		}
 		return null;
         }
+
+    @Override
+    public ArrayList<Disease> getAllDiseases() {
+        
+       ArrayList<Disease> diseases = new ArrayList<>();
+       int counter=0;
+
+    String sql = "SELECT disease FROM Disease";
+    try (Statement stmt = c.createStatement();
+         ResultSet rs = stmt.executeQuery(sql)) {
+
+        while (rs.next() && counter <10 ) {
+            Disease disease = new Disease();
+            disease.setDisease(rs.getString("disease")); // Asignar el nombre de la enfermedad
+            diseases.add(disease);
+            counter++;
+        }
+    } catch (SQLException e) {
+        System.err.println("Error retrieving diseases: " + e.getMessage());
+    }
+
+    return diseases;
+} 
+    
+        
+        
 }

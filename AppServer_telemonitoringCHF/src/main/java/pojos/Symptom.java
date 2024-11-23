@@ -10,52 +10,48 @@ import java.util.Objects;
  *
  * @author maria
  */
-
 public class Symptom {
-		
-	private int id;
-	private String symptom;
-	
-	public Symptom() {
-		super();
-	}
 
-	public Symptom(int id, String symptom) {
-		super();
-		this.id = id;
-		this.symptom = symptom;
-	}
-	
-	public Symptom(String symptom) {
-		super();
-		this.symptom = symptom;
-	}
+    private int id;
+    private String symptom;
 
-	public int getId() {
-		return id;
-	}
-	
-	public void setId(int id) {
-		this.id = id;
-	}
+    public Symptom() {
+        super();
+    }
 
-	public String getType() {
-		return symptom;
-	}
+    public Symptom(int id, String symptom) {
+        super();
+        this.id = id;
+        this.symptom = symptom;
+    }
 
-	public void setType(String symptom) {
-		this.symptom = symptom;
-	}
+    public Symptom(String symptom) {
+        super();
+        this.symptom = symptom;
+    }
 
+    public int getId() {
+        return id;
+    }
 
-	@Override
-	public String toString() {
-		return "Symptom: " + symptom;
-	}
+    public void setId(int id) {
+        this.id = id;
+    }
+
+   
+
+    @Override
+    public String toString() {
+        return "Symptom: " + symptom;
+    }
 
     public String getSymptom() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    return symptom;
     }
-        
-}
+    
 
+    public void setSymptom(String symptom) {
+        this.symptom = symptom;
+    }
+
+}
