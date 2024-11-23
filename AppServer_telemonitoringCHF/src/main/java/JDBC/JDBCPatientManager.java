@@ -25,7 +25,7 @@ public class JDBCPatientManager implements PatientManager {
             String sql = "INSERT INTO Patient (dni, password, name, surname, email, gender, phone, dob, doctor_id) VALUES (?, ?,?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement prep = c.prepareStatement(sql);
             prep.setString(1, patient.getDNI());
-            prep.setString(2, doctor.getPassword());
+            prep.setString(2, patient.getPassword());
             prep.setString(3, patient.getName());
             prep.setString(4, patient.getSurname());
             prep.setString(5, patient.getEmail());
@@ -221,7 +221,7 @@ public class JDBCPatientManager implements PatientManager {
             rs.close();
             prep.close();
         } catch (SQLException e) {
-            System.out.println("Error getting doctor by DNI.");
+            System.out.println("Error getting patient by DNI.");
             e.printStackTrace();
         }
         return patient;
