@@ -103,6 +103,8 @@ public class ModifServerConnection {
                 }else if (line.equals("INSERT_NEW_DISEASE")){
                     handleGetAvailableDiseases(printWriter);                    
                 handleInsertNewDisease(bufferedReader, printWriter);
+                }else if(line.equals("INSERT_EPISODE")){
+                    handleInsertEpisode(bufferedReader, printWriter); 
                 }
             }
         }
@@ -318,11 +320,11 @@ public class ModifServerConnection {
         // Enviar detalles del episodio al cliente
         printWriter.println("SURGERIES");
         for (Surgery surgery : surgeries) {
-            printWriter.println(String.format("%s", surgery.getType()));
+            printWriter.println(String.format("%s", surgery.getSurgery()));
         }
         printWriter.println("SYMPTOMS");
         for (Symptom symptom : symptoms) {
-            printWriter.println(String.format("%s", symptom.getType()));
+            printWriter.println(String.format("%s", symptom.getSymptom()));
         }
         printWriter.println("DISEASES");
         for (Disease disease : diseases) {
@@ -433,7 +435,7 @@ public class ModifServerConnection {
 
     // ME ESTOY LIANDO, IR A DOCTOR MENU (198) --> no se puede simplemente pasarlos episodios del paciente?
     // enviar todos los episodios que tiene ese paciente en concreto
-    private static void handlePatientEpisodes(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
+    /*private static void handlePatientEpisodes(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
         JDBCEpisodeManager episodeManager = new JDBCEpisodeManager(connection);
         JDBCPatientManager patientManager = new JDBCPatientManager(connection);
         String dni = bufferedReader.readLine();
@@ -447,7 +449,7 @@ public class ModifServerConnection {
         }
 
     }
-
+*/
     
     private static void handleGetAvailableDiseases(PrintWriter printWriter) {
     JDBCDiseaseManager diseaseManager = new JDBCDiseaseManager(connection);
@@ -478,7 +480,106 @@ public class ModifServerConnection {
    
    }
     
-    
+    private static void handleInsertEpisode(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
+    try {
+        // Crear managers para acceder a la base de datos
+        JDBCEpisodeManager episodeManager = new JDBCEpisodeManager(connection);
+        JDBCSymptomManager symptomManager = new JDBCSymptomManager(connection);
+        JDBCSurgeryManager surgeryManager = new JDBCSurgeryManager(connection);
+        JDBCRecordingManager recordingManager = new JDBCRecordingManager(connection);
+        JDBCDiseaseManager diseaseManager = new JDBCDiseaseManager(connection);
+
+        // **Paso 1: Enviar datos disponibles al cliente**
+        printWriter.println("AVAILABLE_DISEASES");
+        List<Disease> diseases = diseaseManager.getAllDiseases();
+        for (Disease disease : diseases) {
+            printWriter.println(disease.getDisease());
+        }
+        printWriter.println("END_OF_LIST");
+
+        printWriter.println("AVAILABLE_SYMPTOMS");
+        List<Symptom> symptoms = symptomManager.getAllSymptoms();
+        for (Symptom symptom : symptoms) {
+            printWriter.println(symptom.getSymptom());
+        }
+        printWriter.println("END_OF_LIST");
+
+        printWriter.println("AVAILABLE_SURGERIES");
+        List<Surgery> surgeries = surgeryManager.getAllSurgeries();
+        for (Surgery surgery : surgeries) {
+            printWriter.println(surgery.getSurgery());
+        }
+        printWriter.println("END_OF_LIST");
+
+        // **Paso 2: Leer los datos del episodio enviados por el cliente**
+        int patientId = Integer.parseInt(bufferedReader.readLine());
+        LocalDate episodeDate = LocalDate.parse(bufferedReader.readLine());
+
+        // Crear el objeto episodio
+        Episode episode = new Episode();
+        episode.setPatient_id(patientId);
+        episode.setDate(episodeDate);
+
+        // Insertar el episodio y obtener el ID generado
+        episodeManager.insertEpisode(episode);
+        int episodeId = episode.getId();
+
+        // Leer elementos asociados al episodio
+        String line;
+        while (!(line = bufferedReader.readLine()).equals("END_OF_EPISODE")) {
+            String[] parts = line.split("\\|");
+            switch (parts[0]) {
+                case "DISEASE":
+                    String diseaseName = parts[1];
+                    diseaseManager.insertDisease(diseaseName); // Inserta o ignora si ya existe
+                    int diseaseId = diseaseManager.getDiseaseId(diseaseName); // Recupera el ID
+                    diseaseManager.assignDiseaseToEpisode(diseaseId, episodeId); // Asigna al episodio
+                    break;
+
+                case "SYMPTOM":
+                    String symptomName = parts[1];
+                    symptomManager.insertSymptom(symptomName); // Inserta o ignora si ya existe
+                    int symptomId = symptomManager.getSymptomId(symptomName); // Recupera el ID
+                    symptomManager.assignSymptomToEpisode(symptomId, episodeId); // Asigna al episodio
+                    break;
+
+                case "SURGERY":
+                    String surgeryName = parts[1];
+                    surgeryManager.insertSurgery(surgeryName); // Inserta o ignora si ya existe
+                    int surgeryId = surgeryManager.getSurgeryId(surgeryName); // Recupera el ID
+                    surgeryManager.assignSurgeryToEpisode(surgeryId, episodeId); // Asigna al episodio
+                    break;
+
+                case "RECORDING":
+                    Recording.Type type = Recording.Type.valueOf(parts[1]);
+                    int duration = Integer.parseInt(parts[2]);
+                    LocalDate recordingDate = LocalDate.parse(parts[3]);
+                    String signalPath = parts[4];
+
+                    // Procesar datos de grabación
+                    ArrayList<Integer> data = new ArrayList<>();
+                    String dataPoint;
+                    while (!(dataPoint = bufferedReader.readLine()).equals("END_OF_RECORDING_DATA")) {
+                        data.add(Integer.parseInt(dataPoint));
+                    }
+
+                    // Crear y guardar la grabación
+                    Recording recording = new Recording(type, duration, recordingDate, signalPath, data, episodeId);
+                    recordingManager.insertRecording(recording);
+                    break;
+
+                default:
+                    throw new IllegalArgumentException("Unknown element type: " + parts[0]);
+            }
+        }
+
+        // Confirmar éxito al cliente
+        printWriter.println("SUCCESS");
+    } catch (Exception e) {
+        printWriter.println("ERROR: " + e.getMessage());
+        e.printStackTrace();
+    }
+}
     private static void releaseResources(BufferedReader bufferedReader, PrintWriter printWriter, Socket socket, ServerSocket serverSocket) {
         try {
             if (bufferedReader != null) {

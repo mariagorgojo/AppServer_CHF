@@ -17,4 +17,6 @@ public interface SymptomManager {
             public ArrayList<Symptom> getSymptomsByPatient(String patient_id);
             public String getSymptomById(int symptom_id);
             public void assignSymptomToEpisode(int symptom_id, int episode_id);
+            public ArrayList<Symptom> getAllSymptoms();
+            public Integer getSymptomId(String symptom); 
 }

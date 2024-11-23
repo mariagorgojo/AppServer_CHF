@@ -110,7 +110,23 @@ public class JDBCDiseaseManager implements DiseaseManager{
 		}
 		return null;
         }
-
+        @Override
+        public Integer getDiseaseId(String disease){
+                try {
+			String sql = "SELECT id FROM Disease WHERE disease LIKE ?";
+			PreparedStatement p = c.prepareStatement(sql);
+			p.setString(1, disease); 
+			ResultSet rs = p.executeQuery();
+			int id = rs.getInt("id");
+			rs.close();
+		    p.close();
+			return id;
+		} catch (SQLException e) {
+			System.out.println("database error");
+			e.printStackTrace();
+		}
+		return null;
+        }
     @Override
     public ArrayList<Disease> getAllDiseases() {
         

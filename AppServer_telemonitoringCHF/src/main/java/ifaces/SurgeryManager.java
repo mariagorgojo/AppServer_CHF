@@ -17,4 +17,6 @@ public interface SurgeryManager {
             public ArrayList<Surgery> getSurgeriesByPatient(String patient_id);
             public String getSurgeryById(int surgery_id);
             public void assignSurgeryToEpisode(int surgery_id, int episode_id);
+            public ArrayList<Surgery> getAllSurgeries();
+            public Integer getSurgeryId(String surgery);
 }
