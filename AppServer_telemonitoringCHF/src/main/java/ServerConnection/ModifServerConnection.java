@@ -648,6 +648,7 @@ public class ModifServerConnection {
 
             // Confirmar éxito al cliente
             printWriter.println("SUCCESS");
+            printWriter.flush();
         } catch (Exception e) {
             printWriter.println("ERROR: " + e.getMessage());
             e.printStackTrace();
