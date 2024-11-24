@@ -7,6 +7,7 @@ package JDBC;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -168,30 +169,48 @@ public class ConnectionManager {
     
      
     private void insertDefaultData(Statement s) throws SQLException {
-    String insertDiseases = "INSERT INTO Disease (disease) VALUES " +
-            "('Chronic Heart Failure')," +
-            "('Hypertension')," +
-            "('Ischemic Heart Disease')," +
-            "('Dilated Cardiomyopathy');";
-    s.executeUpdate(insertDiseases);
-    System.out.println("Default diseases inserted.");
+    // Insertar enfermedades solo si la tabla está vacía
+    String checkDiseases = "SELECT COUNT(*) FROM Disease";
+    ResultSet rsDiseases = s.executeQuery(checkDiseases);
+    if (rsDiseases.next() && rsDiseases.getInt(1) == 0) {
+        String insertDiseases = "INSERT INTO Disease (disease) VALUES " +
+                "('Chronic Heart Failure')," +
+                "('Hypertension')," +
+                "('Ischemic Heart Disease')," +
+                "('Dilated Cardiomyopathy');";
+        s.executeUpdate(insertDiseases);
+        System.out.println("Default diseases inserted.");
+    }
+    rsDiseases.close();
 
-    String insertSymptoms = "INSERT INTO Symptom (symptom) VALUES " +
-            "('Shortness of breath')," +
-            "('Fatigue')," +
-            "('Edema')," +
-            "('Orthopnea')," +
-            "('Nocturnal dyspnea');";
-    s.executeUpdate(insertSymptoms);
-    System.out.println("Default symptoms inserted.");
+    // Insertar síntomas solo si la tabla está vacía
+    String checkSymptoms = "SELECT COUNT(*) FROM Symptom";
+    ResultSet rsSymptoms = s.executeQuery(checkSymptoms);
+    if (rsSymptoms.next() && rsSymptoms.getInt(1) == 0) {
+        String insertSymptoms = "INSERT INTO Symptom (symptom) VALUES " +
+                "('Shortness of breath')," +
+                "('Fatigue')," +
+                "('Edema')," +
+                "('Orthopnea')," +
+                "('Nocturnal dyspnea');";
+        s.executeUpdate(insertSymptoms);
+        System.out.println("Default symptoms inserted.");
+    }
+    rsSymptoms.close();
 
-    String insertSurgeries = "INSERT INTO Surgery (surgery) VALUES " +
-            "('Heart Transplant')," +
-            "('Left Ventricular Assist Device (LVAD)')," +
-            "('Coronary Artery Bypass Grafting (CABG)')," +
-            "('Implantable Cardioverter Defibrillator (ICD)');";
-    s.executeUpdate(insertSurgeries);
-    System.out.println("Default surgeries inserted.");
+    // Insertar cirugías solo si la tabla está vacía
+    String checkSurgeries = "SELECT COUNT(*) FROM Surgery";
+    ResultSet rsSurgeries = s.executeQuery(checkSurgeries);
+    if (rsSurgeries.next() && rsSurgeries.getInt(1) == 0) {
+        String insertSurgeries = "INSERT INTO Surgery (surgery) VALUES " +
+                "('Heart Transplant')," +
+                "('Left Ventricular Assist Device (LVAD)')," +
+                "('Coronary Artery Bypass Grafting (CABG)')," +
+                "('Implantable Cardioverter Defibrillator (ICD)');";
+        s.executeUpdate(insertSurgeries);
+        System.out.println("Default surgeries inserted.");
+    }
+    rsSurgeries.close();
 }
 
 }

@@ -142,7 +142,11 @@ public class ModifServerConnection {
         JDBCDoctorManager doctorManager = new JDBCDoctorManager(connection);
 
         String dni = bufferedReader.readLine();
+        System.out.println("DNI received: " + dni);
+
         String password = bufferedReader.readLine(); // Password received securely
+        System.out.println("Password received: " + password);
+
         String name = bufferedReader.readLine();
         String surname = bufferedReader.readLine();
         Integer telephone = Integer.parseInt(bufferedReader.readLine());
@@ -163,12 +167,28 @@ public class ModifServerConnection {
         } else {
             int bound = doctorManager.countNumberOfDoctors();
             //System.out.println(bound);
+            //
+            try {
             int doctor_id = generateRandomInt(bound);
             Doctor doctor = doctorManager.getDoctorById(doctor_id);
+            //
+            if (dni == null || password == null || name == null || surname == null || telephone == null || email == null || dateOfBirth == null || gender == null) {
+    printWriter.println("INVALID");
+    System.out.println("Missing patient data. Registration failed.");
+    return;
+}
             Patient patient = new Patient(dni, password, name, surname, email, gender, telephone, dateOfBirth, doctor);
             patientManager.insertPatient(patient, doctor);
             printWriter.println("VALID"); // Mensaje de confirmación de registro exitoso
             System.out.println("Patient registered on db: " + patient);
+            
+            //
+            } catch (Exception e) {
+    System.out.println("Error registering patient: " + e.getMessage());
+    e.printStackTrace();    
+    printWriter.println("ERROR"); // Informar al cliente del error
+}
+            
         }
     }
 
