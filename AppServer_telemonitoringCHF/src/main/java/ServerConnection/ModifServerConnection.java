@@ -52,7 +52,7 @@ public class ModifServerConnection {
     private static Connection connection;
 
     public static void main(String args[]) throws IOException {
-        ServerSocket serverSocket = new ServerSocket(9001);
+        ServerSocket serverSocket = new ServerSocket(9090);
         System.out.println("Server started, waiting for connection...");
 
         while (true) {
@@ -423,6 +423,7 @@ public class ModifServerConnection {
         printWriter.println("END_OF_LIST");
     }*/
     private static void handleViewPatientInformation(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
+        
         JDBCPatientManager patientManager = new JDBCPatientManager(connection);
         String dni = bufferedReader.readLine();
         Patient patientFromDatabase = patientManager.getPatientByDNI(dni);
