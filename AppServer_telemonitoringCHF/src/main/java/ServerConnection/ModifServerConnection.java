@@ -464,8 +464,17 @@ public class ModifServerConnection {
         } catch (Exception e) {
             printWriter.println("ERROR: " + e.getMessage());
             e.printStackTrace();
+        }finally {
+            // Asegurar que la conexión se cierre correctamente
+            try {
+                if (connection != null && !connection.isClosed()) {
+                    connection.close(); // Cerrar la conexión si no está cerrada
+                    System.out.println("Database connection closed.");
+                }
+            } catch (Exception ex) {
+                System.err.println("Error closing the database connection: " + ex.getMessage());
+            }
         }
-
     }
     
      private static void handleGetAvailableSurgeries(PrintWriter printWriter) {
@@ -480,6 +489,16 @@ public class ModifServerConnection {
         } catch (Exception e) {
             printWriter.println("ERROR: " + e.getMessage());
             e.printStackTrace();
+        }finally {
+            // Asegurar que la conexión se cierre correctamente
+            try {
+                if (connection != null && !connection.isClosed()) {
+                    connection.close(); // Cerrar la conexión si no está cerrada
+                    System.out.println("Database connection closed.");
+                }
+            } catch (Exception ex) {
+                System.err.println("Error closing the database connection: " + ex.getMessage());
+            }
         }
 
     }
@@ -496,6 +515,16 @@ public class ModifServerConnection {
         } catch (Exception e) {
             printWriter.println("ERROR: " + e.getMessage());
             e.printStackTrace();
+        } finally {
+            // Asegurar que la conexión se cierre correctamente
+            try {
+                if (connection != null && !connection.isClosed()) {
+                    connection.close(); // Cerrar la conexión si no está cerrada
+                    System.out.println("Database connection closed.");
+                }
+            } catch (Exception ex) {
+                System.err.println("Error closing the database connection: " + ex.getMessage());
+            }
         }
 
     }
@@ -523,29 +552,6 @@ public class ModifServerConnection {
             JDBCRecordingManager recordingManager = new JDBCRecordingManager(connection);
             JDBCDiseaseManager diseaseManager = new JDBCDiseaseManager(connection);
 
-            // **Paso 1: Enviar datos disponibles al cliente**
-            printWriter.println("AVAILABLE_DISEASES");
-            List<Disease> diseases = diseaseManager.getAllDiseases();
-            for (Disease disease : diseases) {
-                printWriter.println(disease.getDisease());
-            }
-            printWriter.println("END_OF_LIST");
-
-            printWriter.println("AVAILABLE_SYMPTOMS");
-            List<Symptom> symptoms = symptomManager.getAllSymptoms();
-            for (Symptom symptom : symptoms) {
-                printWriter.println(symptom.getSymptom());
-            }
-            printWriter.println("END_OF_LIST");
-
-            printWriter.println("AVAILABLE_SURGERIES");
-            List<Surgery> surgeries = surgeryManager.getAllSurgeries();
-            for (Surgery surgery : surgeries) {
-                printWriter.println(surgery.getSurgery());
-            }
-            printWriter.println("END_OF_LIST");
-
-            // **Paso 2: Leer los datos del episodio enviados por el cliente**
             int patientId = Integer.parseInt(bufferedReader.readLine());
             LocalDate episodeDate = LocalDate.parse(bufferedReader.readLine());
 
@@ -555,8 +561,9 @@ public class ModifServerConnection {
             episode.setDate(episodeDate);
 
             // Insertar el episodio y obtener el ID generado
-            episodeManager.insertEpisode(episode);
+            episodeManager.insertEpisode(episode);         
             int episodeId = episode.getId();
+            System.out.println("episode Id" + episodeId);
 
             // Leer elementos asociados al episodio
             String line;
@@ -565,21 +572,33 @@ public class ModifServerConnection {
                 switch (parts[0]) {
                     case "DISEASE":
                         String diseaseName = parts[1];
-                        diseaseManager.insertDisease(diseaseName); // Inserta o ignora si ya existe
+                        for(int i=0; i<diseaseManager.getAllDiseases().size(); i++){
+                            if(!diseaseName.equals(diseaseManager.getAllDiseases().get(i).getDisease())){
+                                 diseaseManager.insertDisease(diseaseName); // Inserta o ignora si ya existe
+                            }
+                        }
                         int diseaseId = diseaseManager.getDiseaseId(diseaseName); // Recupera el ID
                         diseaseManager.assignDiseaseToEpisode(diseaseId, episodeId); // Asigna al episodio
                         break;
 
                     case "SYMPTOM":
                         String symptomName = parts[1];
-                        symptomManager.insertSymptom(symptomName); // Inserta o ignora si ya existe
+                         for(int i=0; i<symptomManager.getAllSymptoms().size(); i++){
+                            if(!symptomName.equals(symptomManager.getAllSymptoms().get(i).getSymptom())){
+                                 symptomManager.insertSymptom(symptomName); // Inserta o ignora si ya existe
+                            }
+                        }
                         int symptomId = symptomManager.getSymptomId(symptomName); // Recupera el ID
                         symptomManager.assignSymptomToEpisode(symptomId, episodeId); // Asigna al episodio
                         break;
 
                     case "SURGERY":
-                        String surgeryName = parts[1];
-                        surgeryManager.insertSurgery(surgeryName); // Inserta o ignora si ya existe
+                        String surgeryName = parts[1];                      
+                        for(int i=0; i<surgeryManager.getAllSurgeries().size(); i++){
+                            if(!surgeryName.equals(surgeryManager.getAllSurgeries().get(i).getSurgery())){
+                                surgeryManager.insertSurgery(surgeryName); // Inserta o ignora si ya existe
+                            }
+                        }
                         int surgeryId = surgeryManager.getSurgeryId(surgeryName); // Recupera el ID
                         surgeryManager.assignSurgeryToEpisode(surgeryId, episodeId); // Asigna al episodio
                         break;

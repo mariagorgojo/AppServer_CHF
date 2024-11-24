@@ -77,7 +77,7 @@ public class JDBCSymptomManager implements SymptomManager {
         }
         return list;
     }
-
+    @Override
     public ArrayList<Symptom> getSymptomsByPatient(String patient_id) {
         ArrayList<Symptom> list = new ArrayList<Symptom>();
         try {
@@ -95,7 +95,7 @@ public class JDBCSymptomManager implements SymptomManager {
         }
         return list;
     }
-
+    @Override
     public String getSymptomById(int symptom_id) {
         try {
             String sql = "SELECT symptom FROM Symptom WHERE id LIKE ?";
