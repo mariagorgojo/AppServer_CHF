@@ -1,11 +1,14 @@
+
+import Executable.*;
 import JDBC.ConnectionManager;
 import JDBC.JDBCEpisodeManager;
 import pojos.*;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.List; 
 
 public class TestInsertEpisode {
     public static void main(String[] args) {
@@ -19,7 +22,7 @@ public class TestInsertEpisode {
             episodeManager = new JDBCEpisodeManager(connection);
 
             // Crear un episodio para el paciente con ID 101 y fecha actual
-            Episode episode = new Episode(101, LocalDate.now()); // Paciente con ID 101
+            Episode episode = new Episode(101, LocalDateTime.now()); // Paciente con ID 101
 
             // Añadir cirugías al episodio
             Surgery appendectomy = new Surgery();
