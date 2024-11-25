@@ -591,6 +591,7 @@ public class ModifServerConnection {
 
             // Insertar el episodio y obtener el ID generado
             episodeManager.insertEpisode(episode);
+            // asignacion disease, surgey, symtom
             int episodeId = episodeManager.getEpisodeId(episodeDate, patientId);
 
             System.out.println("episode Id" + episodeId);
