@@ -80,7 +80,6 @@ public class ConnectionManager {
                     + "phone INTEGER NOT NULL,"
                     + "gender TEXT NOT NULL,"
                     + "doctor_id INTEGER,"
-                    + "episodes_id INTEGER,"
                     + "FOREIGN KEY (doctor_id) REFERENCES Doctor(id) ON DELETE SET NULL);";
             s.executeUpdate(table_Patient);
             System.out.println("Table Patient created.");

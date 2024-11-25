@@ -108,7 +108,8 @@ public class ModifServerConnection {
                     handleInsertEpisode(bufferedReader, printWriter);
                 }
             }
-        }
+            
+        }       
     }
 
     private static void handleDoctorRegister(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
@@ -481,8 +482,10 @@ public class ModifServerConnection {
                 printWriter.println(disease.getDisease()); // Enviar cada enfermedad al cliente
             }
             printWriter.println("END_OF_LIST"); // Marcar el final de la lista
+            printWriter.flush();
         } catch (Exception e) {
             printWriter.println("ERROR: " + e.getMessage());
+            printWriter.flush();
             e.printStackTrace();
         }finally {
             // Asegurar que la conexión se cierre correctamente
@@ -506,8 +509,10 @@ public class ModifServerConnection {
                 printWriter.println(surgery.getSurgery()); // Enviar cada enfermedad al cliente
             }
             printWriter.println("END_OF_LIST"); // Marcar el final de la lista
+            printWriter.flush();
         } catch (Exception e) {
             printWriter.println("ERROR: " + e.getMessage());
+            printWriter.flush();
             e.printStackTrace();
         }finally {
             // Asegurar que la conexión se cierre correctamente
@@ -532,8 +537,10 @@ public class ModifServerConnection {
                 printWriter.println(symptom.getSymptom()); // Enviar cada enfermedad al cliente
             }
             printWriter.println("END_OF_LIST"); // Marcar el final de la lista
+            printWriter.flush();
         } catch (Exception e) {
             printWriter.println("ERROR: " + e.getMessage());
+            printWriter.flush();
             e.printStackTrace();
         } finally {
             // Asegurar que la conexión se cierre correctamente

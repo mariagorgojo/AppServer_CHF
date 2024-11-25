@@ -120,7 +120,8 @@ public class JDBCSymptomManager implements SymptomManager {
         int counter = 0;
 
         String sql = "SELECT symptom FROM Symptom";
-        try (Statement stmt = c.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
+        try (Statement stmt = c.createStatement(); 
+             ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next() && counter < 10) {
                 Symptom symptom = new Symptom();

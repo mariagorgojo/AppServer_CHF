@@ -145,6 +145,7 @@ public class JDBCDiseaseManager implements DiseaseManager{
         }
     } catch (SQLException e) {
         System.err.println("Error retrieving diseases: " + e.getMessage());
+        e.printStackTrace(); // Para facilitar la depuración
     }
 
     return diseases;
