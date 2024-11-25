@@ -109,8 +109,8 @@ public class ModifServerConnection {
                     handleInsertEpisode(bufferedReader, printWriter);
                 }
             }
-            
-        }       
+
+        }
     }
 
     private static void handleDoctorRegister(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
@@ -171,26 +171,26 @@ public class ModifServerConnection {
             //System.out.println(bound);
             //
             try {
-            int doctor_id = generateRandomInt(bound);
-            Doctor doctor = doctorManager.getDoctorById(doctor_id);
-            //
-            if (dni == null || password == null || name == null || surname == null || telephone == null || email == null || dateOfBirth == null || gender == null) {
-    printWriter.println("INVALID");
-    System.out.println("Missing patient data. Registration failed.");
-    return;
-}
-            Patient patient = new Patient(dni, password, name, surname, email, gender, telephone, dateOfBirth, doctor);
-            patientManager.insertPatient(patient, doctor);
-            printWriter.println("VALID"); // Mensaje de confirmación de registro exitoso
-            System.out.println("Patient registered on db: " + patient);
-            
-            //
+                int doctor_id = generateRandomInt(bound);
+                Doctor doctor = doctorManager.getDoctorById(doctor_id);
+                //
+                if (dni == null || password == null || name == null || surname == null || telephone == null || email == null || dateOfBirth == null || gender == null) {
+                    printWriter.println("INVALID");
+                    System.out.println("Missing patient data. Registration failed.");
+                    return;
+                }
+                Patient patient = new Patient(dni, password, name, surname, email, gender, telephone, dateOfBirth, doctor);
+                patientManager.insertPatient(patient, doctor);
+                printWriter.println("VALID"); // Mensaje de confirmación de registro exitoso
+                System.out.println("Patient registered on db: " + patient);
+
+                //
             } catch (Exception e) {
-    System.out.println("Error registering patient: " + e.getMessage());
-    e.printStackTrace();    
-    printWriter.println("ERROR"); // Informar al cliente del error
-}
-            
+                System.out.println("Error registering patient: " + e.getMessage());
+                e.printStackTrace();
+                printWriter.println("ERROR"); // Informar al cliente del error
+            }
+
         }
     }
 
@@ -488,7 +488,7 @@ public class ModifServerConnection {
             printWriter.println("ERROR: " + e.getMessage());
             printWriter.flush();
             e.printStackTrace();
-        }finally {
+        } finally {
             // Asegurar que la conexión se cierre correctamente
             try {
                 if (connection != null && !connection.isClosed()) {
@@ -500,8 +500,8 @@ public class ModifServerConnection {
             }
         }
     }
-    
-     private static void handleGetAvailableSurgeries(PrintWriter printWriter) {
+
+    private static void handleGetAvailableSurgeries(PrintWriter printWriter) {
         JDBCSurgeryManager surgeryManager = new JDBCSurgeryManager(connection);
 
         try {
@@ -514,34 +514,6 @@ public class ModifServerConnection {
         } catch (Exception e) {
             printWriter.println("ERROR: " + e.getMessage());
             printWriter.flush();
-            e.printStackTrace();
-        }finally {
-            // Asegurar que la conexión se cierre correctamente
-            try {
-                if (connection != null && !connection.isClosed()) {
-                    connection.close(); // Cerrar la conexión si no está cerrada
-                    System.out.println("Database connection closed.");
-                }
-            } catch (Exception ex) {
-                System.err.println("Error closing the database connection: " + ex.getMessage());
-            }
-        }
-
-    }
-     
-       private static void handleGetAvailableSymptoms(PrintWriter printWriter) {
-        JDBCSymptomManager symptomManager = new JDBCSymptomManager(connection);
-
-        try {
-            List<Symptom> symptoms = symptomManager.getAllSymptoms(); // Obtener todas las enfermedades
-            for (Symptom symptom : symptoms) {
-                printWriter.println(symptom.getSymptom()); // Enviar cada enfermedad al cliente
-            }
-            printWriter.println("END_OF_LIST"); // Marcar el final de la lista
-            //printWriter.flush();
-        } catch (Exception e) {
-             System.out.println("ERROR: " + e.getMessage());
-           // printWriter.flush();
             e.printStackTrace();
         } finally {
             // Asegurar que la conexión se cierre correctamente
@@ -556,9 +528,37 @@ public class ModifServerConnection {
         }
 
     }
-    
 
-   /* private static void handleInsertNewDisease(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
+    private static void handleGetAvailableSymptoms(PrintWriter printWriter) {
+        JDBCSymptomManager symptomManager = new JDBCSymptomManager(connection);
+
+        try {
+            List<Symptom> symptoms = symptomManager.getAllSymptoms(); // Obtener todas las enfermedades
+            for (Symptom symptom : symptoms) {
+                printWriter.println(symptom.getSymptom()); // Enviar cada enfermedad al cliente
+            }
+            printWriter.println("END_OF_LIST"); // Marcar el final de la lista
+            //printWriter.flush();
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
+            // printWriter.flush();
+            e.printStackTrace();
+        } finally {
+            // Asegurar que la conexión se cierre correctamente
+            try {
+                if (connection != null && !connection.isClosed()) {
+                    connection.close(); // Cerrar la conexión si no está cerrada
+                    System.out.println("Database connection closed.");
+                }
+            } catch (Exception ex) {
+                System.err.println("Error closing the database connection: " + ex.getMessage());
+            }
+        }
+
+    }
+
+
+    /* private static void handleInsertNewDisease(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
         String diseaseName = bufferedReader.readLine();
         try {
             JDBCDiseaseManager diseaseManager = new JDBCDiseaseManager(connection);
@@ -570,7 +570,6 @@ public class ModifServerConnection {
         }
 
     }*/
-
     private static void handleInsertEpisode(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
         try {
             // Crear managers para acceder a la base de datos
@@ -588,24 +587,26 @@ public class ModifServerConnection {
             episode.setPatient_id(patientId);
             episode.setDate(episodeDate);
 
+            System.out.println("episodeDate" + episodeDate);
+
             // Insertar el episodio y obtener el ID generado
-            episodeManager.insertEpisode(episode); 
-            int episodeId = episodeManager.getEpisodeId(episodeDate);
+            episodeManager.insertEpisode(episode);
+            int episodeId = episodeManager.getEpisodeId(episodeDate, patientId);
+
             System.out.println("episode Id" + episodeId);
 
-            
             // Leer elementos asociados al episodio
             String line;
             while (!((line = bufferedReader.readLine()).equals("END_OF_EPISODE"))) {
-               System.out.println("line:" + line);
+                System.out.println("line:" + line);
 
                 String[] parts = line.split("\\|");
                 switch (parts[0]) {
                     case "DISEASE":
                         String diseaseName = parts[1];
-                        for(int i=0; i<diseaseManager.getAllDiseases().size(); i++){
-                            if(!diseaseName.equals(diseaseManager.getAllDiseases().get(i).getDisease())){
-                                 diseaseManager.insertDisease(diseaseName); // Inserta o ignora si ya existe
+                        for (int i = 0; i < diseaseManager.getAllDiseases().size(); i++) {
+                            if (!diseaseName.equals(diseaseManager.getAllDiseases().get(i).getDisease())) {
+                                diseaseManager.insertDisease(diseaseName); // Inserta o ignora si ya existe
                             }
                         }
                         int diseaseId = diseaseManager.getDiseaseId(diseaseName); // Recupera el ID
@@ -614,9 +615,9 @@ public class ModifServerConnection {
 
                     case "SYMPTOM":
                         String symptomName = parts[1];
-                         for(int i=0; i<symptomManager.getAllSymptoms().size(); i++){
-                            if(!symptomName.equals(symptomManager.getAllSymptoms().get(i).getSymptom())){
-                                 symptomManager.insertSymptom(symptomName); // Inserta o ignora si ya existe
+                        for (int i = 0; i < symptomManager.getAllSymptoms().size(); i++) {
+                            if (!symptomName.equals(symptomManager.getAllSymptoms().get(i).getSymptom())) {
+                                symptomManager.insertSymptom(symptomName); // Inserta o ignora si ya existe
                             }
                         }
                         int symptomId = symptomManager.getSymptomId(symptomName); // Recupera el ID
@@ -624,9 +625,9 @@ public class ModifServerConnection {
                         break;
 
                     case "SURGERY":
-                        String surgeryName = parts[1];                      
-                        for(int i=0; i<surgeryManager.getAllSurgeries().size(); i++){
-                            if(!surgeryName.equals(surgeryManager.getAllSurgeries().get(i).getSurgery())){
+                        String surgeryName = parts[1];
+                        for (int i = 0; i < surgeryManager.getAllSurgeries().size(); i++) {
+                            if (!surgeryName.equals(surgeryManager.getAllSurgeries().get(i).getSurgery())) {
                                 surgeryManager.insertSurgery(surgeryName); // Inserta o ignora si ya existe
                             }
                         }

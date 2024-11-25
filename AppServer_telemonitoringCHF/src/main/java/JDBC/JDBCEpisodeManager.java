@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import pojos.Episode;
 import ifaces.EpisodeManager;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class JDBCEpisodeManager implements EpisodeManager {
 
@@ -113,6 +114,31 @@ public class JDBCEpisodeManager implements EpisodeManager {
         return episode;
     }
 
+    // CRAEDA NUEVA -> MARTA G  VOLVER
+    @Override
+    public Integer getEpisodeId(LocalDateTime date, int patient_id) {
+        String sql = "SELECT id FROM Episode WHERE date = ? AND patient_id = ?";
+
+        try ( PreparedStatement p = c.prepareStatement(sql)) {
+            // Convertir LocalDateTime al formato esperado por la base de datos
+            String formattedDate = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
+            p.setString(1, formattedDate); // Usar setString con el formato correcto
+            p.setInt(2, patient_id); // Establecer el patient_id como segundo parámetro
+
+            try ( ResultSet rs = p.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("id"); // Retornar el id si existe
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al recuperar el ID del episodio: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null; // Retornar null si no se encuentra el episodio o hay un error
+    }
+
+
+    /* LA HIZO CARMEN LA MODIFICO
     @Override
     public Integer getEpisodeId(LocalDateTime date) {
         try {
@@ -138,5 +164,5 @@ public class JDBCEpisodeManager implements EpisodeManager {
             e.printStackTrace();
         }
         return null;
-    }
+    } */
 }
