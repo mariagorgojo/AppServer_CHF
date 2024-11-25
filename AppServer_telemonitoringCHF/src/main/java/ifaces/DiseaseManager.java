@@ -18,6 +18,9 @@ public interface DiseaseManager {
             public String getDiseaseById(int disease_id);
             public void assignDiseaseToEpisode(int disease_id, int episode_id);
             public ArrayList <Disease> getAllDiseases();
-            public Integer getDiseaseId(String disease);
+            public int getDiseaseId(String disease);
+            
+            // nuevas
+                public boolean isDiseaseAssociatedWithEpisode(int diseaseId, int episodeId);
 }
 //for commit

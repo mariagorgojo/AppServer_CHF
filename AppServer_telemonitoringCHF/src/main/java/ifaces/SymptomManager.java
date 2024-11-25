@@ -18,5 +18,9 @@ public interface SymptomManager {
             public String getSymptomById(int symptom_id);
             public void assignSymptomToEpisode(int symptom_id, int episode_id);
             public ArrayList<Symptom> getAllSymptoms();
-            public Integer getSymptomId(String symptom); 
+            public int getSymptomId(String symptom); 
+            //  nuevo
+            public boolean isSymptomAssociatedWithEpisode(int symptomId, int episodeId);
+
+            
 }

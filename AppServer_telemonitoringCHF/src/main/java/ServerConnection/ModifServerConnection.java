@@ -578,10 +578,10 @@ public class ModifServerConnection {
             JDBCSurgeryManager surgeryManager = new JDBCSurgeryManager(connection);
             JDBCRecordingManager recordingManager = new JDBCRecordingManager(connection);
             JDBCDiseaseManager diseaseManager = new JDBCDiseaseManager(connection);
-
+            
             int patientId = Integer.parseInt(bufferedReader.readLine());
             LocalDateTime episodeDate = LocalDateTime.parse(bufferedReader.readLine());
-
+            System.out.println("Patient ID associated "+patientId);
             // Crear el objeto episodio
             Episode episode = new Episode();
             episode.setPatient_id(patientId);
@@ -605,6 +605,7 @@ public class ModifServerConnection {
                 switch (parts[0]) {
                     case "DISEASE":
                         String diseaseName = parts[1];
+                        /*
                         for (int i = 0; i < diseaseManager.getAllDiseases().size(); i++) {
                             if (!diseaseName.equals(diseaseManager.getAllDiseases().get(i).getDisease())) {
                                 diseaseManager.insertDisease(diseaseName); // Inserta o ignora si ya existe
@@ -612,28 +613,62 @@ public class ModifServerConnection {
                         }
                         int diseaseId = diseaseManager.getDiseaseId(diseaseName); // Recupera el ID
                         diseaseManager.assignDiseaseToEpisode(diseaseId, episodeId); // Asigna al episodio
+                        */
+                        // Recuperar ID si existe, o insertar y luego recuperar
+    int diseaseId = diseaseManager.getDiseaseId(diseaseName);
+    if (diseaseId == -1) { // -1 o un valor especial significa que no existe
+        diseaseManager.insertDisease(diseaseName);
+        diseaseId = diseaseManager.getDiseaseId(diseaseName);
+    }
+    // Asociar solo si no está ya asociado con el episodio
+    if (!diseaseManager.isDiseaseAssociatedWithEpisode(diseaseId, episodeId)) {
+        diseaseManager.assignDiseaseToEpisode(diseaseId, episodeId);
+    }
                         break;
 
                     case "SYMPTOM":
                         String symptomName = parts[1];
-                        for (int i = 0; i < symptomManager.getAllSymptoms().size(); i++) {
+                        /*for (int i = 0; i < symptomManager.getAllSymptoms().size(); i++) {
                             if (!symptomName.equals(symptomManager.getAllSymptoms().get(i).getSymptom())) {
                                 symptomManager.insertSymptom(symptomName); // Inserta o ignora si ya existe
                             }
                         }
                         int symptomId = symptomManager.getSymptomId(symptomName); // Recupera el ID
-                        symptomManager.assignSymptomToEpisode(symptomId, episodeId); // Asigna al episodio
+                        symptomManager.assignSymptomToEpisode(symptomId, episodeId); // Asigna al episodio*/
+                        
+                        int symptomId = symptomManager.getSymptomId(symptomName);
+    if (symptomId == -1) {
+        symptomManager.insertSymptom(symptomName);
+        symptomId = symptomManager.getSymptomId(symptomName);
+    }
+    if (!symptomManager.isSymptomAssociatedWithEpisode(symptomId, episodeId)) {
+        symptomManager.assignSymptomToEpisode(symptomId, episodeId);
+    }
+                        
+                        
                         break;
 
                     case "SURGERY":
                         String surgeryName = parts[1];
-                        for (int i = 0; i < surgeryManager.getAllSurgeries().size(); i++) {
+                        /*for (int i = 0; i < surgeryManager.getAllSurgeries().size(); i++) {
                             if (!surgeryName.equals(surgeryManager.getAllSurgeries().get(i).getSurgery())) {
                                 surgeryManager.insertSurgery(surgeryName); // Inserta o ignora si ya existe
                             }
                         }
                         int surgeryId = surgeryManager.getSurgeryId(surgeryName); // Recupera el ID
-                        surgeryManager.assignSurgeryToEpisode(surgeryId, episodeId); // Asigna al episodio
+                        surgeryManager.assignSurgeryToEpisode(surgeryId, episodeId); // Asigna al episodio*/
+                        
+                        int surgeryId = surgeryManager.getSurgeryId(surgeryName);
+    if (surgeryId == -1) {
+        surgeryManager.insertSurgery(surgeryName);
+        surgeryId = surgeryManager.getSurgeryId(surgeryName);
+    }
+    if (!surgeryManager.isSurgeryAssociatedWithEpisode(surgeryId, episodeId)) {
+        surgeryManager.assignSurgeryToEpisode(surgeryId, episodeId);
+    }
+                        
+                        
+                        
                         break;
 
                     case "RECORDING":

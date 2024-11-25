@@ -29,12 +29,12 @@ public class JDBCSurgeryManager implements SurgeryManager {
 
     @Override
     public void insertSurgery(String surgery) {
-
         try {
-            Statement s = c.createStatement();
-            String sql = "INSERT OR IGNORE INTO Surgery (surgery) VALUES ('" + surgery + "')";
-            s.executeUpdate(sql);
-            s.close();
+            String sql = "INSERT OR IGNORE INTO Surgery (surgery) VALUES (?)";
+            try ( PreparedStatement p = c.prepareStatement(sql)) {
+                p.setString(1, surgery);
+                p.executeUpdate();
+            }
         } catch (SQLException e) {
             System.out.println("Database exception.");
             e.printStackTrace();
@@ -58,16 +58,19 @@ public class JDBCSurgeryManager implements SurgeryManager {
     }
 
     @Override
+
     public ArrayList<Surgery> getSurgeriesByEpisode(int episode_id) {
-        ArrayList<Surgery> list = new ArrayList<Surgery>();
-        try {
-            String sql = "SELECT surgery_id FROM Episode_Surgery WHERE episode_id LIKE ?";
-            PreparedStatement p = c.prepareStatement(sql);
+        ArrayList<Surgery> list = new ArrayList<>();
+        String sql = "SELECT Surgery.id, Surgery.surgery FROM Surgery "
+                + "JOIN Episode_Surgery ON Surgery.id = Episode_Surgery.surgery_id "
+                + "WHERE Episode_Surgery.episode_id = ?";
+        try ( PreparedStatement p = c.prepareStatement(sql)) {
             p.setInt(1, episode_id);
-            ResultSet rs = p.executeQuery();
-            while (rs.next()) {
-                Surgery s = new Surgery(rs.getInt("id"), rs.getString("surgery"));
-                list.add(s);
+            try ( ResultSet rs = p.executeQuery()) {
+                while (rs.next()) {
+                    Surgery s = new Surgery(rs.getInt("id"), rs.getString("surgery"));
+                    list.add(s);
+                }
             }
         } catch (SQLException e) {
             System.out.println("database error");
@@ -77,16 +80,20 @@ public class JDBCSurgeryManager implements SurgeryManager {
     }
 
     @Override
+
     public ArrayList<Surgery> getSurgeriesByPatient(String patient_id) {
-        ArrayList<Surgery> list = new ArrayList<Surgery>();
-        try {
-            String sql = "SELECT Surgery.* FROM Surgery JOIN Episode_Surgery ON Surgery.id = Episode_Surgery.surgery_id JOIN Episode ON Episode_Surgery.episode_id = Episode.id WHERE Episode.patient_id = ?;";
-            PreparedStatement p = c.prepareStatement(sql);
+        ArrayList<Surgery> list = new ArrayList<>();
+        String sql = "SELECT Surgery.id, Surgery.surgery FROM Surgery "
+                + "JOIN Episode_Surgery ON Surgery.id = Episode_Surgery.surgery_id "
+                + "JOIN Episode ON Episode_Surgery.episode_id = Episode.id "
+                + "WHERE Episode.patient_id = ?";
+        try ( PreparedStatement p = c.prepareStatement(sql)) {
             p.setString(1, patient_id);
-            ResultSet rs = p.executeQuery();
-            while (rs.next()) {
-                Surgery s = new Surgery(rs.getInt("id"), rs.getString("surgery"));
-                list.add(s);
+            try ( ResultSet rs = p.executeQuery()) {
+                while (rs.next()) {
+                    Surgery s = new Surgery(rs.getInt("id"), rs.getString("surgery"));
+                    list.add(s);
+                }
             }
         } catch (SQLException e) {
             System.out.println("database error");
@@ -97,59 +104,72 @@ public class JDBCSurgeryManager implements SurgeryManager {
 
     @Override
     public String getSurgeryById(int surgery_id) {
-        try {
-            String sql = "SELECT surgery FROM Surgery WHERE id LIKE ?";
-            PreparedStatement p = c.prepareStatement(sql);
+        String sql = "SELECT surgery FROM Surgery WHERE id = ?";
+        try ( PreparedStatement p = c.prepareStatement(sql)) {
             p.setInt(1, surgery_id);
-            ResultSet rs = p.executeQuery();
-            String name = rs.getString("surgery");
-            rs.close();
-            p.close();
-            return name;
+            try ( ResultSet rs = p.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("surgery");
+                }
+            }
         } catch (SQLException e) {
             System.out.println("database error");
             e.printStackTrace();
         }
-        return null;
+        return null; // Retorna null si no se encuentra
     }
 
     @Override
     public ArrayList<Surgery> getAllSurgeries() {
-
         ArrayList<Surgery> surgeries = new ArrayList<>();
-        int counter = 0;
-
-        String sql = "SELECT * FROM Surgery";
-        try (Statement stmt = c.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
-
-            while (rs.next() && counter < 10) {
-                Surgery surgery = new Surgery();
-                surgery.setSurgery(rs.getString("surgery")); // Asignar el nombre de la cirugía
+        String sql = "SELECT id, surgery FROM Surgery";
+        try ( Statement stmt = c.createStatement();  ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                Surgery surgery = new Surgery(rs.getInt("id"), rs.getString("surgery"));
                 surgeries.add(surgery);
-                counter++;
             }
         } catch (SQLException e) {
             System.err.println("Error retrieving surgeries: " + e.getMessage());
+            e.printStackTrace();
         }
-
         return surgeries;
     }
 
     @Override
-    public Integer getSurgeryId(String surgery) {
-        try {
-            String sql = "SELECT id FROM Surgery WHERE surgery LIKE ?";
-            PreparedStatement p = c.prepareStatement(sql);
+
+    public int getSurgeryId(String surgery) {
+        String sql = "SELECT id FROM Surgery WHERE surgery LIKE ?";
+        try ( PreparedStatement p = c.prepareStatement(sql)) {
             p.setString(1, surgery);
-            ResultSet rs = p.executeQuery();
-            int id = rs.getInt("id");
-            rs.close();
-            p.close();
-            return id;
+            try ( ResultSet rs = p.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("id");
+                }
+            }
         } catch (SQLException e) {
             System.out.println("Database error while retrieving surgery ID");
             e.printStackTrace();
         }
-        return null;
+        return -1; // Retorna -1 si no se encuentra
     }
+
+    // nueva
+    @Override
+
+    public boolean isSurgeryAssociatedWithEpisode(int surgeryId, int episodeId) {
+        String sql = "SELECT COUNT(*) FROM Episode_Surgery WHERE surgery_id = ? AND episode_id = ?";
+        try ( PreparedStatement p = c.prepareStatement(sql)) {
+            p.setInt(1, surgeryId);
+            p.setInt(2, episodeId);
+            try ( ResultSet rs = p.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0; // Devuelve true si ya está asociado
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 }

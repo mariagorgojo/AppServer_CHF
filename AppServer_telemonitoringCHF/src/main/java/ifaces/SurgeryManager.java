@@ -18,5 +18,9 @@ public interface SurgeryManager {
             public String getSurgeryById(int surgery_id);
             public void assignSurgeryToEpisode(int surgery_id, int episode_id);
             public ArrayList<Surgery> getAllSurgeries();
-            public Integer getSurgeryId(String surgery);
+            public int getSurgeryId(String surgery);
+            // nuevo
+                public boolean isSurgeryAssociatedWithEpisode(int surgeryId, int episodeId);
+
+           
 }

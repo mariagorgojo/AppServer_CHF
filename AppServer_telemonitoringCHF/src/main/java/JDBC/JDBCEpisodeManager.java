@@ -116,13 +116,13 @@ public class JDBCEpisodeManager implements EpisodeManager {
 
     // CRAEDA NUEVA -> MARTA G  VOLVER
     @Override
-    public Integer getEpisodeId(LocalDateTime date, int patient_id) {
-        String sql = "SELECT id FROM Episode WHERE date LIKE '?%' AND patient_id = ?";
+    public int getEpisodeId(LocalDateTime date, int patient_id) {
+        String sql = "SELECT id FROM Episode WHERE date LIKE ? AND patient_id = ?";
 
         try ( PreparedStatement p = c.prepareStatement(sql)) {
             // Convertir LocalDateTime al formato esperado por la base de datos
             String formattedDate = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS"));
-            p.setString(1, formattedDate); // Usar setString con el formato correcto
+            p.setString(1, formattedDate+ "%"); // Usar setString con el formato correcto
             p.setInt(2, patient_id); // Establecer el patient_id como segundo parámetro
 
             try ( ResultSet rs = p.executeQuery()) {
@@ -134,7 +134,7 @@ public class JDBCEpisodeManager implements EpisodeManager {
             System.err.println("Error al recuperar el ID del episodio: " + e.getMessage());
             e.printStackTrace();
         }
-        return null; // Retornar null si no se encuentra el episodio o hay un error
+        return -1; // Retornar null si no se encuentra el episodio o hay un error
     }
 
 

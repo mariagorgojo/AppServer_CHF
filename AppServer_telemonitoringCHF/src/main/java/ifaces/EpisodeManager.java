@@ -18,5 +18,5 @@ public interface EpisodeManager {
     	public ArrayList<Episode> getEpisodesByPatient(Integer patient_id); 
     	public ArrayList<Episode> getEpisodesByDate(int patient_id, LocalDate date); //aqui poner una funcion que acceda a los episodes del paciente y una vez ahi a los de la fecha de esee paciente
         public Episode getEpisodeById(int patient_id,int episode_id);
-        public Integer getEpisodeId(LocalDateTime date, int patient_id);
+        public int getEpisodeId(LocalDateTime date, int patient_id);
 }
