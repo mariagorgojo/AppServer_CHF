@@ -537,10 +537,10 @@ public class ModifServerConnection {
                 printWriter.println(symptom.getSymptom()); // Enviar cada enfermedad al cliente
             }
             printWriter.println("END_OF_LIST"); // Marcar el final de la lista
-            printWriter.flush();
+            //printWriter.flush();
         } catch (Exception e) {
-            printWriter.println("ERROR: " + e.getMessage());
-            printWriter.flush();
+             System.out.println("ERROR: " + e.getMessage());
+           // printWriter.flush();
             e.printStackTrace();
         } finally {
             // Asegurar que la conexión se cierre correctamente
@@ -589,12 +589,15 @@ public class ModifServerConnection {
 
             // Insertar el episodio y obtener el ID generado
             episodeManager.insertEpisode(episode);         
-            int episodeId = episode.getId();
+            int episodeId = episode.getId(); // error aqui??
             System.out.println("episode Id" + episodeId);
 
+            
             // Leer elementos asociados al episodio
             String line;
-            while (!(line = bufferedReader.readLine()).equals("END_OF_EPISODE")) {
+            while (!((line = bufferedReader.readLine()).equals("END_OF_EPISODE"))) {
+               System.out.println("line:" + line);
+
                 String[] parts = line.split("\\|");
                 switch (parts[0]) {
                     case "DISEASE":

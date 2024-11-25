@@ -113,4 +113,24 @@ public class JDBCEpisodeManager implements EpisodeManager {
         }
         return episode;
     }
+    
+   /* @Override error override volver
+    public Integer getEpisodeId(String episode) {
+        try {
+            String sql = "SELECT id FROM Episode WHERE episode LIKE ?";
+            PreparedStatement p = c.prepareStatement(sql);
+            p.setString(1, episode);
+            ResultSet rs = p.executeQuery();
+            int id = rs.getInt("id");
+            rs.close();
+            p.close();
+            return id;
+        } catch (SQLException e) {
+            System.out.println("Database error while retrieving episode ID");
+            e.printStackTrace();
+        }
+        return null;
+    } */
+    
 }
+    
