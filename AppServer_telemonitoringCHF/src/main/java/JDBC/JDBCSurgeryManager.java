@@ -119,7 +119,7 @@ public class JDBCSurgeryManager implements SurgeryManager {
         ArrayList<Surgery> surgeries = new ArrayList<>();
         int counter = 0;
 
-        String sql = "SELECT surgery FROM Surgery";
+        String sql = "SELECT * FROM Surgery";
         try (Statement stmt = c.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next() && counter < 10) {

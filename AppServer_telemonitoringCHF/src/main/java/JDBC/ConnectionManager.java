@@ -109,7 +109,7 @@ public class ConnectionManager {
             String table_Episode = "CREATE TABLE IF NOT EXISTS Episode ("
                     + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + "patient_id INTEGER,"
-                    + "date DATE NOT NULL,"
+                    + "date DATETIME NOT NULL,"
                     + "FOREIGN KEY (patient_id) REFERENCES Patient(id) ON DELETE SET NULL);";
             s.executeUpdate(table_Episode);
             System.out.println("Table Episode created.");

@@ -133,7 +133,7 @@ public class JDBCDiseaseManager implements DiseaseManager{
        ArrayList<Disease> diseases = new ArrayList<>();
        int counter=0;
 
-    String sql = "SELECT disease FROM Disease";
+    String sql = "SELECT * FROM Disease";
     try (Statement stmt = c.createStatement();
          ResultSet rs = stmt.executeQuery(sql)) {
 

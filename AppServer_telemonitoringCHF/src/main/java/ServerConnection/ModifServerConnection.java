@@ -24,6 +24,7 @@ import java.net.ServerSocket;
 import java.sql.Connection;
 import java.net.Socket;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -580,7 +581,7 @@ public class ModifServerConnection {
             JDBCDiseaseManager diseaseManager = new JDBCDiseaseManager(connection);
 
             int patientId = Integer.parseInt(bufferedReader.readLine());
-            LocalDate episodeDate = LocalDate.parse(bufferedReader.readLine());
+            LocalDateTime episodeDate = LocalDateTime.parse(bufferedReader.readLine());
 
             // Crear el objeto episodio
             Episode episode = new Episode();
@@ -588,8 +589,8 @@ public class ModifServerConnection {
             episode.setDate(episodeDate);
 
             // Insertar el episodio y obtener el ID generado
-            episodeManager.insertEpisode(episode);         
-            int episodeId = episode.getId(); // error aqui??
+            episodeManager.insertEpisode(episode); 
+            int episodeId = episodeManager.getEpisodeId(episodeDate);
             System.out.println("episode Id" + episodeId);
 
             

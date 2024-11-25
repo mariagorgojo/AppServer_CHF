@@ -12,10 +12,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import pojos.Episode;
 import ifaces.EpisodeManager;
-
+import java.time.LocalDateTime;
 
 public class JDBCEpisodeManager implements EpisodeManager {
-
 
     private Connection c;
 
@@ -48,9 +47,9 @@ public class JDBCEpisodeManager implements EpisodeManager {
             ResultSet rs = prep.executeQuery();
             while (rs.next()) {
                 Episode episode = new Episode(
-                    rs.getInt("id"),
-                    LocalDate.parse(rs.getString("date")),
-                    rs.getInt("patient_id")
+                        rs.getInt("id"),
+                        LocalDateTime.parse(rs.getString("date")),
+                        rs.getInt("patient_id")
                 );
                 episodesList.add(episode);
             }
@@ -74,9 +73,9 @@ public class JDBCEpisodeManager implements EpisodeManager {
             ResultSet rs = prep.executeQuery();
             while (rs.next()) {
                 Episode episode = new Episode(
-                    rs.getInt("id"),
-                    LocalDate.parse(rs.getString("date")),
-                    rs.getInt("patient_id")
+                        rs.getInt("id"),
+                        LocalDateTime.parse(rs.getString("date")),
+                        rs.getInt("patient_id")
                 );
                 episodesList.add(episode);
             }
@@ -100,9 +99,9 @@ public class JDBCEpisodeManager implements EpisodeManager {
             ResultSet rs = prep.executeQuery();
             if (rs.next()) {
                 episode = new Episode(
-                    rs.getInt("id"),
-                    LocalDate.parse(rs.getString("date")),
-                    rs.getInt("patient_id")
+                        rs.getInt("id"),
+                        LocalDateTime.parse(rs.getString("date")),
+                        rs.getInt("patient_id")
                 );
             }
             rs.close();
@@ -113,24 +112,31 @@ public class JDBCEpisodeManager implements EpisodeManager {
         }
         return episode;
     }
-    
-   /* @Override error override volver
-    public Integer getEpisodeId(String episode) {
+
+    @Override
+    public Integer getEpisodeId(LocalDateTime date) {
         try {
-            String sql = "SELECT id FROM Episode WHERE episode LIKE ?";
+            String sql = "SELECT id FROM Episode WHERE date = ?";
             PreparedStatement p = c.prepareStatement(sql);
-            p.setString(1, episode);
+            // Convertir LocalDateTime a java.sql.Timestamp antes de pasarlo al PreparedStatement
+            p.setTimestamp(1, java.sql.Timestamp.valueOf(date));
             ResultSet rs = p.executeQuery();
-            int id = rs.getInt("id");
-            rs.close();
-            p.close();
-            return id;
+
+            // Verificar si hay resultados
+            if (rs.next()) {
+                int id = rs.getInt("id");
+                rs.close();
+                p.close();
+                return id;
+            } else {
+                rs.close();
+                p.close();
+                return null; // No se encontró el episodio
+            }
         } catch (SQLException e) {
             System.out.println("Database error while retrieving episode ID");
             e.printStackTrace();
         }
         return null;
-    } */
-    
+    }
 }
-    

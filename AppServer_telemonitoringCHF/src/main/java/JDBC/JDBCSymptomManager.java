@@ -119,7 +119,7 @@ public class JDBCSymptomManager implements SymptomManager {
         ArrayList<Symptom> symptoms = new ArrayList<>();
         int counter = 0;
 
-        String sql = "SELECT symptom FROM Symptom";
+        String sql = "SELECT * FROM Symptom";
         try (Statement stmt = c.createStatement(); 
              ResultSet rs = stmt.executeQuery(sql)) {
 
