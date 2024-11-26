@@ -27,11 +27,11 @@ public class JDBCEpisodeManager implements EpisodeManager {
     public void insertEpisode(Episode episode) {
         try {
             String sql = "INSERT INTO Episode (patient_id, date) VALUES (?, ?)";
-            PreparedStatement prep = c.prepareStatement(sql);
-            prep.setInt(1, episode.getPatient_id());
-            prep.setString(2, episode.getDate().toString());
-            prep.executeUpdate();
-            prep.close();
+            try (PreparedStatement prep = c.prepareStatement(sql)) {
+                prep.setInt(1, episode.getPatient_id());
+                prep.setString(2, episode.getDate().toString());
+                prep.executeUpdate();
+            }
         } catch (SQLException e) {
             System.out.println("Error inserting episode.");
             e.printStackTrace();
@@ -40,27 +40,23 @@ public class JDBCEpisodeManager implements EpisodeManager {
 
     @Override
     public ArrayList<Episode> getEpisodesByPatient(Integer patient_id) {
-        ArrayList<Episode> episodesList = new ArrayList<>();
-        try {
-            String sql = "SELECT * FROM Episode WHERE patient_id = ?";
-            PreparedStatement prep = c.prepareStatement(sql);
-            prep.setInt(1, patient_id);
-            ResultSet rs = prep.executeQuery();
+        ArrayList<Episode> episodes = new ArrayList<>();
+    String sql = "SELECT id, strftime('%Y-%m-%d %H:%M:%S', date) as formatted_date FROM Episode WHERE patient_id = ?";
+    try (PreparedStatement p = c.prepareStatement(sql)) {
+        p.setInt(1, patient_id);
+        try (ResultSet rs = p.executeQuery()) {
             while (rs.next()) {
-                Episode episode = new Episode(
-                        rs.getInt("id"),
-                        LocalDateTime.parse(rs.getString("date")),
-                        rs.getInt("patient_id")
-                );
-                episodesList.add(episode);
+                Episode episode = new Episode();
+                episode.setId(rs.getInt("id"));                
+                episode.setDate(LocalDateTime.parse(rs.getString("formatted_date"), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                episodes.add(episode);
             }
-            rs.close();
-            prep.close();
-        } catch (SQLException e) {
-            System.out.println("Error retrieving episodes by patient.");
-            e.printStackTrace();
         }
-        return episodesList;
+    } catch (SQLException e) {
+        System.out.println("Database error while retrieving episodes");
+        e.printStackTrace();
+    }
+    return episodes;
     }
 
     @Override

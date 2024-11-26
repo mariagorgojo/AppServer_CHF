@@ -12,6 +12,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import pojos.Disease;
 import pojos.Surgery;
 import pojos.Symptom;
@@ -32,16 +34,16 @@ public class JDBCSymptomManager implements SymptomManager {
     @Override
     public void insertSymptom(String symptom) {
 
-       try {
-        String sql = "INSERT OR IGNORE INTO Symptom (symptom) VALUES (?)";
-        try (PreparedStatement p = c.prepareStatement(sql)) {
-            p.setString(1, symptom);
-            p.executeUpdate();
+        try {
+            String sql = "INSERT OR IGNORE INTO Symptom (symptom) VALUES (?)";
+            try ( PreparedStatement p = c.prepareStatement(sql)) {
+                p.setString(1, symptom);
+                p.executeUpdate();
+            }
+        } catch (SQLException e) {
+            System.out.println("Database exception.");
+            e.printStackTrace();
         }
-    } catch (SQLException e) {
-        System.out.println("Database exception.");
-        e.printStackTrace();
-    }
 
     }
 
@@ -59,113 +61,119 @@ public class JDBCSymptomManager implements SymptomManager {
             e.printStackTrace();
         }
     }
-    
-    
-    @Override
-public ArrayList<Symptom> getSymptomsByEpisode(int episode_id) {
-  ArrayList<Symptom> list = new ArrayList<>();
-    String sql = "SELECT Symptom.id, Symptom.symptom FROM Symptom " +
-                 "JOIN Episode_Symptom ON Symptom.id = Episode_Symptom.symptom_id " +
-                 "WHERE Episode_Symptom.episode_id = ?";
-    try (PreparedStatement p = c.prepareStatement(sql)) {
-        p.setInt(1, episode_id);
-        try (ResultSet rs = p.executeQuery()) {
-            while (rs.next()) {
-                Symptom s = new Symptom(rs.getInt("id"), rs.getString("symptom"));
-                list.add(s);
-            }
-        }
-    } catch (SQLException e) {
-        System.out.println("Database error while retrieving symptoms");
-        e.printStackTrace();
-    }
-    return list;
-}
 
-    
-    
-    
-    
+    @Override
+    public ArrayList<Symptom> getSymptomsByEpisode(int episode_id, int patient_id) {
+        ArrayList<Symptom> list = new ArrayList<>();
+        //nuevo
+        try {
+            if (c == null || c.isClosed()) {
+                System.err.println("Database connection is not available.");
+                return list;
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(JDBCSymptomManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        String sql = "SELECT Symptom.id, Symptom.symptom FROM Symptom "
+                + "JOIN Episode_Symptom ON Symptom.id = Episode_Symptom.symptom_id "
+                + //"WHERE Episode_Symptom.episode_id = ?";
+                "JOIN Episode ON Episode_Symptom.episode_id = Episode.id "
+                + "WHERE Episode.id = ? AND Episode.patient_id = ?";
+        try ( PreparedStatement p = c.prepareStatement(sql)) {
+            p.setInt(1, episode_id);
+            // nuevo
+             p.setInt(2, patient_id);
+            try ( ResultSet rs = p.executeQuery()) {
+                while (rs.next()) {
+                    Symptom s = new Symptom(rs.getInt("id"), rs.getString("symptom"));
+                    list.add(s);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error retrieving symptoms for episode ID: " + episode_id);
+            e.printStackTrace();
+        }
+        return list;
+    }
+
     @Override
     public ArrayList<Symptom> getSymptomsByPatient(String patient_id) {
         ArrayList<Symptom> list = new ArrayList<>();
-    String sql = "SELECT Symptom.id, Symptom.symptom FROM Symptom " +
-                 "JOIN Episode_Symptom ON Symptom.id = Episode_Symptom.symptom_id " +
-                 "JOIN Episode ON Episode_Symptom.episode_id = Episode.id " +
-                 "WHERE Episode.patient_id = ?";
-    try (PreparedStatement p = c.prepareStatement(sql)) {
-        p.setString(1, patient_id);
-        try (ResultSet rs = p.executeQuery()) {
-            while (rs.next()) {
-                Symptom s = new Symptom(rs.getInt("id"), rs.getString("symptom"));
-                list.add(s);
+        String sql = "SELECT Symptom.id, Symptom.symptom FROM Symptom "
+                + "JOIN Episode_Symptom ON Symptom.id = Episode_Symptom.symptom_id "
+                + "JOIN Episode ON Episode_Symptom.episode_id = Episode.id "
+                + "WHERE Episode.patient_id = ?";
+        try ( PreparedStatement p = c.prepareStatement(sql)) {
+            p.setString(1, patient_id);
+            try ( ResultSet rs = p.executeQuery()) {
+                while (rs.next()) {
+                    Symptom s = new Symptom(rs.getInt("id"), rs.getString("symptom"));
+                    list.add(s);
+                }
             }
+        } catch (SQLException e) {
+            System.out.println("Database error");
+            e.printStackTrace();
         }
-    } catch (SQLException e) {
-        System.out.println("Database error");
-        e.printStackTrace();
+        return list;
     }
-    return list;                          
-    }
-    
+
     @Override
     public String getSymptomById(int symptom_id) {
-          String sql = "SELECT symptom FROM Symptom WHERE id = ?";
-    try (PreparedStatement p = c.prepareStatement(sql)) {
-        p.setInt(1, symptom_id);
-        try (ResultSet rs = p.executeQuery()) {
-            if (rs.next()) {
-                return rs.getString("symptom");
+        String sql = "SELECT symptom FROM Symptom WHERE id = ?";
+        try ( PreparedStatement p = c.prepareStatement(sql)) {
+            p.setInt(1, symptom_id);
+            try ( ResultSet rs = p.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("symptom");
+                }
             }
+        } catch (SQLException e) {
+            System.out.println("Database error");
+            e.printStackTrace();
         }
-    } catch (SQLException e) {
-        System.out.println("Database error");
-        e.printStackTrace();
-    }
-    return null; // Devuelve null si no se encuentra                        
+        return null; // Devuelve null si no se encuentra                        
     }
 
     @Override
     public ArrayList<Symptom> getAllSymptoms() {
-    ArrayList<Symptom> symptoms = new ArrayList<>();
-    String sql = "SELECT id, symptom FROM Symptom";
-    try (Statement stmt = c.createStatement();
-         ResultSet rs = stmt.executeQuery(sql)) {
-        while (rs.next()) {
-            Symptom symptom = new Symptom(rs.getInt("id"), rs.getString("symptom"));
-            symptoms.add(symptom);
+        ArrayList<Symptom> symptoms = new ArrayList<>();
+        String sql = "SELECT id, symptom FROM Symptom";
+        try ( Statement stmt = c.createStatement();  ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                Symptom symptom = new Symptom(rs.getInt("id"), rs.getString("symptom"));
+                symptoms.add(symptom);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error retrieving symptoms: " + e.getMessage());
+            e.printStackTrace();
         }
-    } catch (SQLException e) {
-        System.err.println("Error retrieving symptoms: " + e.getMessage());
-        e.printStackTrace();
-    }
-    return symptoms;  
+        return symptoms;
     }
 
     @Override
     public int getSymptomId(String symptom) {
-         String sql = "SELECT id FROM Symptom WHERE symptom LIKE ?";
-    try (PreparedStatement p = c.prepareStatement(sql)) {
-        p.setString(1, symptom);
-        try (ResultSet rs = p.executeQuery()) {
-            if (rs.next()) {
-                return rs.getInt("id");
+        String sql = "SELECT id FROM Symptom WHERE symptom LIKE ?";
+        try ( PreparedStatement p = c.prepareStatement(sql)) {
+            p.setString(1, symptom);
+            try ( ResultSet rs = p.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("id");
+                }
             }
+        } catch (SQLException e) {
+            System.out.println("Database error while retrieving symptom ID");
+            e.printStackTrace();
         }
-    } catch (SQLException e) {
-        System.out.println("Database error while retrieving symptom ID");
-        e.printStackTrace();
+        return -1; // Devuelve -1 si no se encuentra
+
     }
-    return -1; // Devuelve -1 si no se encuentra
-      
-    }
-    
-    
+
     //nuevo
-    
     @Override
     public boolean isSymptomAssociatedWithEpisode(int symptomId, int episodeId) {
-   
+
         String sql = "SELECT COUNT(*) FROM Episode_Symptom WHERE symptom_id = ? AND episode_id = ?";
         try ( PreparedStatement p = c.prepareStatement(sql)) {
             p.setInt(1, symptomId);
@@ -179,8 +187,7 @@ public ArrayList<Symptom> getSymptomsByEpisode(int episode_id) {
             e.printStackTrace();
         }
         return false;
-        
-   
-}
-    
+
+    }
+
 }

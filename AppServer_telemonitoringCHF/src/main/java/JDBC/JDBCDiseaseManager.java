@@ -12,6 +12,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import pojos.Disease;
 import pojos.Symptom;
 
@@ -58,13 +60,24 @@ public class JDBCDiseaseManager implements DiseaseManager {
     }
 
     @Override
-    public ArrayList<Disease> getDiseasesByEpisode(int episode_id) {
+    public ArrayList<Disease> getDiseasesByEpisode(int episode_id, int patient_id) {              
         ArrayList<Disease> list = new ArrayList<>();
+        //nuevo
+        try {
+            if (c == null || c.isClosed()) {
+                System.err.println("Database connection is not available.");
+                return list;
+            }   } catch (SQLException ex) {
+            Logger.getLogger(JDBCDiseaseManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
         String sql = "SELECT Disease.id, Disease.disease FROM Disease "
                 + "JOIN Episode_Disease ON Disease.id = Episode_Disease.disease_id "
-                + "WHERE Episode_Disease.episode_id = ?";
+                //+ "WHERE Episode_Disease.episode_id = ?";
+                 + "JOIN Episode ON Episode_Disease.episode_id = Episode.id "
+            + "WHERE Episode.id = ? AND Episode.patient_id = ?";
         try ( PreparedStatement p = c.prepareStatement(sql)) {
             p.setInt(1, episode_id);
+             p.setInt(2, patient_id);
             try ( ResultSet rs = p.executeQuery()) {
                 while (rs.next()) {
                     Disease d = new Disease(rs.getInt("id"), rs.getString("disease"));
@@ -72,7 +85,7 @@ public class JDBCDiseaseManager implements DiseaseManager {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("database error");
+            System.err.println("Error retrieving diseases for episode ID: " + episode_id);                     
             e.printStackTrace();
         }
         return list;

@@ -12,6 +12,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import pojos.Surgery;
 
 /**
@@ -59,13 +61,26 @@ public class JDBCSurgeryManager implements SurgeryManager {
 
     @Override
 
-    public ArrayList<Surgery> getSurgeriesByEpisode(int episode_id) {
+    public ArrayList<Surgery> getSurgeriesByEpisode(int episode_id, int patient_id) {
         ArrayList<Surgery> list = new ArrayList<>();
+        //nuevo
+        try {
+            if (c == null || c.isClosed()) {
+                System.err.println("Database connection is not available.");
+                return list;
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(JDBCSurgeryManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
         String sql = "SELECT Surgery.id, Surgery.surgery FROM Surgery "
                 + "JOIN Episode_Surgery ON Surgery.id = Episode_Surgery.surgery_id "
-                + "WHERE Episode_Surgery.episode_id = ?";
+                //+ "WHERE Episode_Surgery.episode_id = ?";
+                // nuevo
+                + "JOIN Episode ON Episode_Surgery.episode_id = Episode.id "
+                + "WHERE Episode.id = ? AND Episode.patient_id = ?";
         try ( PreparedStatement p = c.prepareStatement(sql)) {
             p.setInt(1, episode_id);
+            p.setInt(2, patient_id);
             try ( ResultSet rs = p.executeQuery()) {
                 while (rs.next()) {
                     Surgery s = new Surgery(rs.getInt("id"), rs.getString("surgery"));
@@ -73,7 +88,7 @@ public class JDBCSurgeryManager implements SurgeryManager {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("database error");
+            System.err.println("Error retrieving surgeries for episode ID: " + episode_id);
             e.printStackTrace();
         }
         return list;

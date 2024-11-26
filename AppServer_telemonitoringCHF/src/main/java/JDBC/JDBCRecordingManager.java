@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
 import pojos.Recording;
 import pojos.Recording.Type;
 import java.lang.Integer; 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 public class JDBCRecordingManager implements RecordingManager {
 
     private Connection c;
@@ -47,6 +49,14 @@ public class JDBCRecordingManager implements RecordingManager {
     @Override
     public ArrayList<Recording> getRecordingsByEpisode(int episode_id) {
         ArrayList<Recording> recordings = new ArrayList<>();
+                //nuevo
+        try {
+            if (c == null || c.isClosed()) {
+                System.err.println("Database connection is not available.");
+                return recordings;
+            }   } catch (SQLException ex) {
+            Logger.getLogger(JDBCRecordingManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
         String sql = "SELECT * FROM Recording WHERE episode_id = ?";
 
         try (PreparedStatement p = c.prepareStatement(sql)) {
@@ -70,7 +80,7 @@ public class JDBCRecordingManager implements RecordingManager {
                 recordings.add(recording);
             }
         } catch (SQLException e) {
-            System.out.println("Database error");
+            System.err.println("Error retrieving recordings for episode ID: " + episode_id);                     
             e.printStackTrace();
         }
         return recordings;
