@@ -28,8 +28,9 @@ public class JDBCEpisodeManager implements EpisodeManager {
         try {
             String sql = "INSERT INTO Episode (patient_id, date) VALUES (?, ?)";
             try (PreparedStatement prep = c.prepareStatement(sql)) {
-                prep.setInt(1, episode.getPatient_id());
-                prep.setString(2, episode.getDate().toString());
+                prep.setInt(1, episode.getPatient_id());                
+               // prep.setString(2, episode.getDate().toString());
+               prep.setString(2, episode.getDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSSSSS")));
                 prep.executeUpdate();
             }
         } catch (SQLException e) {

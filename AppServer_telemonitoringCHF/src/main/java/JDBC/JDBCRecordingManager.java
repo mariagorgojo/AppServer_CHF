@@ -24,7 +24,7 @@ public class JDBCRecordingManager implements RecordingManager {
 
     @Override
     public void insertRecording(Recording recording) { 
-        String sql = "INSERT INTO Recording (type, duration, data, filepath, episode_id) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Recording (type, duration, data, filepath, episode_id) VALUES (?, ?, ?, ?, ?)";
 
         try (PreparedStatement p = c.prepareStatement(sql)) {
             p.setString(2, recording.getType().toString());

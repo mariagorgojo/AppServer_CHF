@@ -280,10 +280,9 @@ public class ModifServerConnection {
 
     private static void handlePatientEpisodesAndDetails(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException, SQLException {
         if (connection == null || connection.isClosed()) {
-        System.err.println("Database connection is not available.");
-        return;
-    }
-        
+            System.err.println("Database connection is not available.");
+            return;
+        }
 
 // Crear los gestores necesarios
         JDBCEpisodeManager episodeManager = new JDBCEpisodeManager(connection);
@@ -307,7 +306,7 @@ public class ModifServerConnection {
 
         // Obtener episodios del paciente
         ArrayList<Episode> episodes = episodeManager.getEpisodesByPatient(patientFromDatabase.getId());
-        System.out.println("Episodes retrieved for patient: " + episodes);
+       // System.out.println("Episodes retrieved for patient: " + episodes);
 
         if (episodes.isEmpty()) {
             printWriter.println("ERROR: No episodes found for the patient");
@@ -326,7 +325,7 @@ public class ModifServerConnection {
 
             // nuevo
             String patient_dni = bufferedReader.readLine();
-            System.out.println("PATIENT DNI FROM SERVER!!!: " + patient_dni);
+           // System.out.println("PATIENT DNI FROM SERVER!!!: " + patient_dni);
             Patient patientFromDatabase2 = patientManager.getPatientByDNI(patient_dni);
             int patient_id = patientFromDatabase2.getId();
 
@@ -343,10 +342,10 @@ public class ModifServerConnection {
                 printWriter.println("ERROR: Invalid episode ID");
                 return;
 
-                
                 //nuevo 
                 //no cerrar conexión con basse de datos!!???
-            } /*finally {
+            }
+            /*finally {
                 // Asegurar que la conexión se cierre correctamente
                 try {
                     if (connection != null && !connection.isClosed()) {
@@ -357,7 +356,7 @@ public class ModifServerConnection {
                     System.err.println("Error closing the database connection: " + ex.getMessage());
                 }
             }*/
-            System.out.println(selectedEpisodeId);
+           // System.out.println(selectedEpisodeId);
             // Verificar que el ID seleccionado pertenece a la lista de episodios
             boolean validSelection = episodes.stream().anyMatch(e -> e.getId().equals(selectedEpisodeId));
 
@@ -374,41 +373,45 @@ public class ModifServerConnection {
 
             // Enviar detalles del episodio al cliente
             if (!surgeries.isEmpty()) {
-                printWriter.println("SURGERIES");             
+                printWriter.println("SURGERIES");
                 for (Surgery surgery : surgeries) {
-                    printWriter.println(String.format("%s", surgery.getSurgery()));
+                    System.out.println("Sending: " + String.format("SURGERIES,%s", surgery.getSurgery()));
+
+                    printWriter.println(String.format("SURGERIES,%s", surgery.getSurgery()));
                 }
             }
             if (!symptoms.isEmpty()) {
 
                 printWriter.println("SYMPTOMS");
                 for (Symptom symptom : symptoms) {
-                    printWriter.println(String.format("%s", symptom.getSymptom()));
-                  
+                                    System.out.println("Sending: " + String.format("SYMTOMS,%s", symptom.getSymptom()));
+
+                    printWriter.println(String.format("SYMPTOMS,%s", symptom.getSymptom()));
 
                 }
-            } 
+
+                /*for(int i=0; i<symptoms.size();i++){
+                  printWriter.println(String.format("%s,", symptoms.get(i).getSymptom()));
+
+                }*/
+            }
             if (!diseases.isEmpty()) {
 
                 printWriter.println("DISEASES");
                 for (Disease disease : diseases) {
-                    printWriter.println(String.format("%s", disease.getDisease()));
+                    printWriter.println(String.format("DISEASES,%s", disease.getDisease()));
 
                 }
-            } 
+            } // SI FAALLA FALTA CAMBIAR LASS COMAS ETC
             if (!recordings.isEmpty()) {
 
                 printWriter.println("RECORDINGS");
                 for (Recording recording : recordings) {
-                    printWriter.println(String.format("%d,%s", recording.getId(), recording.getSignal_path())); // Enviar ID y ruta
+                    printWriter.println(String.format("RECORDINGS,%d,%s", recording.getId(), recording.getSignal_path())); // Enviar ID y ruta
                   
                 }
             }
-            System.out.println("Sending SURGERIES: " + surgeries);
-            System.out.println("Sending SYMPTOMS: " + symptoms);
-            System.out.println("Sending DISEASES: " + diseases);
-
-            printWriter.println("END_OF_DETAILS"); // Marcar el fin de los detalles
+           
 
             // Leer el ID del recording seleccionado por el cliente
             if (!recordings.isEmpty()) {
@@ -461,6 +464,8 @@ public class ModifServerConnection {
                 printWriter.println("END_OF_RECORDING_DETAILS"); // Marcar el fin de los detalles del recording
             }
         }
+        printWriter.println("END_OF_DETAILS"); // Marcar el fin de los detalles
+        
 
     }
 
@@ -543,7 +548,8 @@ public class ModifServerConnection {
             printWriter.println("ERROR: " + e.getMessage());
             printWriter.flush();
             e.printStackTrace();
-        } finally {
+        }
+        /*finally {
             // Asegurar que la conexión se cierre correctamente
             try {
                 if (connection != null && !connection.isClosed()) {
@@ -553,7 +559,7 @@ public class ModifServerConnection {
             } catch (Exception ex) {
                 System.err.println("Error closing the database connection: " + ex.getMessage());
             }
-        }
+        }*/
     }
 
     private static void handleGetAvailableSurgeries(PrintWriter printWriter) {
@@ -570,7 +576,7 @@ public class ModifServerConnection {
             printWriter.println("ERROR: " + e.getMessage());
             printWriter.flush();
             e.printStackTrace();
-        } finally {
+        }/* finally {
             // Asegurar que la conexión se cierre correctamente
             try {
                 if (connection != null && !connection.isClosed()) {
@@ -580,7 +586,7 @@ public class ModifServerConnection {
             } catch (Exception ex) {
                 System.err.println("Error closing the database connection: " + ex.getMessage());
             }
-        }
+        }*/
 
     }
 
@@ -598,7 +604,7 @@ public class ModifServerConnection {
             System.out.println("ERROR: " + e.getMessage());
             // printWriter.flush();
             e.printStackTrace();
-        } finally {
+        }/* finally {
             // Asegurar que la conexión se cierre correctamente
             try {
                 if (connection != null && !connection.isClosed()) {
@@ -608,7 +614,7 @@ public class ModifServerConnection {
             } catch (Exception ex) {
                 System.err.println("Error closing the database connection: " + ex.getMessage());
             }
-        }
+        }*/
 
     }
 
