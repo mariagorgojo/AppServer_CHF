@@ -11,9 +11,12 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 import pojos.Recording;
 import pojos.Recording.Type;
-import java.lang.Integer; 
+import java.lang.Integer;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 public class JDBCRecordingManager implements RecordingManager {
 
     private Connection c;
@@ -23,21 +26,20 @@ public class JDBCRecordingManager implements RecordingManager {
     }
 
     @Override
-    public void insertRecording(Recording recording) { 
-        String sql = "INSERT INTO Recording (type, duration, data, filepath, episode_id) VALUES (?, ?, ?, ?, ?)";
+    public void insertRecording(Recording recording) {
+        String sql = "INSERT INTO Recording (type, date, filepath, data, episode_id) VALUES (?, ?, ?, ?, ?)";
 
-        try (PreparedStatement p = c.prepareStatement(sql)) {
-            p.setString(2, recording.getType().toString());
-            p.setInt(3, recording.getDuration());
-            
+        try ( PreparedStatement p = c.prepareStatement(sql)) {
+            p.setString(1, recording.getType().toString());
+            p.setString(2, recording.getDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSSSSS")));
             // Convierte el ArrayList<Integer> `data` en una cadena de texto separada por comas
+            p.setString(3, recording.getSignal_path());
             String dataAsString = recording.getData().stream()
-                                           .map(String::valueOf)
-                                           .collect(Collectors.joining(","));
+                    .map(String::valueOf)
+                    .collect(Collectors.joining(","));
             p.setString(4, dataAsString); // Guarda como texto
 
-            p.setString(5, recording.getSignal_path());
-            p.setInt(6, recording.getEpisode_id());
+            p.setInt(5, recording.getEpisode_id());
 
             p.executeUpdate(); // Ejecuta la inserción
         } catch (SQLException e) {
@@ -49,29 +51,30 @@ public class JDBCRecordingManager implements RecordingManager {
     @Override
     public ArrayList<Recording> getRecordingsByEpisode(int episode_id) {
         ArrayList<Recording> recordings = new ArrayList<>();
-                //nuevo
+        //nuevo
         try {
             if (c == null || c.isClosed()) {
                 System.err.println("Database connection is not available.");
                 return recordings;
-            }   } catch (SQLException ex) {
+            }
+        } catch (SQLException ex) {
             Logger.getLogger(JDBCRecordingManager.class.getName()).log(Level.SEVERE, null, ex);
         }
         String sql = "SELECT * FROM Recording WHERE episode_id = ?";
 
-        try (PreparedStatement p = c.prepareStatement(sql)) {
+        try ( PreparedStatement p = c.prepareStatement(sql)) {
             p.setInt(1, episode_id);
             ResultSet rs = p.executeQuery();
             while (rs.next()) {
                 // Convierte la cadena `data` de vuelta a un ArrayList<Integer>
                 ArrayList<Integer> data = Arrays.stream(rs.getString("data").split(","))
-                                                .map(Integer::valueOf)
-                                                .collect(Collectors.toCollection(ArrayList::new));
-                
+                        .map(Integer::valueOf)
+                        .collect(Collectors.toCollection(ArrayList::new));
+
                 Recording recording = new Recording(
                         rs.getInt("id"),
                         Type.valueOf(rs.getString("type")),
-                        rs.getDate("date").toLocalDate(),
+                        LocalDateTime.parse(rs.getString("date")),
                         rs.getString("signal_path"),
                         data, // Usa el ArrayList<Integer> de `data`
                         rs.getInt("episode_id")
@@ -79,7 +82,7 @@ public class JDBCRecordingManager implements RecordingManager {
                 recordings.add(recording);
             }
         } catch (SQLException e) {
-            System.err.println("Error retrieving recordings for episode ID: " + episode_id);                     
+            System.err.println("Error retrieving recordings for episode ID: " + episode_id);
             e.printStackTrace();
         }
         return recordings;
@@ -90,21 +93,21 @@ public class JDBCRecordingManager implements RecordingManager {
         ArrayList<Recording> recordings = new ArrayList<>();
         String sql = "SELECT * FROM Recording WHERE type = ? AND episode_id = ?";
 
-        try (PreparedStatement p = c.prepareStatement(sql)) {
+        try ( PreparedStatement p = c.prepareStatement(sql)) {
             p.setString(1, type.name());
             p.setInt(2, episode_id);
             ResultSet rs = p.executeQuery();
             while (rs.next()) {
                 ArrayList<Integer> data = Arrays.stream(rs.getString("data").split(","))
-                                                .map(Integer::valueOf)
-                                                .collect(Collectors.toCollection(ArrayList::new));
+                        .map(Integer::valueOf)
+                        .collect(Collectors.toCollection(ArrayList::new));
 
                 Recording recording = new Recording(
                         rs.getInt("id"),
                         Type.valueOf(rs.getString("type")),
-                        rs.getDate("date").toLocalDate(),
+                        LocalDateTime.parse(rs.getString("date")),
                         rs.getString("signal_path"),
-                        data, 
+                        data,
                         rs.getInt(episode_id)
                 );
                 recordings.add(recording);
@@ -119,18 +122,18 @@ public class JDBCRecordingManager implements RecordingManager {
     @Override
     public Recording getRecordingById(int recording_id) {
         String sql = "SELECT * FROM Recording WHERE id = ?";
-        try (PreparedStatement p = c.prepareStatement(sql)) {
+        try ( PreparedStatement p = c.prepareStatement(sql)) {
             p.setInt(1, recording_id);
             ResultSet rs = p.executeQuery();
             if (rs.next()) {
                 ArrayList<Integer> data = Arrays.stream(rs.getString("data").split(","))
-                                                .map(Integer::valueOf)
-                                                .collect(Collectors.toCollection(ArrayList::new));
+                        .map(Integer::valueOf)
+                        .collect(Collectors.toCollection(ArrayList::new));
 
                 return new Recording(
                         rs.getInt("id"),
                         Type.valueOf(rs.getString("type")),
-                        rs.getDate("date").toLocalDate(),
+                        LocalDateTime.parse(rs.getString("date")),
                         rs.getString("signal_path"),
                         data,
                         rs.getInt("episode_id")
@@ -144,6 +147,8 @@ public class JDBCRecordingManager implements RecordingManager {
         }
         return null;
     }
+
+    /*
     @Override
     public ArrayList<Recording> getRecordingByPatient(int patient_id) {
          ArrayList<Recording> recordings = new ArrayList<>();
@@ -160,7 +165,7 @@ public class JDBCRecordingManager implements RecordingManager {
                 Recording recording = new Recording(
                         rs.getInt("id"),
                         Type.valueOf(rs.getString("type")),
-                        rs.getDate("date").toLocalDate(),
+                        rs.getDate("date").toLocalDateTime(),
                         rs.getString("signal_path"),
                         data, 
                         rs.getInt(patient_id)
@@ -172,7 +177,5 @@ public class JDBCRecordingManager implements RecordingManager {
             e.printStackTrace();
         }
         return recordings;
-    }
+    }*/
 }
-
-

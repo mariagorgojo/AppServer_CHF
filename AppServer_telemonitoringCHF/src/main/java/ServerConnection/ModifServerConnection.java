@@ -729,10 +729,10 @@ public class ModifServerConnection {
                         break;
 
                     case "RECORDING":
+                        
                         Recording.Type type = Recording.Type.valueOf(parts[1]);
-                        int duration = Integer.parseInt(parts[2]); // VOLVER
-                        LocalDateTime recordingDate = LocalDateTime.parse(parts[3]);
-                        String signalPath = parts[4];
+                        LocalDateTime recordingDate = LocalDateTime.parse(parts[2]);
+                        String signalPath = parts[3];
 
                         // Procesar datos de grabación
                         ArrayList<Integer> data = new ArrayList<>();
