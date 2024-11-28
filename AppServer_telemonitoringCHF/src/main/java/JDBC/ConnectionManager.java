@@ -149,7 +149,7 @@ public class ConnectionManager {
                     + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + "episode_id INTEGER,"
                     + "date DATE NOT NULL,"
-                    + "duration INTEGER NOT NULL,"
+                    //+ "duration INTEGER NOT NULL,"
                     + "filepath TEXT NOT NULL, "
                     + "type TEXT, "
                     + "data TEXT ,"
