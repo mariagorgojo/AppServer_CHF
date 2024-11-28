@@ -51,14 +51,14 @@ public class TestInsertEpisode {
             // Añadir grabaciones al episodio
             Recording recording1 = new Recording();
             recording1.setDate(LocalDate.now());
-            recording1.setDuration(120); // Duración en segundos
+            //recording1.setDuration(120); // Duración en segundos
             recording1.setSignal_path("/path/to/recording1.wav"); // Ruta del archivo de la grabación
             recording1.setData(new ArrayList<>(List.of(1023, 1056, 1102))); // Datos de la señal
             episode.getRecordings().add(recording1);
 
             Recording recording2 = new Recording();
             recording2.setDate(LocalDate.now());
-            recording2.setDuration(150); // Duración en segundos
+           // recording2.setDuration(150); // Duración en segundos
             recording2.setSignal_path("/path/to/recording2.wav"); // Ruta del archivo de la grabación
             recording2.setData(new ArrayList<>(List.of(980, 990, 1000))); // Datos de la señal
             episode.getRecordings().add(recording2);

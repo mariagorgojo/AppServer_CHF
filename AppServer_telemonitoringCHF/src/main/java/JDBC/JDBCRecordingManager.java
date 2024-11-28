@@ -71,7 +71,6 @@ public class JDBCRecordingManager implements RecordingManager {
                 Recording recording = new Recording(
                         rs.getInt("id"),
                         Type.valueOf(rs.getString("type")),
-                        rs.getInt("duration"),
                         rs.getDate("date").toLocalDate(),
                         rs.getString("signal_path"),
                         data, // Usa el ArrayList<Integer> de `data`
@@ -103,7 +102,6 @@ public class JDBCRecordingManager implements RecordingManager {
                 Recording recording = new Recording(
                         rs.getInt("id"),
                         Type.valueOf(rs.getString("type")),
-                        rs.getInt("duration"),
                         rs.getDate("date").toLocalDate(),
                         rs.getString("signal_path"),
                         data, 
@@ -132,7 +130,6 @@ public class JDBCRecordingManager implements RecordingManager {
                 return new Recording(
                         rs.getInt("id"),
                         Type.valueOf(rs.getString("type")),
-                        rs.getInt("duration"),
                         rs.getDate("date").toLocalDate(),
                         rs.getString("signal_path"),
                         data,
@@ -163,7 +160,6 @@ public class JDBCRecordingManager implements RecordingManager {
                 Recording recording = new Recording(
                         rs.getInt("id"),
                         Type.valueOf(rs.getString("type")),
-                        rs.getInt("duration"),
                         rs.getDate("date").toLocalDate(),
                         rs.getString("signal_path"),
                         data, 

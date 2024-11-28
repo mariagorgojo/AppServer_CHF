@@ -730,8 +730,8 @@ public class ModifServerConnection {
 
                     case "RECORDING":
                         Recording.Type type = Recording.Type.valueOf(parts[1]);
-                        int duration = Integer.parseInt(parts[2]);
-                        LocalDate recordingDate = LocalDate.parse(parts[3]);
+                        int duration = Integer.parseInt(parts[2]); // VOLVER
+                        LocalDateTime recordingDate = LocalDateTime.parse(parts[3]);
                         String signalPath = parts[4];
 
                         // Procesar datos de grabación
@@ -742,7 +742,7 @@ public class ModifServerConnection {
                         }
 
                         // Crear y guardar la grabación
-                        Recording recording = new Recording(type, duration, recordingDate, signalPath, data, episodeId);
+                        Recording recording = new Recording(type, recordingDate, signalPath, data, episodeId);
                         recordingManager.insertRecording(recording);
                         break;
 
