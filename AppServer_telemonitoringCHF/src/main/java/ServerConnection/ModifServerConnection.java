@@ -681,9 +681,9 @@ public class ModifServerConnection {
                             diseaseId = diseaseManager.getDiseaseId(diseaseName);
                         }
                         // Asociar solo si no está ya asociado con el episodio
-                        if (!diseaseManager.isDiseaseAssociatedWithEpisode(diseaseId, episodeId)) {
+                        //if (!diseaseManager.isDiseaseAssociatedWithEpisode(diseaseId, episodeId)) {
                             diseaseManager.assignDiseaseToEpisode(diseaseId, episodeId);
-                        }
+                        //}
                         break;
 
                     case "SYMPTOM":
@@ -701,9 +701,9 @@ public class ModifServerConnection {
                             symptomManager.insertSymptom(symptomName);
                             symptomId = symptomManager.getSymptomId(symptomName);
                         }
-                        if (!symptomManager.isSymptomAssociatedWithEpisode(symptomId, episodeId)) {
+                       // if (!symptomManager.isSymptomAssociatedWithEpisode(symptomId, episodeId)) {
                             symptomManager.assignSymptomToEpisode(symptomId, episodeId);
-                        }
+                        //}
 
                         break;
 
@@ -722,9 +722,9 @@ public class ModifServerConnection {
                             surgeryManager.insertSurgery(surgeryName);
                             surgeryId = surgeryManager.getSurgeryId(surgeryName);
                         }
-                        if (!surgeryManager.isSurgeryAssociatedWithEpisode(surgeryId, episodeId)) {
+                      //  if (!surgeryManager.isSurgeryAssociatedWithEpisode(surgeryId, episodeId)) {
                             surgeryManager.assignSurgeryToEpisode(surgeryId, episodeId);
-                        }
+                        //}
 
                         break;
 

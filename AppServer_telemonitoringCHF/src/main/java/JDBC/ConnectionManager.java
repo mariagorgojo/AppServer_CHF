@@ -154,7 +154,6 @@ public class ConnectionManager {
                     + "type TEXT, "
                     + "data TEXT ,"
                     //                    + "data TEXT NOT NULL,"
-
                     + "FOREIGN KEY (episode_id) REFERENCES Episode(id) ON DELETE CASCADE);";
             s.executeUpdate(table_Recording);
             System.out.println("Table Recording created.");
