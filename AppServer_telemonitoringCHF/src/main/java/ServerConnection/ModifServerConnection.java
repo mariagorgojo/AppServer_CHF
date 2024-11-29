@@ -376,11 +376,13 @@ public class ModifServerConnection {
 
                 printWriter.println("RECORDINGS");
                 for (Recording recording : recordings) {
+                    System.out.println("Sending: " + String.format("SYMTOMS,%s", recording.getSignal_path()));
+
                     printWriter.println(String.format("RECORDINGS,%d,%s", recording.getId(), recording.getSignal_path())); // Enviar ID y ruta
 
                 }
             }
-        printWriter.println("END_OF_DETAILS"); // Marcar el fin de los detalles
+            printWriter.println("END_OF_DETAILS"); // Marcar el fin de los detalles
         }
     }
 
