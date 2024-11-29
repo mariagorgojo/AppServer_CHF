@@ -654,7 +654,7 @@ public class ModifServerConnection {
             // asignacion disease, surgey, symtom
             int episodeId = episodeManager.getEpisodeId(episodeDate, patientId);
 
-            //System.out.println("episode Id" + episodeId);
+            System.out.println("episode Id" + episodeId);
             // Leer elementos asociados al episodio
             String line;
             while (!((line = bufferedReader.readLine()).equals("END_OF_EPISODE"))) {
@@ -737,10 +737,14 @@ public class ModifServerConnection {
                         // Procesar datos de grabación
                         ArrayList<Integer> data = new ArrayList<>();
                         String dataPoint;
+                        
+                        
                         while (!(dataPoint = bufferedReader.readLine()).equals("END_OF_RECORDING_DATA")) {
                             data.add(Integer.parseInt(dataPoint));
                         }
 
+                        
+                        
                         // Crear y guardar la grabación
                         Recording recording = new Recording(type, recordingDate, signalPath, data, episodeId);
                         recordingManager.insertRecording(recording);
