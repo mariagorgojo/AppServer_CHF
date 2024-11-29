@@ -299,19 +299,9 @@ public class ModifServerConnection {
         // Obtener el paciente desde la base de datos
         Patient patientFromDatabase = patientManager.getPatientByDNI(dni);
 
-        if (patientFromDatabase == null) {
-            printWriter.println("ERROR: Patient not found");
-            return;
-        }
-
         // Obtener episodios del paciente
         ArrayList<Episode> episodes = episodeManager.getEpisodesByPatient(patientFromDatabase.getId());
-       // System.out.println("Episodes retrieved for patient: " + episodes);
-
-        if (episodes.isEmpty()) {
-            printWriter.println("ERROR: No episodes found for the patient");
-            return;
-        }
+        // System.out.println("Episodes retrieved for patient: " + episodes);
 
         // Enviar la lista de episodios al cliente
         for (Episode episode : episodes) {
@@ -325,26 +315,12 @@ public class ModifServerConnection {
 
             // nuevo
             String patient_dni = bufferedReader.readLine();
-           // System.out.println("PATIENT DNI FROM SERVER!!!: " + patient_dni);
+            // System.out.println("PATIENT DNI FROM SERVER!!!: " + patient_dni);
             Patient patientFromDatabase2 = patientManager.getPatientByDNI(patient_dni);
             int patient_id = patientFromDatabase2.getId();
 
-            if (selectedEpisodeIdString == null || selectedEpisodeIdString.isEmpty()) {
-                printWriter.println("ERROR: No episode selected");
-                return;
-            }
+            int selectedEpisodeId = Integer.parseInt(selectedEpisodeIdString);
 
-            int selectedEpisodeId;
-            try {
-                selectedEpisodeId = Integer.valueOf(selectedEpisodeIdString);
-                System.out.println("EPISODE ID: " + selectedEpisodeIdString);
-            } catch (NumberFormatException e) {
-                printWriter.println("ERROR: Invalid episode ID");
-                return;
-
-                //nuevo 
-                //no cerrar conexión con basse de datos!!???
-            }
             /*finally {
                 // Asegurar que la conexión se cierre correctamente
                 try {
@@ -356,20 +332,13 @@ public class ModifServerConnection {
                     System.err.println("Error closing the database connection: " + ex.getMessage());
                 }
             }*/
-           // System.out.println(selectedEpisodeId);
+            // System.out.println(selectedEpisodeId);
             // Verificar que el ID seleccionado pertenece a la lista de episodios
-            boolean validSelection = episodes.stream().anyMatch(e -> e.getId().equals(selectedEpisodeId));
-
-            if (!validSelection) {
-                printWriter.println("ERROR: Episode ID not found in the list");
-                return;
-            }
-
             // Obtener detalles del episodio seleccionado
             List<Surgery> surgeries = surgeryManager.getSurgeriesByEpisode(selectedEpisodeId, patient_id);
             List<Symptom> symptoms = symptomManager.getSymptomsByEpisode(selectedEpisodeId, patient_id);
             List<Disease> diseases = diseaseManager.getDiseasesByEpisode(selectedEpisodeId, patient_id);
-            List<Recording> recordings = recordingManager.getRecordingsByEpisode(selectedEpisodeId);
+            List<Recording> recordings = recordingManager.getRecordingsByEpisode(selectedEpisodeId, patient_id);
 
             // Enviar detalles del episodio al cliente
             if (!surgeries.isEmpty()) {
@@ -384,7 +353,7 @@ public class ModifServerConnection {
 
                 printWriter.println("SYMPTOMS");
                 for (Symptom symptom : symptoms) {
-                                    System.out.println("Sending: " + String.format("SYMTOMS,%s", symptom.getSymptom()));
+                    System.out.println("Sending: " + String.format("SYMTOMS,%s", symptom.getSymptom()));
 
                     printWriter.println(String.format("SYMPTOMS,%s", symptom.getSymptom()));
 
@@ -408,65 +377,11 @@ public class ModifServerConnection {
                 printWriter.println("RECORDINGS");
                 for (Recording recording : recordings) {
                     printWriter.println(String.format("RECORDINGS,%d,%s", recording.getId(), recording.getSignal_path())); // Enviar ID y ruta
-                  
+
                 }
             }
-           
-
-            // Leer el ID del recording seleccionado por el cliente
-            if (!recordings.isEmpty()) {
-                String selectedRecordingIdString = bufferedReader.readLine();
-
-                if (selectedRecordingIdString == null || selectedRecordingIdString.isEmpty()) {
-                    printWriter.println("ERROR: No recording selected");
-                    return;
-                }
-
-                Integer selectedRecordingId;
-                try {
-                    selectedRecordingId = Integer.valueOf(selectedRecordingIdString);
-                } catch (NumberFormatException e) {
-                    printWriter.println("ERROR: Invalid recording ID");
-                    return;
-                }
-
-                // Verificar que el recording pertenece al episodio seleccionado
-                boolean validRecording = recordings.stream().anyMatch(r -> r.getId().equals(selectedRecordingId));
-
-                if (!validRecording) {
-                    printWriter.println("ERROR: Recording ID not found in the episode");
-                    return;
-                }
-
-                // Obtener detalles del recording seleccionado
-                Recording selectedRecording = recordings.stream()
-                        .filter(r -> r.getId().equals(selectedRecordingId))
-                        .findFirst()
-                        .orElse(null);
-
-                if (selectedRecording == null) {
-                    printWriter.println("ERROR: Recording details not found");
-                    return;
-                }
-
-                // Enviar detalles del recording al cliente
-                printWriter.println("RECORDING_DETAILS");
-                printWriter.println(String.format("ID: %d", selectedRecording.getId()));
-                printWriter.println(String.format("Type: %s", selectedRecording.getType()));
-                printWriter.println(String.format("Duration: %d seconds", selectedRecording.getDuration()));
-                printWriter.println(String.format("Date: %s", selectedRecording.getDate()));
-                printWriter.println(String.format("Signal Path: %s", selectedRecording.getSignal_path()));
-                printWriter.println(String.format("Episode ID: %d", selectedRecording.getEpisode_id()));
-                printWriter.println("DATA");
-                for (Integer dataPoint : selectedRecording.getData()) {
-                    printWriter.println(dataPoint); // Enviar cada punto de datos de la grabación
-                }
-                printWriter.println("END_OF_RECORDING_DETAILS"); // Marcar el fin de los detalles del recording
-            }
-        }
         printWriter.println("END_OF_DETAILS"); // Marcar el fin de los detalles
-        
-
+        }
     }
 
     /*private static void handleViewPatientEpisode(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException{
@@ -651,7 +566,7 @@ public class ModifServerConnection {
             //System.out.println("episodeDate" + episodeDate);
             // Insertar el episodio y obtener el ID generado
             episodeManager.insertEpisode(episode);
-            System.out.println("EPISODE INSERTED IN THE SERVER"+ episode);
+            System.out.println("EPISODE INSERTED IN THE SERVER" + episode);
             // asignacion disease, surgey, symtom
             int episodeId = episodeManager.getEpisodeId(episodeDate, patientId);
 
@@ -677,15 +592,15 @@ public class ModifServerConnection {
 
                         // Recuperar ID si existe, o insertar y luego recuperar
                         int diseaseId = diseaseManager.getDiseaseId(diseaseName);
-                        System.out.println("DISEASE ID "+ diseaseId);
-                        System.out.println("EPISODE ID "+episodeId);
+                        System.out.println("DISEASE ID " + diseaseId);
+                        System.out.println("EPISODE ID " + episodeId);
                         if (diseaseId == -1) { // -1 o un valor especial significa que no existe
                             diseaseManager.insertDisease(diseaseName);
                             diseaseId = diseaseManager.getDiseaseId(diseaseName);
                         }
                         // Asociar solo si no está ya asociado con el episodio
                         //if (!diseaseManager.isDiseaseAssociatedWithEpisode(diseaseId, episodeId)) {
-                            diseaseManager.assignDiseaseToEpisode(diseaseId, episodeId);
+                        diseaseManager.assignDiseaseToEpisode(diseaseId, episodeId);
                         //}
                         break;
 
@@ -700,14 +615,14 @@ public class ModifServerConnection {
                         symptomManager.assignSymptomToEpisode(symptomId, episodeId); // Asigna al episodio*/
 
                         int symptomId = symptomManager.getSymptomId(symptomName);
-                         System.out.println("Symptom ID "+ symptomId);
-                        System.out.println("EPISODE ID "+episodeId);
+                        System.out.println("Symptom ID " + symptomId);
+                        System.out.println("EPISODE ID " + episodeId);
                         if (symptomId == -1) {
                             symptomManager.insertSymptom(symptomName);
                             symptomId = symptomManager.getSymptomId(symptomName);
                         }
-                       // if (!symptomManager.isSymptomAssociatedWithEpisode(symptomId, episodeId)) {
-                            symptomManager.assignSymptomToEpisode(symptomId, episodeId);
+                        // if (!symptomManager.isSymptomAssociatedWithEpisode(symptomId, episodeId)) {
+                        symptomManager.assignSymptomToEpisode(symptomId, episodeId);
                         //}
 
                         break;
@@ -723,24 +638,24 @@ public class ModifServerConnection {
                         surgeryManager.assignSurgeryToEpisode(surgeryId, episodeId); // Asigna al episodio*/
 
                         int surgeryId = surgeryManager.getSurgeryId(surgeryName);
-                          System.out.println("Surgery ID "+ surgeryId);
-                        System.out.println("EPISODE ID "+episodeId);
+                        System.out.println("Surgery ID " + surgeryId);
+                        System.out.println("EPISODE ID " + episodeId);
                         if (surgeryId == -1) {
                             surgeryManager.insertSurgery(surgeryName);
                             surgeryId = surgeryManager.getSurgeryId(surgeryName);
                         }
-                      //  if (!surgeryManager.isSurgeryAssociatedWithEpisode(surgeryId, episodeId)) {
-                            surgeryManager.assignSurgeryToEpisode(surgeryId, episodeId);
+                        //  if (!surgeryManager.isSurgeryAssociatedWithEpisode(surgeryId, episodeId)) {
+                        surgeryManager.assignSurgeryToEpisode(surgeryId, episodeId);
                         //}
 
                         break;
 
                     case "RECORDING":
-                        
+
                         Recording.Type type = Recording.Type.valueOf(parts[1]);
                         LocalDateTime recordingDate = LocalDateTime.parse(parts[2]);
                         String signalPath = parts[3];
-                        
+
                         //nuevo
                         String dataString = parts[4]; // Datos separados por comas
                         ArrayList<Integer> data = new ArrayList<>();
@@ -750,9 +665,7 @@ public class ModifServerConnection {
                                 data.add(Integer.parseInt(dataPoint.trim())); // Convierte cada número en Integer
                             }
                         }
-                        
-                        
-                        
+
                         // Procesar datos de grabación
                         /*ArrayList<Integer> data = new ArrayList<>();
                         String dataPoint;
@@ -761,9 +674,6 @@ public class ModifServerConnection {
                         while (!(dataPoint = bufferedReader.readLine()).equals("END_OF_RECORDING_DATA")) {
                             data.add(Integer.parseInt(dataPoint));
                         }*/
-
-                        
-                        
                         // Crear y guardar la grabación
                         Recording recording = new Recording(type, recordingDate, signalPath, data, episodeId);
                         recordingManager.insertRecording(recording);
