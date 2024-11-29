@@ -27,12 +27,12 @@ public class JDBCEpisodeManager implements EpisodeManager {
     public void insertEpisode(Episode episode) {
         try {
             String sql = "INSERT INTO Episode (patient_id, date) VALUES (?, ?)";
-            try (PreparedStatement prep = c.prepareStatement(sql)) {
+            PreparedStatement prep = c.prepareStatement(sql);
                 prep.setInt(1, episode.getPatient_id());                
                // prep.setString(2, episode.getDate().toString());
                prep.setString(2, episode.getDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSSSSS")));
                 prep.executeUpdate();
-            }
+            
         } catch (SQLException e) {
             System.out.println("Error inserting episode.");
             e.printStackTrace();
@@ -114,12 +114,12 @@ public class JDBCEpisodeManager implements EpisodeManager {
     // CRAEDA NUEVA -> MARTA G  VOLVER
     @Override
     public int getEpisodeId(LocalDateTime date, int patient_id) {
-        String sql = "SELECT id FROM Episode WHERE date LIKE ? AND patient_id = ?";
+        String sql = "SELECT id FROM Episode WHERE date = ? AND patient_id = ?";
 
         try ( PreparedStatement p = c.prepareStatement(sql)) {
             // Convertir LocalDateTime al formato esperado por la base de datos
-            String formattedDate = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS"));
-            p.setString(1, formattedDate+ "%"); // Usar setString con el formato correcto
+            String formattedDate = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSSSSS"));
+            p.setString(1, formattedDate); // Usar setString con el formato correcto
             p.setInt(2, patient_id); // Establecer el patient_id como segundo parámetro
 
             try ( ResultSet rs = p.executeQuery()) {
@@ -128,7 +128,7 @@ public class JDBCEpisodeManager implements EpisodeManager {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Error al recuperar el ID del episodio: " + e.getMessage());
+            System.err.println("No episode found for date: " + date + " and patient ID: " + patient_id);
             e.printStackTrace();
         }
         return -1; // Retornar null si no se encuentra el episodio o hay un error

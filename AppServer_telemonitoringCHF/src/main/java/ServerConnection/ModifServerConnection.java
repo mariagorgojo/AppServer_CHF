@@ -651,6 +651,7 @@ public class ModifServerConnection {
             //System.out.println("episodeDate" + episodeDate);
             // Insertar el episodio y obtener el ID generado
             episodeManager.insertEpisode(episode);
+            System.out.println("EPISODE INSERTED IN THE SERVER"+ episode);
             // asignacion disease, surgey, symtom
             int episodeId = episodeManager.getEpisodeId(episodeDate, patientId);
 
@@ -676,6 +677,8 @@ public class ModifServerConnection {
 
                         // Recuperar ID si existe, o insertar y luego recuperar
                         int diseaseId = diseaseManager.getDiseaseId(diseaseName);
+                        System.out.println("DISEASE ID "+ diseaseId);
+                        System.out.println("EPISODE ID "+episodeId);
                         if (diseaseId == -1) { // -1 o un valor especial significa que no existe
                             diseaseManager.insertDisease(diseaseName);
                             diseaseId = diseaseManager.getDiseaseId(diseaseName);
@@ -697,6 +700,8 @@ public class ModifServerConnection {
                         symptomManager.assignSymptomToEpisode(symptomId, episodeId); // Asigna al episodio*/
 
                         int symptomId = symptomManager.getSymptomId(symptomName);
+                         System.out.println("Symptom ID "+ symptomId);
+                        System.out.println("EPISODE ID "+episodeId);
                         if (symptomId == -1) {
                             symptomManager.insertSymptom(symptomName);
                             symptomId = symptomManager.getSymptomId(symptomName);
@@ -718,6 +723,8 @@ public class ModifServerConnection {
                         surgeryManager.assignSurgeryToEpisode(surgeryId, episodeId); // Asigna al episodio*/
 
                         int surgeryId = surgeryManager.getSurgeryId(surgeryName);
+                          System.out.println("Surgery ID "+ surgeryId);
+                        System.out.println("EPISODE ID "+episodeId);
                         if (surgeryId == -1) {
                             surgeryManager.insertSurgery(surgeryName);
                             surgeryId = surgeryManager.getSurgeryId(surgeryName);
@@ -733,15 +740,27 @@ public class ModifServerConnection {
                         Recording.Type type = Recording.Type.valueOf(parts[1]);
                         LocalDateTime recordingDate = LocalDateTime.parse(parts[2]);
                         String signalPath = parts[3];
-
-                        // Procesar datos de grabación
+                        
+                        //nuevo
+                        String dataString = parts[4]; // Datos separados por comas
                         ArrayList<Integer> data = new ArrayList<>();
+                        if (!dataString.isEmpty()) {
+                            String[] dataPoints = dataString.split(","); // Divide la cadena en los números individuales
+                            for (String dataPoint : dataPoints) {
+                                data.add(Integer.parseInt(dataPoint.trim())); // Convierte cada número en Integer
+                            }
+                        }
+                        
+                        
+                        
+                        // Procesar datos de grabación
+                        /*ArrayList<Integer> data = new ArrayList<>();
                         String dataPoint;
                         
                         
                         while (!(dataPoint = bufferedReader.readLine()).equals("END_OF_RECORDING_DATA")) {
                             data.add(Integer.parseInt(dataPoint));
-                        }
+                        }*/
 
                         
                         
