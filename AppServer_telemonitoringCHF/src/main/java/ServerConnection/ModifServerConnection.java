@@ -100,7 +100,7 @@ public class ModifServerConnection {
                 } else if (line.equals("VIEW_PATIENT_INFORMATION")) {
                     handleViewPatientInformation(bufferedReader, printWriter);
                 } else if (line.equals("VIEW_PATIENT_EPISODES")) {
-                    handlePatientEpisodesAndDetails(bufferedReader, printWriter); //used for the patoent: list of episodes + select episode + select surgery/disease/sysmptom/recording(files)
+                    handlePatientEpisodesAndDetails(bufferedReader, printWriter); //used for the patient: list of episodes + select episode + select surgery/disease/sysmptom/recording(files)
                 } else if (line.equals("AVAILABLE_DISEASES")) {
                     handleGetAvailableDiseases(printWriter);
                 } else if (line.equals("AVAILABLE_SURGERIES")) {
