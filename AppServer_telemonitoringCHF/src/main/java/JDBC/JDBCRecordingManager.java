@@ -29,7 +29,7 @@ public class JDBCRecordingManager implements RecordingManager {
     public void insertRecording(Recording recording) {
         String sql = "INSERT INTO Recording (type, date, filepath, data, episode_id) VALUES (?, ?, ?, ?, ?)";
 
-        try ( PreparedStatement p = c.prepareStatement(sql)) {
+        try (PreparedStatement p = c.prepareStatement(sql)) {
             p.setString(1, recording.getType().toString());
             p.setString(2, recording.getDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSSSSS")));
             // Convierte el ArrayList<Integer> `data` en una cadena de texto separada por comas
@@ -49,7 +49,7 @@ public class JDBCRecordingManager implements RecordingManager {
     }
 
     @Override
-    public ArrayList<Recording> getRecordingsByEpisode(int episode_id) {
+    public ArrayList<Recording> getRecordingsByEpisode(int episode_id, int patient_id) {
         ArrayList<Recording> recordings = new ArrayList<>();
         //nuevo
         try {
@@ -60,10 +60,11 @@ public class JDBCRecordingManager implements RecordingManager {
         } catch (SQLException ex) {
             Logger.getLogger(JDBCRecordingManager.class.getName()).log(Level.SEVERE, null, ex);
         }
-        String sql = "SELECT * FROM Recording WHERE episode_id = ?";
+        String sql = "SELECT * FROM Recording JOIN Episode ON Recording.episode_id = Episode.id JOIN Patient ON Episode.patient_id = Patient.id WHERE Recording.episode_id = ? AND Episode.patient_id = ?;";
 
-        try ( PreparedStatement p = c.prepareStatement(sql)) {
+        try (PreparedStatement p = c.prepareStatement(sql)) {
             p.setInt(1, episode_id);
+            p.setInt(2, patient_id);
             ResultSet rs = p.executeQuery();
             while (rs.next()) {
                 // Convierte la cadena `data` de vuelta a un ArrayList<Integer>
@@ -74,7 +75,7 @@ public class JDBCRecordingManager implements RecordingManager {
                 Recording recording = new Recording(
                         rs.getInt("id"),
                         Type.valueOf(rs.getString("type")),
-                        LocalDateTime.parse(rs.getString("date")),
+                        rs.getTimestamp("date").toLocalDateTime(), // Conversión directa
                         rs.getString("signal_path"),
                         data, // Usa el ArrayList<Integer> de `data`
                         rs.getInt("episode_id")
@@ -93,7 +94,7 @@ public class JDBCRecordingManager implements RecordingManager {
         ArrayList<Recording> recordings = new ArrayList<>();
         String sql = "SELECT * FROM Recording WHERE type = ? AND episode_id = ?";
 
-        try ( PreparedStatement p = c.prepareStatement(sql)) {
+        try (PreparedStatement p = c.prepareStatement(sql)) {
             p.setString(1, type.name());
             p.setInt(2, episode_id);
             ResultSet rs = p.executeQuery();
@@ -122,7 +123,7 @@ public class JDBCRecordingManager implements RecordingManager {
     @Override
     public Recording getRecordingById(int recording_id) {
         String sql = "SELECT * FROM Recording WHERE id = ?";
-        try ( PreparedStatement p = c.prepareStatement(sql)) {
+        try (PreparedStatement p = c.prepareStatement(sql)) {
             p.setInt(1, recording_id);
             ResultSet rs = p.executeQuery();
             if (rs.next()) {
@@ -147,7 +148,7 @@ public class JDBCRecordingManager implements RecordingManager {
         }
         return null;
     }
-
+}
     /*
     @Override
     public ArrayList<Recording> getRecordingByPatient(int patient_id) {
@@ -176,6 +177,6 @@ public class JDBCRecordingManager implements RecordingManager {
             System.out.println("Database error");
             e.printStackTrace();
         }
-        return recordings;
-    }*/
-}
+
+     }*/
+
