@@ -76,7 +76,7 @@ public class JDBCRecordingManager implements RecordingManager {
                         rs.getInt("id"),
                         Type.valueOf(rs.getString("type")),
                         rs.getTimestamp("date").toLocalDateTime(), // Conversión directa
-                        rs.getString("signal_path"),
+                        rs.getString("filepath"),
                         data, // Usa el ArrayList<Integer> de `data`
                         rs.getInt("episode_id")
                 );
@@ -107,7 +107,7 @@ public class JDBCRecordingManager implements RecordingManager {
                         rs.getInt("id"),
                         Type.valueOf(rs.getString("type")),
                         LocalDateTime.parse(rs.getString("date")),
-                        rs.getString("signal_path"),
+                        rs.getString("filepath"),
                         data,
                         rs.getInt(episode_id)
                 );
@@ -135,7 +135,7 @@ public class JDBCRecordingManager implements RecordingManager {
                         rs.getInt("id"),
                         Type.valueOf(rs.getString("type")),
                         LocalDateTime.parse(rs.getString("date")),
-                        rs.getString("signal_path"),
+                        rs.getString("filepath"),
                         data,
                         rs.getInt("episode_id")
                 );

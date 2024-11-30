@@ -100,7 +100,7 @@ public class ModifServerConnection {
                 } else if (line.equals("VIEW_PATIENT_INFORMATION")) {
                     handleViewPatientInformation(bufferedReader, printWriter);
                 } else if (line.equals("VIEW_PATIENT_EPISODES")) {
-                    handlePatientEpisodesAndDetails(bufferedReader, printWriter); //list of episodes + select episode + select recording
+                    handlePatientEpisodesAndDetails(bufferedReader, printWriter); //used for the patoent: list of episodes + select episode + select surgery/disease/sysmptom/recording(files)
                 } else if (line.equals("AVAILABLE_DISEASES")) {
                     handleGetAvailableDiseases(printWriter);
                 } else if (line.equals("AVAILABLE_SURGERIES")) {
@@ -109,6 +109,8 @@ public class ModifServerConnection {
                     handleGetAvailableSymptoms(printWriter);
                 } else if (line.equals("INSERT_EPISODE")) {
                     handleInsertEpisode(bufferedReader, printWriter);
+                } else if (line.equals("VIEW_EPISODE_ALL_DETAILS")) { // so the doctor can see ecg/emg + the rest
+                    handleIViewEpisodeAllDetails(bufferedReader, printWriter);
                 }
             }
 
@@ -278,6 +280,77 @@ public class ModifServerConnection {
         }
     }
 
+    private static void handleIViewEpisodeAllDetails(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
+        JDBCPatientManager patientManager = new JDBCPatientManager(connection);
+        JDBCSurgeryManager surgeryManager = new JDBCSurgeryManager(connection);
+        JDBCSymptomManager symptomManager = new JDBCSymptomManager(connection);
+        JDBCDiseaseManager diseaseManager = new JDBCDiseaseManager(connection);
+        JDBCRecordingManager recordingManager = new JDBCRecordingManager(connection);
+
+        int selectedEpisodeId = Integer.parseInt(bufferedReader.readLine());
+        int patient_id = Integer.parseInt(bufferedReader.readLine());
+
+        List<Surgery> surgeries = surgeryManager.getSurgeriesByEpisode(selectedEpisodeId, patient_id);
+        List<Symptom> symptoms = symptomManager.getSymptomsByEpisode(selectedEpisodeId, patient_id);
+        List<Disease> diseases = diseaseManager.getDiseasesByEpisode(selectedEpisodeId, patient_id);
+        List<Recording> recordings = recordingManager.getRecordingsByEpisode(selectedEpisodeId, patient_id);
+
+        // Enviar detalles del episodio al cliente
+        if (!surgeries.isEmpty()) {
+            printWriter.println("SURGERIES");
+            for (Surgery surgery : surgeries) {
+                System.out.println("Sending: " + String.format("SURGERIES,%s", surgery.getSurgery()));
+
+                printWriter.println(String.format("SURGERIES,%s", surgery.getSurgery()));
+            }
+        }
+        if (!symptoms.isEmpty()) {
+
+            printWriter.println("SYMPTOMS");
+            for (Symptom symptom : symptoms) {
+                System.out.println("Sending: " + String.format("SYMTOMS,%s", symptom.getSymptom()));
+
+                printWriter.println(String.format("SYMPTOMS,%s", symptom.getSymptom()));
+
+            }
+
+        }
+        if (!diseases.isEmpty()) {
+
+            printWriter.println("DISEASES");
+            for (Disease disease : diseases) {
+                printWriter.println(String.format("DISEASES,%s", disease.getDisease()));
+
+            }
+        }
+        if (!recordings.isEmpty()) { // para el doctor -> indicar printWriter-> DOCTOR y le mande la data
+
+            printWriter.println("RECORDINGS");
+            
+            for (Recording recording : recordings) {
+                String id = String.valueOf(recording.getId());
+                String signalPath = recording.getSignal_path();
+                ArrayList<Integer> data = recording.getData();
+
+                // Convertir el array de datos a un string encapsulado : [ , , , ]
+                StringBuilder dataString = new StringBuilder("[");
+                for (int i = 0; i < data.size(); i++) {
+                    dataString.append(data.get(i));
+                    if (i < data.size() - 1) {
+                        dataString.append(","); // Separar con comas
+                    }
+                }
+                dataString.append("]"); // Cerrar el array
+
+                // Enviar el mensaje: ID, ruta, datos del array
+                String message = String.format("%s,%s,%s", id, signalPath, dataString.toString());
+                System.out.println("Sending: " + message);
+                printWriter.println(message);
+            }
+        }
+        printWriter.println("END_OF_DETAILS"); // Marcar el fin de los detalles
+    }
+
     private static void handlePatientEpisodesAndDetails(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException, SQLException {
         if (connection == null || connection.isClosed()) {
             System.err.println("Database connection is not available.");
@@ -321,20 +394,6 @@ public class ModifServerConnection {
 
             int selectedEpisodeId = Integer.parseInt(selectedEpisodeIdString);
 
-            /*finally {
-                // Asegurar que la conexión se cierre correctamente
-                try {
-                    if (connection != null && !connection.isClosed()) {
-                        connection.close(); // Cerrar la conexión si no está cerrada
-                        System.out.println("Database connection closed.");
-                    }
-                } catch (Exception ex) {
-                    System.err.println("Error closing the database connection: " + ex.getMessage());
-                }
-            }*/
-            // System.out.println(selectedEpisodeId);
-            // Verificar que el ID seleccionado pertenece a la lista de episodios
-            // Obtener detalles del episodio seleccionado
             List<Surgery> surgeries = surgeryManager.getSurgeriesByEpisode(selectedEpisodeId, patient_id);
             List<Symptom> symptoms = symptomManager.getSymptomsByEpisode(selectedEpisodeId, patient_id);
             List<Disease> diseases = diseaseManager.getDiseasesByEpisode(selectedEpisodeId, patient_id);
@@ -359,10 +418,6 @@ public class ModifServerConnection {
 
                 }
 
-                /*for(int i=0; i<symptoms.size();i++){
-                  printWriter.println(String.format("%s,", symptoms.get(i).getSymptom()));
-
-                }*/
             }
             if (!diseases.isEmpty()) {
 
@@ -371,12 +426,13 @@ public class ModifServerConnection {
                     printWriter.println(String.format("DISEASES,%s", disease.getDisease()));
 
                 }
-            } // SI FAALLA FALTA CAMBIAR LASS COMAS ETC
+            }
             if (!recordings.isEmpty()) {
 
                 printWriter.println("RECORDINGS");
                 for (Recording recording : recordings) {
-                    System.out.println("Sending: " + String.format("SYMTOMS,%s", recording.getSignal_path()));
+
+                    System.out.println("Sending: " + String.format("RECORDINGS,%d,%s", recording.getId(), recording.getSignal_path()));
 
                     printWriter.println(String.format("RECORDINGS,%d,%s", recording.getId(), recording.getSignal_path())); // Enviar ID y ruta
 
@@ -434,23 +490,6 @@ public class ModifServerConnection {
         printWriter.println(patientData); // Enviar los datos del paciente
     }
 
-    // ME ESTOY LIANDO, IR A DOCTOR MENU (198) --> no se puede simplemente pasarlos episodios del paciente?
-    // enviar todos los episodios que tiene ese paciente en concreto
-    /*private static void handlePatientEpisodes(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
-        JDBCEpisodeManager episodeManager = new JDBCEpisodeManager(connection);
-        JDBCPatientManager patientManager = new JDBCPatientManager(connection);
-        String dni = bufferedReader.readLine();
-        Patient patientFromDatabase = patientManager.getPatientByDNI(dni);
-        ArrayList<Episode> episodes = episodeManager.getEpisodesByPatient(patientFromDatabase.getId());
-
-        for (int i = 0; i < episodes.size(); i++) {
-            Episode episode = episodes.get(i);
-            String episodeData = String.format("%s", episode);
-            printWriter.println(episodeData);
-        }
-
-    }
-     */
     private static void handleGetAvailableDiseases(PrintWriter printWriter) {
         JDBCDiseaseManager diseaseManager = new JDBCDiseaseManager(connection);
 
