@@ -172,11 +172,16 @@ public class ModifServerConnection {
             printWriter.println("INVALID"); // Mensaje de error si el DNI ya está registrado
         } else {
             int bound = doctorManager.countNumberOfDoctors();
+            if (bound < 1) {
+                System.out.println("No doctor can be assigned");
+
+            }
             //System.out.println(bound);
             //
             try {
                 int doctor_id = generateRandomInt(bound);
                 Doctor doctor = doctorManager.getDoctorById(doctor_id);
+
                 //
                 if (dni == null || password == null || name == null || surname == null || telephone == null || email == null || dateOfBirth == null || gender == null) {
                     printWriter.println("INVALID");
@@ -184,7 +189,7 @@ public class ModifServerConnection {
                     return;
                 }
                 Patient patient = new Patient(dni, password, name, surname, email, gender, telephone, dateOfBirth, doctor);
-                patientManager.insertPatient(patient, doctor);
+                patientManager.insertPatient(patient, doctor.getId());
                 printWriter.println("VALID"); // Mensaje de confirmación de registro exitoso
                 System.out.println("Patient registered on db: " + patient);
 
@@ -270,8 +275,9 @@ public class ModifServerConnection {
             for (int i = 0; i < patients.size(); i++) {
 
                 Patient patient = patients.get(i); // Obtén el paciente en la posición i
-                //System.out.println("dentro del for");
                 String patientData = String.format("%s,%s,%s", patient.getDNI(), patient.getName(), patient.getSurname());
+                System.out.println("dentro del for" + patientData);
+
                 printWriter.println(patientData); // Enviar los datos del paciente
                 if (i == (patients.size() - 1)) {
                     printWriter.println("END_OF_LIST");
@@ -280,8 +286,13 @@ public class ModifServerConnection {
         }
     }
 
-    private static void handleIViewEpisodeAllDetails(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
-        JDBCPatientManager patientManager = new JDBCPatientManager(connection);
+    private static void handleIViewEpisodeAllDetails(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException, SQLException {
+          if (connection == null || connection.isClosed()) {
+            System.err.println("Database connection is not available.");
+            return;
+        }
+          System.out.println("handleIViewEpisodeAllDetails");
+        //JDBCPatientManager patientManager = new JDBCPatientManager(connection);
         JDBCSurgeryManager surgeryManager = new JDBCSurgeryManager(connection);
         JDBCSymptomManager symptomManager = new JDBCSymptomManager(connection);
         JDBCDiseaseManager diseaseManager = new JDBCDiseaseManager(connection);
@@ -290,11 +301,14 @@ public class ModifServerConnection {
         int selectedEpisodeId = Integer.parseInt(bufferedReader.readLine());
         int patient_id = Integer.parseInt(bufferedReader.readLine());
 
+
+        System.out.println("EPISODE ID: "+selectedEpisodeId+"patient_id "+patient_id);
         List<Surgery> surgeries = surgeryManager.getSurgeriesByEpisode(selectedEpisodeId, patient_id);
         List<Symptom> symptoms = symptomManager.getSymptomsByEpisode(selectedEpisodeId, patient_id);
         List<Disease> diseases = diseaseManager.getDiseasesByEpisode(selectedEpisodeId, patient_id);
         List<Recording> recordings = recordingManager.getRecordingsByEpisode(selectedEpisodeId, patient_id);
-
+            System.out.println(recordings); 
+                    
         // Enviar detalles del episodio al cliente
         if (!surgeries.isEmpty()) {
             printWriter.println("SURGERIES");
@@ -326,7 +340,7 @@ public class ModifServerConnection {
         if (!recordings.isEmpty()) { // para el doctor -> indicar printWriter-> DOCTOR y le mande la data
 
             printWriter.println("RECORDINGS");
-            
+
             for (Recording recording : recordings) {
                 String id = String.valueOf(recording.getId());
                 String signalPath = recording.getSignal_path();
@@ -486,7 +500,7 @@ public class ModifServerConnection {
 
         // printWriter.println(patientFromDatabase.toString());        
         String patientData = String.format("%s,%s,%s,%s,%s,%s,%s,%s", patientFromDatabase.getId(), patientFromDatabase.getDNI(), patientFromDatabase.getName(), patientFromDatabase.getSurname(),
-                patientFromDatabase.getEmail(), patientFromDatabase.getGender().toString(), patientFromDatabase.getPhoneNumber(), patientFromDatabase.getDob().toString());
+                patientFromDatabase.getEmail(), patientFromDatabase.getGender().toString(), patientFromDatabase.getPhoneNumber(), patientFromDatabase.getDob().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         printWriter.println(patientData); // Enviar los datos del paciente
     }
 

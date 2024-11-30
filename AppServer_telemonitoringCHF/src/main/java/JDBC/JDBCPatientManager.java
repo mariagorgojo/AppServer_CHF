@@ -20,7 +20,7 @@ public class JDBCPatientManager implements PatientManager {
     }
 
     @Override
-    public void insertPatient(Patient patient, Doctor doctor) {
+    public void insertPatient(Patient patient, int doctor) {
         try {
             String sql = "INSERT INTO Patient (dni, password, name, surname, email, gender, phone, dob, doctor_id) VALUES (?, ?,?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement prep = c.prepareStatement(sql);
@@ -32,7 +32,7 @@ public class JDBCPatientManager implements PatientManager {
             prep.setString(6, patient.getGender().toString());
             prep.setInt(7, patient.getPhoneNumber());
             prep.setObject(8, patient.getDob());
-            prep.setInt(9, doctor != null ? doctor.getId() : null);
+            prep.setInt(9, doctor);
             prep.executeUpdate();
             prep.close();
         } catch (SQLException e) {

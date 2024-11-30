@@ -13,7 +13,7 @@ import pojos.Patient;
  * @author carmengarciaprieto
  */
 public interface PatientManager {
-    public void insertPatient(Patient patient, Doctor doctor);
+    public void insertPatient(Patient patient, int doctor);
     public ArrayList<Patient> searchPatientsByDoctor(Integer id);
     public Patient getPatientById(int p_id);
     public ArrayList<Patient> searchPatientByName(String name);
