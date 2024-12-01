@@ -308,10 +308,9 @@ public class ModifServerConnection {
             JDBCRecordingManager recordingManager = new JDBCRecordingManager(connection);
 
             int selectedEpisodeId = Integer.parseInt(bufferedReader.readLine());
-            System.out.println("Read: "+ selectedEpisodeId);
+            System.out.println("Read: " + selectedEpisodeId);
             int patient_id = Integer.parseInt(bufferedReader.readLine());
-                        System.out.println("Read: "+ selectedEpisodeId);
-
+            System.out.println("Read: " + selectedEpisodeId);
 
             //System.out.println("EPISODE ID: "+selectedEpisodeId+"patient_id "+patient_id);
             List<Surgery> surgeries = surgeryManager.getSurgeriesByEpisode(selectedEpisodeId, patient_id);
@@ -371,11 +370,10 @@ public class ModifServerConnection {
                     // Enviar el mensaje: ID, ruta, datos del array
                     String message = String.format("RECORDINGS,%s,%s,%s", id, signalPath, dataString.toString());
                     System.out.println("Sending: " + message);
-                    printWriter.println(message);
+                    printWriter.println(message); // Enviar mensaje completo
                 }
             }
             printWriter.println("END_OF_LIST"); // Marcar el fin de los detalles
-
         } catch (Exception e) {
             System.err.println("Error handling VIEW_EPISODE_ALL_DETAILS: " + e.getMessage());
             e.printStackTrace();
@@ -722,32 +720,52 @@ public class ModifServerConnection {
                         break;
 
                     case "RECORDING":
-
-                        Recording.Type type = Recording.Type.valueOf(parts[1]);
-                        LocalDateTime recordingDate = LocalDateTime.parse(parts[2]);
-                        String signalPath = parts[3];
-
-                        //nuevo
-                        String dataString = parts[4]; // Datos separados por comas
-                        ArrayList<Integer> data = new ArrayList<>();
-                        if (!dataString.isEmpty()) {
-                            String[] dataPoints = dataString.split(","); // Divide la cadena en los números individuales
-                            for (String dataPoint : dataPoints) {
-                                data.add(Integer.parseInt(dataPoint.trim())); // Convierte cada número en Integer
+                        try {
+                            // Validar longitud de parts
+                            if (parts.length < 5) {
+                                System.err.println("Invalid RECORDING data: insufficient parts");
+                                printWriter.println("ERROR: Invalid RECORDING data");
+                                return;
                             }
-                        }
 
-                        // Procesar datos de grabación
-                        /*ArrayList<Integer> data = new ArrayList<>();
-                        String dataPoint;
-                        
-                        
-                        while (!(dataPoint = bufferedReader.readLine()).equals("END_OF_RECORDING_DATA")) {
-                            data.add(Integer.parseInt(dataPoint));
-                        }*/
-                        // Crear y guardar la grabación
-                        Recording recording = new Recording(type, recordingDate, signalPath, data, episodeId);
-                        recordingManager.insertRecording(recording);
+                            // Extraer datos
+                            Recording.Type type = Recording.Type.valueOf(parts[1]);
+                            LocalDateTime recordingDate = LocalDateTime.parse(parts[2]);
+                            String signalPath = parts[3];
+                            String dataString = parts[4]; // Datos separados por comas
+
+                            // Validar dataString
+                            if (dataString == null || dataString.isEmpty()) {
+                                System.err.println("Error: dataString is null or empty");
+                                printWriter.println("ERROR: dataString is null or empty");
+                                return;
+                            }
+
+                            // Procesar datos
+                            ArrayList<Integer> data = new ArrayList<>();
+                            try {
+                                String[] dataPoints = dataString.split(",");
+                                for (String dataPoint : dataPoints) {
+                                    data.add(Integer.parseInt(dataPoint.trim()));
+                                }
+                            } catch (NumberFormatException e) {
+                                System.err.println("Error parsing dataString: " + e.getMessage());
+                                printWriter.println("ERROR: Invalid data format in dataString");
+                                return;
+                            }
+
+                            System.out.println("Raw data string: " + dataString);
+                            System.out.println("Parsed data points: " + data);
+
+                            // Crear y guardar la grabación
+                            Recording recording = new Recording(type, recordingDate, signalPath, data, episodeId);
+                            recordingManager.insertRecording(recording);
+
+                        } catch (Exception e) {
+                            System.err.println("Error processing RECORDING: " + e.getMessage());
+                            printWriter.println("ERROR: " + e.getMessage());
+                            e.printStackTrace();
+                        }
                         break;
 
                     default:
@@ -778,9 +796,11 @@ public class ModifServerConnection {
 
             if (serverSocket != null && !serverSocket.isClosed()) {
                 serverSocket.close();
+
             }
         } catch (IOException ex) {
-            Logger.getLogger(ModifServerConnection.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ModifServerConnection.class
+                    .getName()).log(Level.SEVERE, null, ex);
         }
     }
 
