@@ -43,13 +43,8 @@ import pojos.Recording;
 import pojos.Surgery;
 import pojos.Symptom;
 
-public class ModifServerConnection {
+public class ServerConnection {
 
-    // carmen modificar : bd ficcticia para q no me diera error
-    //private static final Map<String, Doctor> doctorDatabase = new HashMap<>(); // carmen modificar 
-    //private static final Map<String, Patient> patientDatabase = new HashMap<>();
-    // Maria
-    // Atributes that allow the database management and connection
     private static ConnectionManager dataBaseManager;
     private static Connection connection;
 
@@ -62,8 +57,6 @@ public class ModifServerConnection {
             Socket socket = serverSocket.accept();
             System.out.println("Client connected");
 
-            // Maria 
-            // Inicializar el ConnectionManager para la base de datos
             dataBaseManager = new ConnectionManager();
             connection = dataBaseManager.getConnection();
 
@@ -88,7 +81,7 @@ public class ModifServerConnection {
                 if (line.equals("REGISTER_DOCTOR")) {
                     handleDoctorRegister(bufferedReader, printWriter);
                 } else if (line.equals("REGISTER_PATIENT")) {
-                    // FALTA SABER QUE HACER CON EL DOCTOR DEL INSERT PATIENT
+
                     handlePatientRegister(bufferedReader, printWriter);
                 } else if (line.equals("LOGIN_DOCTOR")) {
                     handleDoctorLogin(bufferedReader, printWriter);
@@ -97,9 +90,7 @@ public class ModifServerConnection {
                 } else if (line.equals("VIEW_DOCTOR_DETAILS")) {
                     handleViewDoctorDetails(bufferedReader, printWriter);
                 } else if (line.equals("VIEW_DOCTOR_PATIENTS")) {
-                    //System.out.println("I'm in view doctor_patirnts before function");
                     handleViewDoctorPatients(bufferedReader, printWriter);
-                    // System.out.println("I'm in view doctor_patirnts after function");
                 } else if (line.equals("VIEW_PATIENT_INFORMATION")) {
                     handleViewPatientInformation(bufferedReader, printWriter);
                 } else if (line.equals("VIEW_PATIENT_EPISODES")) {
@@ -126,11 +117,10 @@ public class ModifServerConnection {
     }
 
     private static void handleDoctorRegister(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
-        // manager + the conncection with the database
         JDBCDoctorManager doctorManager = new JDBCDoctorManager(connection);
 
         String dni = bufferedReader.readLine();
-        String password = bufferedReader.readLine(); // Encript ...+ adelante
+        String password = bufferedReader.readLine();
         String name = bufferedReader.readLine();
         String surname = bufferedReader.readLine();
         Integer telephone = Integer.parseInt(bufferedReader.readLine());
@@ -158,7 +148,7 @@ public class ModifServerConnection {
         String dni = bufferedReader.readLine();
         System.out.println("DNI received: " + dni);
 
-        String password = bufferedReader.readLine(); // Password received securely
+        String password = bufferedReader.readLine();
         System.out.println("Password received: " + password);
 
         String name = bufferedReader.readLine();
@@ -174,7 +164,7 @@ public class ModifServerConnection {
         // Verificar si el patient ya existe en la base de datos
         Patient patientFromDatabase = patientManager.getPatientByDNI(dni);
 
-// Comprobación de si el DNI ya está registrado
+        // Comprobación de si el DNI ya está registrado
         if (patientFromDatabase != null && patientFromDatabase.getDNI().equals(dni)) {
             System.out.println("ERROR");
             printWriter.println("INVALID"); // Mensaje de error si el DNI ya está registrado
@@ -184,8 +174,7 @@ public class ModifServerConnection {
                 System.out.println("No doctor can be assigned");
 
             }
-            //System.out.println(bound);
-            //
+
             try {
                 int doctor_id = generateRandomInt(bound);
                 Doctor doctor = doctorManager.getDoctorById(doctor_id);
@@ -220,13 +209,12 @@ public class ModifServerConnection {
         JDBCDoctorManager doctorManager = new JDBCDoctorManager(connection);
 
         String dni = bufferedReader.readLine();
-        String password = bufferedReader.readLine(); // Encrypte + adelante
+        String password = bufferedReader.readLine();
 
-        // FALTA QUE COMPRUEBE TAMBIÉN LA PASSWORD!! Y COMPROBAR SI EL DNI ES DE UN PACIENTE O DEL DOCTOR!!
         // Verificar si el doctor existe en la base de datos
         Doctor doctorFromDatabase = doctorManager.getDoctorByDNI(dni);
         if (doctorFromDatabase != null && doctorFromDatabase.getDni().equals(dni)
-                && doctorFromDatabase.getPassword().equals(password)) { // AÑADIR LAS VERIFICACIONES MEMCIONADAS
+                && doctorFromDatabase.getPassword().equals(password)) {
             System.out.println(password);
 
             printWriter.println("VALID");
@@ -243,9 +231,8 @@ public class ModifServerConnection {
         JDBCPatientManager patientManager = new JDBCPatientManager(connection);
 
         String dni = bufferedReader.readLine();
-        String password = bufferedReader.readLine(); // Encrypte + ADELANTE
+        String password = bufferedReader.readLine();
 
-        // VALID SI ESTÁ REGISTRADO Y SI COINCIDE LA PASSWORD CON EL DNI !!
         // falta contraseña
         Patient patientDatabase = patientManager.getPatientByDNI(dni);
         System.out.println(patientDatabase.toString());
@@ -282,7 +269,7 @@ public class ModifServerConnection {
         } else {
             for (int i = 0; i < patients.size(); i++) {
 
-                Patient patient = patients.get(i); // Obtén el paciente en la posición i
+                Patient patient = patients.get(i);
                 String patientData = String.format("%s,%s,%s", patient.getDNI(), patient.getName(), patient.getSurname());
                 System.out.println("dentro del for" + patientData);
 
@@ -300,8 +287,7 @@ public class ModifServerConnection {
                 System.err.println("Database connection is not available.");
                 return;
             }
-            // System.out.println("handleViewEpisodeAllDetails");
-            //JDBCPatientManager patientManager = new JDBCPatientManager(connection);
+
             JDBCSurgeryManager surgeryManager = new JDBCSurgeryManager(connection);
             JDBCSymptomManager symptomManager = new JDBCSymptomManager(connection);
             JDBCDiseaseManager diseaseManager = new JDBCDiseaseManager(connection);
@@ -312,12 +298,10 @@ public class ModifServerConnection {
             int patient_id = Integer.parseInt(bufferedReader.readLine());
             System.out.println("Read: " + selectedEpisodeId);
 
-            //System.out.println("EPISODE ID: "+selectedEpisodeId+"patient_id "+patient_id);
             List<Surgery> surgeries = surgeryManager.getSurgeriesByEpisode(selectedEpisodeId, patient_id);
             List<Symptom> symptoms = symptomManager.getSymptomsByEpisode(selectedEpisodeId, patient_id);
             List<Disease> diseases = diseaseManager.getDiseasesByEpisode(selectedEpisodeId, patient_id);
             List<Recording> recordings = recordingManager.getRecordingsByEpisode(selectedEpisodeId, patient_id);
-            //  System.out.println(recordings); 
 
             // Enviar detalles del episodio al cliente
             if (!surgeries.isEmpty()) {
@@ -362,7 +346,7 @@ public class ModifServerConnection {
                     for (int i = 0; i < data.size(); i++) {
                         dataString.append(data.get(i));
                         if (i < data.size() - 1) {
-                            dataString.append(","); // Separar con comas
+                            dataString.append(",");
                         }
                     }
                     dataString.append("]"); // Cerrar el array
@@ -387,7 +371,6 @@ public class ModifServerConnection {
             return;
         }
 
-// Crear los gestores necesarios
         JDBCEpisodeManager episodeManager = new JDBCEpisodeManager(connection);
         JDBCPatientManager patientManager = new JDBCPatientManager(connection);
         JDBCSurgeryManager surgeryManager = new JDBCSurgeryManager(connection);
@@ -395,16 +378,13 @@ public class ModifServerConnection {
         JDBCDiseaseManager diseaseManager = new JDBCDiseaseManager(connection);
         JDBCRecordingManager recordingManager = new JDBCRecordingManager(connection);
 
-        // Leer el DNI del paciente
         String dni = bufferedReader.readLine();
 
-        //System.out.println(dni + " PATIENT DNI");
         // Obtener el paciente desde la base de datos
         Patient patientFromDatabase = patientManager.getPatientByDNI(dni);
 
         // Obtener episodios del paciente
         ArrayList<Episode> episodes = episodeManager.getEpisodesByPatient(patientFromDatabase.getId());
-        // System.out.println("Episodes retrieved for patient: " + episodes);
 
         // Enviar la lista de episodios al cliente
         for (Episode episode : episodes) {
@@ -416,9 +396,8 @@ public class ModifServerConnection {
             // Leer el ID del episodio seleccionado por el cliente
             String selectedEpisodeIdString = bufferedReader.readLine();
 
-            // nuevo
             String patient_dni = bufferedReader.readLine();
-            // System.out.println("PATIENT DNI FROM SERVER!!!: " + patient_dni);
+
             Patient patientFromDatabase2 = patientManager.getPatientByDNI(patient_dni);
             int patient_id = patientFromDatabase2.getId();
 
@@ -479,7 +458,6 @@ public class ModifServerConnection {
             return;
         }
 
-// Crear los gestores necesarios
         JDBCEpisodeManager episodeManager = new JDBCEpisodeManager(connection);
         JDBCPatientManager patientManager = new JDBCPatientManager(connection);
         JDBCSurgeryManager surgeryManager = new JDBCSurgeryManager(connection);
@@ -487,16 +465,13 @@ public class ModifServerConnection {
         JDBCDiseaseManager diseaseManager = new JDBCDiseaseManager(connection);
         JDBCRecordingManager recordingManager = new JDBCRecordingManager(connection);
 
-        // Leer el DNI del paciente
         String dni = bufferedReader.readLine();
 
-        //System.out.println(dni + " PATIENT DNI");
         // Obtener el paciente desde la base de datos
         Patient patientFromDatabase = patientManager.getPatientByDNI(dni);
 
         // Obtener episodios del paciente
         ArrayList<Episode> episodes = episodeManager.getEpisodesByPatient(patientFromDatabase.getId());
-        // System.out.println("Episodes retrieved for patient: " + episodes);
 
         // Enviar la lista de episodios al cliente
         for (Episode episode : episodes) {
@@ -533,17 +508,7 @@ public class ModifServerConnection {
             printWriter.flush();
             e.printStackTrace();
         }
-        /*finally {
-            // Asegurar que la conexión se cierre correctamente
-            try {
-                if (connection != null && !connection.isClosed()) {
-                    connection.close(); // Cerrar la conexión si no está cerrada
-                    System.out.println("Database connection closed.");
-                }
-            } catch (Exception ex) {
-                System.err.println("Error closing the database connection: " + ex.getMessage());
-            }
-        }*/
+
     }
 
     private static void handleGetAvailableSurgeries(PrintWriter printWriter) {
@@ -560,17 +525,7 @@ public class ModifServerConnection {
             printWriter.println("ERROR: " + e.getMessage());
             printWriter.flush();
             e.printStackTrace();
-        }/* finally {
-            // Asegurar que la conexión se cierre correctamente
-            try {
-                if (connection != null && !connection.isClosed()) {
-                    connection.close(); // Cerrar la conexión si no está cerrada
-                    System.out.println("Database connection closed.");
-                }
-            } catch (Exception ex) {
-                System.err.println("Error closing the database connection: " + ex.getMessage());
-            }
-        }*/
+        }
 
     }
 
@@ -588,33 +543,12 @@ public class ModifServerConnection {
             System.out.println("ERROR: " + e.getMessage());
             // printWriter.flush();
             e.printStackTrace();
-        }/* finally {
-            // Asegurar que la conexión se cierre correctamente
-            try {
-                if (connection != null && !connection.isClosed()) {
-                    connection.close(); // Cerrar la conexión si no está cerrada
-                    System.out.println("Database connection closed.");
-                }
-            } catch (Exception ex) {
-                System.err.println("Error closing the database connection: " + ex.getMessage());
-            }
-        }*/
+        }
 
     }
 
 
-    /* private static void handleInsertNewDisease(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
-        String diseaseName = bufferedReader.readLine();
-        try {
-            JDBCDiseaseManager diseaseManager = new JDBCDiseaseManager(connection);
-            diseaseManager.insertDisease(diseaseName);
-            printWriter.println("SUCCESS");
-        } catch (Exception e) {
-            printWriter.println("ERROR");
-            e.printStackTrace();
-        }
-
-    }*/
+  
     private static void handleInsertEpisode(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
         try {
             // Crear managers para acceder a la base de datos
@@ -626,13 +560,12 @@ public class ModifServerConnection {
 
             int patientId = Integer.parseInt(bufferedReader.readLine());
             LocalDateTime episodeDate = LocalDateTime.parse(bufferedReader.readLine());
-            // System.out.println("Patient ID associated "+patientId);
+
             // Crear el objeto episodio
             Episode episode = new Episode();
             episode.setPatient_id(patientId);
             episode.setDate(episodeDate);
 
-            //System.out.println("episodeDate" + episodeDate);
             // Insertar el episodio y obtener el ID generado
             episodeManager.insertEpisode(episode);
             System.out.println("EPISODE INSERTED IN THE SERVER" + episode);
@@ -721,52 +654,52 @@ public class ModifServerConnection {
 
                     case "RECORDING":
                         try {
-                            // Validar longitud de parts
-                            if (parts.length < 5) {
-                                System.err.println("Invalid RECORDING data: insufficient parts");
-                                printWriter.println("ERROR: Invalid RECORDING data");
-                                return;
-                            }
-
-                            // Extraer datos
-                            Recording.Type type = Recording.Type.valueOf(parts[1]);
-                            LocalDateTime recordingDate = LocalDateTime.parse(parts[2]);
-                            String signalPath = parts[3];
-                            String dataString = parts[4]; // Datos separados por comas
-
-                            // Validar dataString
-                            if (dataString == null || dataString.isEmpty()) {
-                                System.err.println("Error: dataString is null or empty");
-                                printWriter.println("ERROR: dataString is null or empty");
-                                return;
-                            }
-
-                            // Procesar datos
-                            ArrayList<Integer> data = new ArrayList<>();
-                            try {
-                                String[] dataPoints = dataString.split(",");
-                                for (String dataPoint : dataPoints) {
-                                    data.add(Integer.parseInt(dataPoint.trim()));
-                                }
-                            } catch (NumberFormatException e) {
-                                System.err.println("Error parsing dataString: " + e.getMessage());
-                                printWriter.println("ERROR: Invalid data format in dataString");
-                                return;
-                            }
-
-                            System.out.println("Raw data string: " + dataString);
-                            System.out.println("Parsed data points: " + data);
-
-                            // Crear y guardar la grabación
-                            Recording recording = new Recording(type, recordingDate, signalPath, data, episodeId);
-                            recordingManager.insertRecording(recording);
-
-                        } catch (Exception e) {
-                            System.err.println("Error processing RECORDING: " + e.getMessage());
-                            printWriter.println("ERROR: " + e.getMessage());
-                            e.printStackTrace();
+                        // Validar longitud de parts
+                        if (parts.length < 5) {
+                            System.err.println("Invalid RECORDING data: insufficient parts");
+                            printWriter.println("ERROR: Invalid RECORDING data");
+                            return;
                         }
-                        break;
+
+                        // Extraer datos
+                        Recording.Type type = Recording.Type.valueOf(parts[1]);
+                        LocalDateTime recordingDate = LocalDateTime.parse(parts[2]);
+                        String signalPath = parts[3];
+                        String dataString = parts[4]; // Datos separados por comas
+
+                        // Validar dataString
+                        if (dataString == null || dataString.isEmpty()) {
+                            System.err.println("Error: dataString is null or empty");
+                            printWriter.println("ERROR: dataString is null or empty");
+                            return;
+                        }
+
+                        // Procesar datos
+                        ArrayList<Integer> data = new ArrayList<>();
+                        try {
+                            String[] dataPoints = dataString.split(",");
+                            for (String dataPoint : dataPoints) {
+                                data.add(Integer.parseInt(dataPoint.trim()));
+                            }
+                        } catch (NumberFormatException e) {
+                            System.err.println("Error parsing dataString: " + e.getMessage());
+                            printWriter.println("ERROR: Invalid data format in dataString");
+                            return;
+                        }
+
+                        System.out.println("Raw data string: " + dataString);
+                        System.out.println("Parsed data points: " + data);
+
+                        // Crear y guardar la grabación
+                        Recording recording = new Recording(type, recordingDate, signalPath, data, episodeId);
+                        recordingManager.insertRecording(recording);
+
+                    } catch (Exception e) {
+                        System.err.println("Error processing RECORDING: " + e.getMessage());
+                        printWriter.println("ERROR: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                    break;
 
                     default:
                         throw new IllegalArgumentException("Unknown element type: " + parts[0]);
@@ -799,7 +732,7 @@ public class ModifServerConnection {
 
             }
         } catch (IOException ex) {
-            Logger.getLogger(ModifServerConnection.class
+            Logger.getLogger(ServerConnection.class
                     .getName()).log(Level.SEVERE, null, ex);
         }
     }
