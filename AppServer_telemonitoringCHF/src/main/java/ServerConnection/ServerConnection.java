@@ -270,7 +270,7 @@ public class ServerConnection {
             for (int i = 0; i < patients.size(); i++) {
 
                 Patient patient = patients.get(i);
-                String patientData = String.format("%s,%s,%s", patient.getDNI(), patient.getName(), patient.getSurname());
+                String patientData = String.format("%s;%s;%s", patient.getDNI(), patient.getName(), patient.getSurname());
                 System.out.println("dentro del for" + patientData);
 
                 printWriter.println(patientData); // Enviar los datos del paciente
@@ -307,18 +307,18 @@ public class ServerConnection {
             if (!surgeries.isEmpty()) {
                 printWriter.println("SURGERIES");
                 for (Surgery surgery : surgeries) {
-                    System.out.println("Sending: " + String.format("SURGERIES,%s", surgery.getSurgery()));
+                    System.out.println("Sending: " + String.format("SURGERIES;%s", surgery.getSurgery()));
 
-                    printWriter.println(String.format("SURGERIES,%s", surgery.getSurgery()));
+                    printWriter.println(String.format("SURGERIES;%s", surgery.getSurgery()));
                 }
             }
             if (!symptoms.isEmpty()) {
 
                 printWriter.println("SYMPTOMS");
                 for (Symptom symptom : symptoms) {
-                    System.out.println("Sending: " + String.format("SYMTOMS,%s", symptom.getSymptom()));
+                    System.out.println("Sending: " + String.format("SYMTOMS;%s", symptom.getSymptom()));
 
-                    printWriter.println(String.format("SYMPTOMS,%s", symptom.getSymptom()));
+                    printWriter.println(String.format("SYMPTOMS;%s", symptom.getSymptom()));
 
                 }
 
@@ -327,8 +327,8 @@ public class ServerConnection {
 
                 printWriter.println("DISEASES");
                 for (Disease disease : diseases) {
-                    printWriter.println(String.format("DISEASES,%s", disease.getDisease()));
-                    System.out.println("Sending: " + String.format("DISEASES,%s", disease.getDisease()));
+                    printWriter.println(String.format("DISEASES;%s", disease.getDisease()));
+                    System.out.println("Sending: " + String.format("DISEASES;%s", disease.getDisease()));
 
                 }
             }
@@ -352,7 +352,7 @@ public class ServerConnection {
                     dataString.append("]"); // Cerrar el array
 
                     // Enviar el mensaje: ID, ruta, datos del array
-                    String message = String.format("RECORDINGS,%s,%s,%s", id, signalPath, dataString.toString());
+                    String message = String.format("RECORDINGS;%s;%s;%s", id, signalPath, dataString.toString());
                     System.out.println("Sending: " + message);
                     printWriter.println(message); // Enviar mensaje completo
                 }
@@ -388,7 +388,7 @@ public class ServerConnection {
 
         // Enviar la lista de episodios al cliente
         for (Episode episode : episodes) {
-            printWriter.println(String.format("%d,%s", episode.getId(), episode.getDate()));
+            printWriter.println(String.format("%d;%s", episode.getId(), episode.getDate()));
         }
         printWriter.println("END_OF_LIST"); // Marcar el fin de la lista
 
@@ -412,18 +412,18 @@ public class ServerConnection {
             if (!surgeries.isEmpty()) {
                 printWriter.println("SURGERIES");
                 for (Surgery surgery : surgeries) {
-                    System.out.println("Sending: " + String.format("SURGERIES,%s", surgery.getSurgery()));
+                    System.out.println("Sending: " + String.format("SURGERIES;%s", surgery.getSurgery()));
 
-                    printWriter.println(String.format("SURGERIES,%s", surgery.getSurgery()));
+                    printWriter.println(String.format("SURGERIES;%s", surgery.getSurgery()));
                 }
             }
             if (!symptoms.isEmpty()) {
 
                 printWriter.println("SYMPTOMS");
                 for (Symptom symptom : symptoms) {
-                    System.out.println("Sending: " + String.format("SYMTOMS,%s", symptom.getSymptom()));
+                    System.out.println("Sending: " + String.format("SYMTOMS;%s", symptom.getSymptom()));
 
-                    printWriter.println(String.format("SYMPTOMS,%s", symptom.getSymptom()));
+                    printWriter.println(String.format("SYMPTOMS;%s", symptom.getSymptom()));
 
                 }
 
@@ -432,7 +432,7 @@ public class ServerConnection {
 
                 printWriter.println("DISEASES");
                 for (Disease disease : diseases) {
-                    printWriter.println(String.format("DISEASES,%s", disease.getDisease()));
+                    printWriter.println(String.format("DISEASES;%s", disease.getDisease()));
 
                 }
             }
@@ -441,9 +441,9 @@ public class ServerConnection {
                 printWriter.println("RECORDINGS");
                 for (Recording recording : recordings) {
 
-                    System.out.println("Sending: " + String.format("RECORDINGS,%d,%s", recording.getId(), recording.getSignal_path()));
+                    System.out.println("Sending: " + String.format("RECORDINGS;%d;%s", recording.getId(), recording.getSignal_path()));
 
-                    printWriter.println(String.format("RECORDINGS,%d,%s", recording.getId(), recording.getSignal_path())); // Enviar ID y ruta
+                    printWriter.println(String.format("RECORDINGS;%d;%s", recording.getId(), recording.getSignal_path())); // Enviar ID y ruta
 
                 }
             }
@@ -475,7 +475,7 @@ public class ServerConnection {
 
         // Enviar la lista de episodios al cliente
         for (Episode episode : episodes) {
-            printWriter.println(String.format("%d,%s", episode.getId(), episode.getDate()));
+            printWriter.println(String.format("%d;%s", episode.getId(), episode.getDate()));
         }
         printWriter.println("END_OF_LIST"); // Marcar el fin de la lista
 
@@ -488,7 +488,7 @@ public class ServerConnection {
         Patient patientFromDatabase = patientManager.getPatientByDNI(dni);
 
         // printWriter.println(patientFromDatabase.toString());        
-        String patientData = String.format("%s,%s,%s,%s,%s,%s,%s,%s", patientFromDatabase.getId(), patientFromDatabase.getDNI(), patientFromDatabase.getName(), patientFromDatabase.getSurname(),
+        String patientData = String.format("%s;%s;%s;%s;%s;%s;%s;%s", patientFromDatabase.getId(), patientFromDatabase.getDNI(), patientFromDatabase.getName(), patientFromDatabase.getSurname(),
                 patientFromDatabase.getEmail(), patientFromDatabase.getGender().toString(), patientFromDatabase.getPhoneNumber(), patientFromDatabase.getDob().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         printWriter.println(patientData); // Enviar los datos del paciente
     }
@@ -578,7 +578,7 @@ public class ServerConnection {
             while (!((line = bufferedReader.readLine()).equals("END_OF_EPISODE"))) {
                 System.out.println("line:" + line);
 
-                String[] parts = line.split("\\|");
+                String[] parts = line.split("\\;");
                 switch (parts[0]) {
                     case "DISEASE":
                         String diseaseName = parts[1];
