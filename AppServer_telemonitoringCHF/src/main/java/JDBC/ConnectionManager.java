@@ -56,6 +56,14 @@ public class ConnectionManager {
 
         try ( Statement s = c.createStatement()) {
 
+             // Tabla Administrator (sin dependencias)
+            String table_Admin = "CREATE TABLE IF NOT EXISTS Admin ("
+                    + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + "dni TEXT NOT NULL,"
+                    + "password TEXT NOT NULL);";
+            s.executeUpdate(table_Admin);
+            System.out.println("Table Admin created.");
+            
             // Tabla Doctor (sin dependencias)
             String table_Doctor = "CREATE TABLE IF NOT EXISTS Doctor ("
                     + "id INTEGER PRIMARY KEY AUTOINCREMENT,"

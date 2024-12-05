@@ -47,7 +47,6 @@ public class ServerConnection {
 
     //private static ConnectionManager dataBaseManager;
     // private static Connection connection;
-
     public static void main(String args[]) throws IOException, SQLException {
 
         ServerSocket serverSocket = new ServerSocket(9090);
@@ -61,8 +60,7 @@ public class ServerConnection {
             Thread clientThread = new Thread(new ClientHandler(socket));
             clientThread.start();
         }
-                
-        
+
     }
 
     private static class ClientHandler implements Runnable {
@@ -86,9 +84,8 @@ public class ServerConnection {
                 connection = connectionManager.getConnection();
 
                 // Inicializar recursos del cliente
-
-                 bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                 printWriter = new PrintWriter(socket.getOutputStream(), true);
+                bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                printWriter = new PrintWriter(socket.getOutputStream(), true);
 
                 String line;
                 while ((line = bufferedReader.readLine()) != null) {
@@ -96,7 +93,7 @@ public class ServerConnection {
                         System.out.println("Client logging out"); //salir del bicle, terminar el hilo
                         break;
                     }
-                       
+
                     switch (line) {
                         case "REGISTER_DOCTOR":
                             handleDoctorRegister(bufferedReader, printWriter);
@@ -152,14 +149,14 @@ public class ServerConnection {
                 // Liberar recursos
                 releaseResources();
             }
-        } 
-                       // releaseResources(bufferedReader, printWriter, socket, serverSocket);
-                        // NS SI ES CORRECTO, XQ EN EL LOGIN MANDA STOP TB Y NO QUIRO CERRAR
-                        // CD haya + de 1 cliente ns si es correcto ponerlo asi -> cierra todos??
+        }
+        // releaseResources(bufferedReader, printWriter, socket, serverSocket);
+        // NS SI ES CORRECTO, XQ EN EL LOGIN MANDA STOP TB Y NO QUIRO CERRAR
+        // CD haya + de 1 cliente ns si es correcto ponerlo asi -> cierra todos??
 
-                        // CAMBIAR
-                        //System.exit(0);  // VOLVER: ns si cierra el socket entero para los demas clientes ??
-                   /* }
+        // CAMBIAR
+        //System.exit(0);  // VOLVER: ns si cierra el socket entero para los demas clientes ??
+        /* }
                     if (line == null) {
                         System.err.println("Received null command. Client may have disconnected.");
                         return;
@@ -207,21 +204,26 @@ public class ServerConnection {
             releaseResources();
         }
         }*/
-
-               private void releaseResources() {
+        private void releaseResources() {
             try {
-                if (bufferedReader != null) bufferedReader.close();
-                if (printWriter != null) printWriter.close();
-                if (socket != null && !socket.isClosed()) socket.close();
-                if (connection != null && !connection.isClosed()) connection.close();
+                if (bufferedReader != null) {
+                    bufferedReader.close();
+                }
+                if (printWriter != null) {
+                    printWriter.close();
+                }
+                if (socket != null && !socket.isClosed()) {
+                    socket.close();
+                }
+                if (connection != null && !connection.isClosed()) {
+                    connection.close();
+                }
             } catch (IOException | SQLException e) {
                 Logger.getLogger(ServerConnection.class.getName()).log(Level.SEVERE, null, e);
             }
         }
 
-        
-        
-        private  void handleDoctorRegister(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
+        private void handleDoctorRegister(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
             JDBCDoctorManager doctorManager = new JDBCDoctorManager(connection);
 
             String dni = bufferedReader.readLine();
@@ -246,7 +248,7 @@ public class ServerConnection {
 
         }
 
-        private  void handlePatientRegister(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
+        private void handlePatientRegister(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
             JDBCPatientManager patientManager = new JDBCPatientManager(connection);
             JDBCDoctorManager doctorManager = new JDBCDoctorManager(connection);
 
@@ -310,7 +312,7 @@ public class ServerConnection {
             return random.nextInt(bound) + 1;
         }
 
-        private  void handleDoctorLogin(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
+        private void handleDoctorLogin(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
             JDBCDoctorManager doctorManager = new JDBCDoctorManager(connection);
 
             String dni = bufferedReader.readLine();
@@ -332,7 +334,7 @@ public class ServerConnection {
             }
         }
 
-        private  void handlePatientLogin(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
+        private void handlePatientLogin(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
             JDBCPatientManager patientManager = new JDBCPatientManager(connection);
 
             String dni = bufferedReader.readLine();
@@ -350,17 +352,19 @@ public class ServerConnection {
             }
         }
 
-        private  void handleViewDoctorDetails(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
+        private void handleViewDoctorDetails(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
             JDBCDoctorManager doctorManager = new JDBCDoctorManager(connection);
 
             String dni = bufferedReader.readLine();
             Doctor doctorFromDatabase = doctorManager.getDoctorByDNI(dni);
+                        System.out.println("CONNECTION SERVER");
 
-            printWriter.println(doctorFromDatabase.toString());
-
+            String doctorData = String.format("%s;%s;%s;%s;%s",  doctorFromDatabase.getDni(), doctorFromDatabase.getName(), doctorFromDatabase.getSurname(),
+            doctorFromDatabase.getTelephone(), doctorFromDatabase.getEmail());
+            printWriter.println(doctorData); // Send doctor data
         }
 
-        private  void handleViewDoctorPatients(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
+        private void handleViewDoctorPatients(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
             JDBCPatientManager patientManager = new JDBCPatientManager(connection);
             JDBCDoctorManager dM = new JDBCDoctorManager(connection);
             String dni = bufferedReader.readLine();
@@ -386,7 +390,7 @@ public class ServerConnection {
             }
         }
 
-        private  void handleViewEpisodeAllDetails(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException, SQLException {
+        private void handleViewEpisodeAllDetails(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException, SQLException {
             try {
                 if (connection == null || connection.isClosed()) {
                     System.err.println("Database connection is not available.");
@@ -470,7 +474,7 @@ public class ServerConnection {
 
         }
 
-        private  void handlePatientEpisodesAndDetails(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException, SQLException {
+        private void handlePatientEpisodesAndDetails(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException, SQLException {
             if (connection == null || connection.isClosed()) {
                 System.err.println("Database connection is not available.");
                 return;
@@ -556,7 +560,7 @@ public class ServerConnection {
             }
         }
 
-        private  void handleViewPatientEpisodeByDoctor(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException, SQLException {
+        private void handleViewPatientEpisodeByDoctor(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException, SQLException {
 
             if (connection == null || connection.isClosed()) {
                 System.err.println("Database connection is not available.");
@@ -586,7 +590,7 @@ public class ServerConnection {
 
         }
 
-        private  void handleViewPatientInformation(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
+        private void handleViewPatientInformation(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
 
             JDBCPatientManager patientManager = new JDBCPatientManager(connection);
             String dni = bufferedReader.readLine();
@@ -598,7 +602,7 @@ public class ServerConnection {
             printWriter.println(patientData); // Enviar los datos del paciente
         }
 
-        private  void handleGetAvailableDiseases(PrintWriter printWriter) {
+        private void handleGetAvailableDiseases(PrintWriter printWriter) {
             JDBCDiseaseManager diseaseManager = new JDBCDiseaseManager(connection);
 
             try {
@@ -616,7 +620,7 @@ public class ServerConnection {
 
         }
 
-        private  void handleGetAvailableSurgeries(PrintWriter printWriter) {
+        private void handleGetAvailableSurgeries(PrintWriter printWriter) {
             JDBCSurgeryManager surgeryManager = new JDBCSurgeryManager(connection);
 
             try {
@@ -634,7 +638,7 @@ public class ServerConnection {
 
         }
 
-        private  void handleGetAvailableSymptoms(PrintWriter printWriter) {
+        private void handleGetAvailableSymptoms(PrintWriter printWriter) {
             JDBCSymptomManager symptomManager = new JDBCSymptomManager(connection);
 
             try {
@@ -652,7 +656,7 @@ public class ServerConnection {
 
         }
 
-        private  void handleInsertEpisode(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
+        private void handleInsertEpisode(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
             try {
                 // Crear managers para acceder a la base de datos
                 JDBCEpisodeManager episodeManager = new JDBCEpisodeManager(connection);
@@ -681,7 +685,7 @@ public class ServerConnection {
                 while (!((line = bufferedReader.readLine()).equals("END_OF_EPISODE"))) {
                     System.out.println("line:" + line);
 
-                    String[] parts = line.split("\\;");
+                    String[] parts = line.split("\\|");
                     switch (parts[0]) {
                         case "DISEASE":
                             String diseaseName = parts[1];
@@ -819,7 +823,3 @@ public class ServerConnection {
         }
     }
 }
-
-      
-
-    
