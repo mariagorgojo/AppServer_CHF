@@ -110,13 +110,13 @@ public class ServerConnection {
                             break;
                         case "LOGIN_ADMINISTRATOR":
                             handleAdministratorLogin(bufferedReader, printWriter);
-                            break; 
+                            break;
                         case "LOGIN_DOCTOR":
                             handleDoctorLogin(bufferedReader, printWriter);
                             break;
                         case "LOGIN_PATIENT":
                             handlePatientLogin(bufferedReader, printWriter);
-                            break; 
+                            break;
                         case "SHUTDOWN":
                             handleShutDown(bufferedReader, printWriter);
                             break;
@@ -747,6 +747,139 @@ public class ServerConnection {
 
         private void handleInsertEpisode(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
             try {
+                // Managers para interactuar con la base de datos
+                JDBCEpisodeManager episodeManager = new JDBCEpisodeManager(connection);
+                JDBCSymptomManager symptomManager = new JDBCSymptomManager(connection);
+                JDBCRecordingManager recordingManager = new JDBCRecordingManager(connection);
+
+                String line = bufferedReader.readLine();
+                if (line.equals("CREATE_EPISODE")) {
+                    // Crear un nuevo episodio
+                    int patientId = Integer.parseInt(bufferedReader.readLine());
+                    LocalDateTime episodeDate = LocalDateTime.parse(bufferedReader.readLine());
+
+                    // Crear el objeto episodio
+                    Episode episode = new Episode();
+                    episode.setPatient_id(patientId);
+                    episode.setDate(episodeDate);
+
+                    // Insertar el episodio y obtener su ID
+                    episodeManager.insertEpisode(episode);
+                    int episodeId = episodeManager.getEpisodeId(episodeDate, patientId);
+
+                    // Procesar síntomas y grabaciones
+                    while (!(line = bufferedReader.readLine()).equals("END_OF_EPISODE")) {
+                        String[] parts = line.split("\\|");
+                        switch (parts[0]) {
+                            case "SYMPTOM":
+                                String symptomName = parts[1];
+                                int symptomId = symptomManager.getSymptomId(symptomName);
+                                if (symptomId == -1) {
+                                    symptomManager.insertSymptom(symptomName);
+                                    symptomId = symptomManager.getSymptomId(symptomName);
+                                }
+                                symptomManager.assignSymptomToEpisode(symptomId, episodeId);
+                                break;
+
+                            case "RECORDING":
+                                try {
+                                    // Validar longitud de parts
+                                    if (parts.length < 5) {
+                                        System.err.println("Invalid RECORDING data: insufficient parts");
+                                        printWriter.println("ERROR: Invalid RECORDING data");
+                                        return;
+                                    }
+
+                                    // Extraer datos
+                                    Recording.Type type = Recording.Type.valueOf(parts[1]);
+                                    LocalDateTime recordingDate = LocalDateTime.parse(parts[2]);
+                                    String signalPath = parts[3];
+                                    String dataString = parts[4]; // Datos separados por comas
+
+                                    // Validar dataString
+                                    if (dataString == null || dataString.isEmpty()) {
+                                        System.err.println("Error: dataString is null or empty");
+                                        printWriter.println("ERROR: dataString is null or empty");
+                                        return;
+                                    }
+
+                                    // Procesar datos
+                                    ArrayList<Integer> data = new ArrayList<>();
+                                    try {
+                                        String[] dataPoints = dataString.split(",");
+                                        for (String dataPoint : dataPoints) {
+                                            data.add(Integer.parseInt(dataPoint.trim()));
+                                        }
+                                    } catch (NumberFormatException e) {
+                                        System.err.println("Error parsing dataString: " + e.getMessage());
+                                        printWriter.println("ERROR: Invalid data format in dataString");
+                                        return;
+                                    }
+
+                                    System.out.println("Raw data string: " + dataString);
+                                    System.out.println("Parsed data points: " + data);
+
+                                    // Crear y guardar la grabación
+                                    Recording recording = new Recording(type, recordingDate, signalPath, data, episodeId);
+                                    recordingManager.insertRecording(recording);
+
+                                } catch (Exception e) {
+                                    System.err.println("Error processing RECORDING: " + e.getMessage());
+                                    printWriter.println("ERROR: " + e.getMessage());
+                                    e.printStackTrace();
+                                }
+                                break;
+                            default:
+                                throw new IllegalArgumentException("Tipo desconocido: " + parts[0]);
+                        }
+                    }
+
+                    printWriter.println(episodeId); // Enviar el ID del episodio al cliente
+                    printWriter.flush();
+                } else if (line.equals("UPDATE_EPISODE")) {
+                    // Actualizar un episodio existente con enfermedades y cirugías
+                    JDBCDiseaseManager diseaseManager = new JDBCDiseaseManager(connection);
+                    JDBCSurgeryManager surgeryManager = new JDBCSurgeryManager(connection);
+
+                    int episodeId = Integer.parseInt(bufferedReader.readLine());
+                    while (!(line = bufferedReader.readLine()).equals("END_OF_UPDATE")) {
+                        String[] parts = line.split("\\|");
+                        switch (parts[0]) {
+                            case "DISEASE":
+                                String diseaseName = parts[1];
+                                int diseaseId = diseaseManager.getDiseaseId(diseaseName);
+                                if (diseaseId == -1) {
+                                    diseaseManager.insertDisease(diseaseName);
+                                    diseaseId = diseaseManager.getDiseaseId(diseaseName);
+                                }
+                                diseaseManager.assignDiseaseToEpisode(diseaseId, episodeId);
+                                break;
+
+                            case "SURGERY":
+                                String surgeryName = parts[1];
+                                int surgeryId = surgeryManager.getSurgeryId(surgeryName);
+                                if (surgeryId == -1) {
+                                    surgeryManager.insertSurgery(surgeryName);
+                                    surgeryId = surgeryManager.getSurgeryId(surgeryName);
+                                }
+                                surgeryManager.assignSurgeryToEpisode(surgeryId, episodeId);
+                                break;
+
+                            default:
+                                throw new IllegalArgumentException("Tipo desconocido: " + parts[0]);
+                        }
+                    }
+
+                    printWriter.println("SUCCESS");
+                    printWriter.flush();
+                }
+            } catch (Exception e) {
+                printWriter.println("ERROR: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+        /* private void handleInsertEpisode(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
+            try {
                 // Crear managers para acceder a la base de datos
                 JDBCEpisodeManager episodeManager = new JDBCEpisodeManager(connection);
                 JDBCSymptomManager symptomManager = new JDBCSymptomManager(connection);
@@ -786,7 +919,7 @@ public class ServerConnection {
                         }
                         int diseaseId = diseaseManager.getDiseaseId(diseaseName); // Recupera el ID
                         diseaseManager.assignDiseaseToEpisode(diseaseId, episodeId); // Asigna al episodio
-                             */
+                             
 
                             // Recuperar ID si existe, o insertar y luego recuperar
                             int diseaseId = diseaseManager.getDiseaseId(diseaseName);
@@ -810,7 +943,7 @@ public class ServerConnection {
                             }
                         }
                         int symptomId = symptomManager.getSymptomId(symptomName); // Recupera el ID
-                        symptomManager.assignSymptomToEpisode(symptomId, episodeId); // Asigna al episodio*/
+                        symptomManager.assignSymptomToEpisode(symptomId, episodeId); // Asigna al episodio
 
                             int symptomId = symptomManager.getSymptomId(symptomName);
                             System.out.println("Symptom ID " + symptomId);
@@ -833,7 +966,7 @@ public class ServerConnection {
                             }
                         }
                         int surgeryId = surgeryManager.getSurgeryId(surgeryName); // Recupera el ID
-                        surgeryManager.assignSurgeryToEpisode(surgeryId, episodeId); // Asigna al episodio*/
+                        surgeryManager.assignSurgeryToEpisode(surgeryId, episodeId); // Asigna al episodio
 
                             int surgeryId = surgeryManager.getSurgeryId(surgeryName);
                             System.out.println("Surgery ID " + surgeryId);
@@ -909,7 +1042,7 @@ public class ServerConnection {
                 printWriter.println("ERROR: " + e.getMessage());
                 e.printStackTrace();
             }
-        }
+        }*/
 
     }
 }
