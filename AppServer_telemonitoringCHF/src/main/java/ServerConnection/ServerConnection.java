@@ -9,6 +9,7 @@ package ServerConnection;
  * @author martaguzman
  */
 import JDBC.ConnectionManager;
+import JDBC.JDBCAdministratorManager;
 import JDBC.JDBCDiseaseManager;
 import JDBC.JDBCDoctorManager;
 import JDBC.JDBCEpisodeManager;
@@ -34,6 +35,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import pojos.Administrator;
 import pojos.Disease;
 import pojos.Doctor;
 import pojos.Episode;
@@ -57,7 +59,7 @@ public class ServerConnection {
             System.out.println("Client connected");
 
             // Crear un hilo para manejar cada cliente
-            Thread clientThread = new Thread(new ClientHandler(socket));
+            Thread clientThread = new Thread(new ClientHandler(socket, serverSocket));
             clientThread.start();
         }
 
@@ -70,9 +72,11 @@ public class ServerConnection {
         private PrintWriter printWriter;
         private Connection connection;
         private ConnectionManager connectionManager; // Instancia específica para cada cliente
+        private ServerSocket serverSocket; // Referencia al ServerSocket
 
-        public ClientHandler(Socket socket) {
+        public ClientHandler(Socket socket, ServerSocket serverSocket) {
             this.socket = socket;
+            this.serverSocket = serverSocket;
         }
 
         @Override
@@ -101,11 +105,20 @@ public class ServerConnection {
                         case "REGISTER_PATIENT":
                             handlePatientRegister(bufferedReader, printWriter);
                             break;
+                        case "REGISTER_ADMINISTRATOR":
+                            handleAdministratorRegister(bufferedReader, printWriter);
+                            break;
+                        case "LOGIN_ADMINISTRATOR":
+                            handleAdministratorLogin(bufferedReader, printWriter);
+                            break; 
                         case "LOGIN_DOCTOR":
                             handleDoctorLogin(bufferedReader, printWriter);
                             break;
                         case "LOGIN_PATIENT":
                             handlePatientLogin(bufferedReader, printWriter);
+                            break; 
+                        case "SHUTDOWN":
+                            handleShutDown(bufferedReader, printWriter);
                             break;
                         case "VIEW_DOCTOR_DETAILS":
                             handleViewDoctorDetails(bufferedReader, printWriter);
@@ -312,6 +325,27 @@ public class ServerConnection {
             return random.nextInt(bound) + 1;
         }
 
+        private void handleAdministratorRegister(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
+            JDBCAdministratorManager administratorManager = new JDBCAdministratorManager(connection);
+
+            String dni = bufferedReader.readLine();
+            String password = bufferedReader.readLine();
+
+            // Verificar si el doctor ya existe en la base de datos
+            Administrator administratorFromDatabase = administratorManager.getAdministratorByDNI(dni);
+
+            // Comprobación de si el DNI ya está registrado
+            if (administratorFromDatabase != null && administratorFromDatabase.getDni().equals(dni)) {
+                printWriter.println("INVALID"); // Enviar mensaje de error si el DNI ya está registrado
+            } else {
+                Administrator administrator = new Administrator(dni, password);
+                administratorManager.insertAdministrator(administrator); // Insert doctor in the db
+                printWriter.println("VALID"); // Mensaje de confirmación de registro exitoso
+                System.out.println("Administrator registered on db: " + administrator);
+            }
+
+        }
+
         private void handleDoctorLogin(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
             JDBCDoctorManager doctorManager = new JDBCDoctorManager(connection);
 
@@ -352,15 +386,70 @@ public class ServerConnection {
             }
         }
 
+        private void handleAdministratorLogin(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
+            JDBCAdministratorManager administratorManager = new JDBCAdministratorManager(connection);
+
+            String dni = bufferedReader.readLine();
+            String password = bufferedReader.readLine();
+
+            // falta contraseña
+            Administrator administratorDatabase = administratorManager.getAdministratorByDNI(dni);
+            System.out.println(administratorDatabase.toString());
+            if (administratorDatabase != null && administratorDatabase.getDni().equals(dni) && administratorDatabase.getPassword().equals(password)) {
+                printWriter.println("VALID");
+                System.out.println("Login successful for administrator: " + administratorDatabase.getDni());
+            } else {
+                printWriter.println("INVALID");
+                System.out.println("Invalid login attempt for administrator DNI: " + dni);
+            }
+        }
+
+        private void handleShutDown(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
+            try {
+                System.out.println("Shutdown signal received. Closing server...");
+
+                // Cerrar la conexión a la base de datos
+                if (connection != null && !connection.isClosed()) {
+                    connection.close();
+                    System.out.println("Database connection closed.");
+                }
+
+                // Cerrar el socket del servidor
+                if (serverSocket != null && !serverSocket.isClosed()) {
+                    serverSocket.close();
+                    System.out.println("Server socket closed.");
+                }
+                System.out.println("Server is shutting down now...");
+                // Cerrar el servidor principal
+                System.exit(0); // Termina la aplicación completamente
+
+            } catch (SQLException e) {
+                System.err.println("Error while shutting down: " + e.getMessage());
+                e.printStackTrace();
+            } finally {
+                try {
+                    // Liberar recursos de entrada/salida
+                    if (bufferedReader != null) {
+                        bufferedReader.close();
+                    }
+                    if (printWriter != null) {
+                        printWriter.close();
+                    }
+                } catch (IOException ex) {
+                    System.err.println("Error closing I/O resources: " + ex.getMessage());
+                }
+            }
+        }
+
         private void handleViewDoctorDetails(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
             JDBCDoctorManager doctorManager = new JDBCDoctorManager(connection);
 
             String dni = bufferedReader.readLine();
             Doctor doctorFromDatabase = doctorManager.getDoctorByDNI(dni);
-                        System.out.println("CONNECTION SERVER");
+            System.out.println("CONNECTION SERVER");
 
-            String doctorData = String.format("%s;%s;%s;%s;%s",  doctorFromDatabase.getDni(), doctorFromDatabase.getName(), doctorFromDatabase.getSurname(),
-            doctorFromDatabase.getTelephone(), doctorFromDatabase.getEmail());
+            String doctorData = String.format("%s;%s;%s;%s;%s", doctorFromDatabase.getDni(), doctorFromDatabase.getName(), doctorFromDatabase.getSurname(),
+                    doctorFromDatabase.getTelephone(), doctorFromDatabase.getEmail());
             printWriter.println(doctorData); // Send doctor data
         }
 
@@ -760,53 +849,53 @@ public class ServerConnection {
                             break;
 
                         case "RECORDING":
-                        try {
-                            // Validar longitud de parts
-                            if (parts.length < 5) {
-                                System.err.println("Invalid RECORDING data: insufficient parts");
-                                printWriter.println("ERROR: Invalid RECORDING data");
-                                return;
-                            }
-
-                            // Extraer datos
-                            Recording.Type type = Recording.Type.valueOf(parts[1]);
-                            LocalDateTime recordingDate = LocalDateTime.parse(parts[2]);
-                            String signalPath = parts[3];
-                            String dataString = parts[4]; // Datos separados por comas
-
-                            // Validar dataString
-                            if (dataString == null || dataString.isEmpty()) {
-                                System.err.println("Error: dataString is null or empty");
-                                printWriter.println("ERROR: dataString is null or empty");
-                                return;
-                            }
-
-                            // Procesar datos
-                            ArrayList<Integer> data = new ArrayList<>();
                             try {
-                                String[] dataPoints = dataString.split(",");
-                                for (String dataPoint : dataPoints) {
-                                    data.add(Integer.parseInt(dataPoint.trim()));
+                                // Validar longitud de parts
+                                if (parts.length < 5) {
+                                    System.err.println("Invalid RECORDING data: insufficient parts");
+                                    printWriter.println("ERROR: Invalid RECORDING data");
+                                    return;
                                 }
-                            } catch (NumberFormatException e) {
-                                System.err.println("Error parsing dataString: " + e.getMessage());
-                                printWriter.println("ERROR: Invalid data format in dataString");
-                                return;
+
+                                // Extraer datos
+                                Recording.Type type = Recording.Type.valueOf(parts[1]);
+                                LocalDateTime recordingDate = LocalDateTime.parse(parts[2]);
+                                String signalPath = parts[3];
+                                String dataString = parts[4]; // Datos separados por comas
+
+                                // Validar dataString
+                                if (dataString == null || dataString.isEmpty()) {
+                                    System.err.println("Error: dataString is null or empty");
+                                    printWriter.println("ERROR: dataString is null or empty");
+                                    return;
+                                }
+
+                                // Procesar datos
+                                ArrayList<Integer> data = new ArrayList<>();
+                                try {
+                                    String[] dataPoints = dataString.split(",");
+                                    for (String dataPoint : dataPoints) {
+                                        data.add(Integer.parseInt(dataPoint.trim()));
+                                    }
+                                } catch (NumberFormatException e) {
+                                    System.err.println("Error parsing dataString: " + e.getMessage());
+                                    printWriter.println("ERROR: Invalid data format in dataString");
+                                    return;
+                                }
+
+                                System.out.println("Raw data string: " + dataString);
+                                System.out.println("Parsed data points: " + data);
+
+                                // Crear y guardar la grabación
+                                Recording recording = new Recording(type, recordingDate, signalPath, data, episodeId);
+                                recordingManager.insertRecording(recording);
+
+                            } catch (Exception e) {
+                                System.err.println("Error processing RECORDING: " + e.getMessage());
+                                printWriter.println("ERROR: " + e.getMessage());
+                                e.printStackTrace();
                             }
-
-                            System.out.println("Raw data string: " + dataString);
-                            System.out.println("Parsed data points: " + data);
-
-                            // Crear y guardar la grabación
-                            Recording recording = new Recording(type, recordingDate, signalPath, data, episodeId);
-                            recordingManager.insertRecording(recording);
-
-                        } catch (Exception e) {
-                            System.err.println("Error processing RECORDING: " + e.getMessage());
-                            printWriter.println("ERROR: " + e.getMessage());
-                            e.printStackTrace();
-                        }
-                        break;
+                            break;
 
                         default:
                             throw new IllegalArgumentException("Unknown element type: " + parts[0]);
@@ -821,5 +910,6 @@ public class ServerConnection {
                 e.printStackTrace();
             }
         }
+
     }
 }

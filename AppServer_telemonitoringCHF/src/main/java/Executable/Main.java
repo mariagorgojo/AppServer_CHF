@@ -5,6 +5,7 @@
 package Executable;
 
 import JDBC.ConnectionManager;
+import JDBC.JDBCAdministratorManager;
 import JDBC.JDBCDiseaseManager;
 import JDBC.JDBCDoctorManager;
 import JDBC.JDBCEpisodeManager;
@@ -31,6 +32,7 @@ public class Main {
 	private static SurgeryManager surgeryMan;
 	private static DiseaseManager diseaseMan;
 	private static SymptomManager symptomMan;
+        private static AdministratorManager administratorMan; 
 
 	public static void main(String[] args) {
 
@@ -42,7 +44,7 @@ public class Main {
 		surgeryMan = new JDBCSurgeryManager(conMan.getConnection());
                 diseaseMan = new JDBCDiseaseManager(conMan.getConnection());
 		symptomMan = new JDBCSymptomManager(conMan.getConnection());
-                
+                administratorMan = new JDBCAdministratorManager(conMan.getConnection()); 
         }
         
 }

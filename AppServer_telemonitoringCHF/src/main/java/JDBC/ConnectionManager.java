@@ -57,12 +57,12 @@ public class ConnectionManager {
         try ( Statement s = c.createStatement()) {
 
              // Tabla Administrator (sin dependencias)
-            String table_Admin = "CREATE TABLE IF NOT EXISTS Admin ("
+            String table_Administrator = "CREATE TABLE IF NOT EXISTS Administrator ("
                     + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + "dni TEXT NOT NULL,"
                     + "password TEXT NOT NULL);";
-            s.executeUpdate(table_Admin);
-            System.out.println("Table Admin created.");
+            s.executeUpdate(table_Administrator);
+            System.out.println("Table Administrator created.");
             
             // Tabla Doctor (sin dependencias)
             String table_Doctor = "CREATE TABLE IF NOT EXISTS Doctor ("
