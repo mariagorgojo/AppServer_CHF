@@ -24,11 +24,13 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.sql.Connection;
 import java.net.Socket;
+import java.net.SocketException;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +49,24 @@ import pojos.Symptom;
 
 public class ServerConnection {
 
+    // Lista sincronizada de clientes conectados
+    private static final List<ClientHandler> connectedClients = Collections.synchronizedList(new ArrayList<>());
+
+    // Método para agregar un cliente a la lista
+    public static synchronized void addClient(ClientHandler client) {
+        connectedClients.add(client);
+    }
+
+    // Método para remover un cliente de la lista
+    public static synchronized void removeClient(ClientHandler client) {
+        connectedClients.remove(client);
+    }
+
+    // Obtener el número de clientes conectados
+    public static synchronized int getNumberOfConnectedClients() {
+        return connectedClients.size();
+    }
+
     //private static ConnectionManager dataBaseManager;
     // private static Connection connection;
     public static void main(String args[]) throws IOException, SQLException {
@@ -54,13 +74,23 @@ public class ServerConnection {
         ServerSocket serverSocket = new ServerSocket(9090);
         System.out.println("Server started, waiting for connection...");
 
-        while (true) {
-            Socket socket = serverSocket.accept();
-            System.out.println("Client connected");
+        boolean running = true;
+        while (running) {
+            try {
+                Socket socket = serverSocket.accept();
+                System.out.println("Client connected");
 
-            // Crear un hilo para manejar cada cliente
-            Thread clientThread = new Thread(new ClientHandler(socket, serverSocket));
-            clientThread.start();
+                Thread clientThread = new Thread(new ClientHandler(socket, serverSocket));
+                clientThread.start();
+            } catch (SocketException e) {
+                running = false;
+                if (!running) {
+                    System.out.println("Server is shutting down...");
+                    break; // Sale del bucle con normalidad al apagar el servidor
+                } else {
+                    e.printStackTrace();
+                }
+            }
         }
 
     }
@@ -81,6 +111,7 @@ public class ServerConnection {
 
         @Override
         public void run() {
+            ServerConnection.addClient(this);
             try {
                 // Conexión a la base de datos
                 //dataBaseManager = new ConnectionManager();
@@ -150,6 +181,9 @@ public class ServerConnection {
                         case "VIEW_EPISODES_DOCTOR":
                             handleViewPatientEpisodeByDoctor(bufferedReader, printWriter);
                             break;
+                        case "GET_CLIENTS_CONNECTED":
+                            handleNumberOfClientsConnected(bufferedReader, printWriter);
+                            break;
                         default:
                             System.err.println("Unknown command: " + line);
                             break;
@@ -159,7 +193,7 @@ public class ServerConnection {
                 System.err.println("Error handling client: " + e.getMessage());
                 e.printStackTrace();
             } finally {
-                // Liberar recursos
+                 ServerConnection.removeClient(this);
                 releaseResources();
             }
         }
@@ -878,6 +912,7 @@ public class ServerConnection {
                 e.printStackTrace();
             }
         }
+
         /* private void handleInsertEpisode(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
             try {
                 // Crear managers para acceder a la base de datos
@@ -1043,6 +1078,10 @@ public class ServerConnection {
                 e.printStackTrace();
             }
         }*/
+        private void handleNumberOfClientsConnected(BufferedReader bufferedReader, PrintWriter printWriter) {
+            int count = ServerConnection.getNumberOfConnectedClients();
+            printWriter.println(count);
+        }
 
     }
 }
