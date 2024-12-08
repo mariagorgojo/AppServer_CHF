@@ -20,6 +20,7 @@ public class Patient {
     private Integer phoneNumber;
     private LocalDate dob;
     private Doctor doctor;
+    private ArrayList<Disease> previousDiseases;
     private ArrayList<Episode> episodes;
 
     //constructor for registration
@@ -33,6 +34,7 @@ public class Patient {
         this.gender = gender;
         this.phoneNumber = phoneNumber;
         this.dob = dob;
+        previousDiseases = new ArrayList<>();
         episodes = new ArrayList<>();
     }
 
@@ -50,6 +52,7 @@ public class Patient {
         this.phoneNumber = phoneNumber;
         this.dob = dob;
         this.doctor = doctor;
+        previousDiseases = new ArrayList<>();
         episodes = new ArrayList<>();
     }
 
@@ -64,6 +67,7 @@ public class Patient {
         this.phoneNumber = phoneNumber;
         this.dob = dob;
         this.doctor = doctor;
+        previousDiseases = new ArrayList<>();
         episodes = new ArrayList<>();
     }
     public Integer getId() {
@@ -153,10 +157,18 @@ public class Patient {
     public void setDob(LocalDate dob) {
         this.dob = dob;
     }
+    
+    public ArrayList<Disease> getPreviousDiseases() {
+        return previousDiseases;
+    }
+
+    public void setPreviousDiseases(ArrayList<Disease> previousDiseases) {
+        this.previousDiseases = previousDiseases;
+    }
 
     @Override
     public String toString() {
-        return "Patient{" + "dni=" + dni + ", name=" + name + ", surname=" + surname + ", email=" + email + ", gender=" + gender + ", phoneNumber=" + phoneNumber + ", dob=" + dob + ", doctor=" + doctor + ", episodes=" + episodes + '}';
+        return "Patient{" + "dni=" + dni + ", name=" + name + ", surname=" + surname + ", email=" + email + ", gender=" + gender + ", phoneNumber=" + phoneNumber + ", dob=" + dob + ", doctor=" + doctor  + ", previous diseases=" + previousDiseases + ", episodes=" + episodes + '}';
     }
 
     public enum Gender {
