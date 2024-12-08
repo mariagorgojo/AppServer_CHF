@@ -189,5 +189,57 @@ public class JDBCDiseaseManager implements DiseaseManager {
         }
         return false;
     }
+    
+    @Override
+    public void assignDiseaseToPatient(int disease_id, int patient_id) {
+        try {
+            String sql = "INSERT INTO Patient_Disease (disease_id, patient_id) VALUES (?,?)";
+            PreparedStatement p = c.prepareStatement(sql);
+            p.setInt(1, disease_id);
+            p.setInt(2, patient_id);
+            p.executeUpdate();
+            p.close();
+        } catch (SQLException e) {
+            System.out.println("Database error.");
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public ArrayList<Disease> getPreviousDiseasesByPatient(int patient_id) {
+        ArrayList<Disease> list = new ArrayList<>();
+        try {
+            String sql = "SELECT Disease.id, Disease.disease FROM Disease JOIN Patient_Disease ON Disease.id = Patient_Disease.disease_id WHERE Patient_Disease.patient_id = ?";
+            PreparedStatement p = c.prepareStatement(sql);
+            p.setInt(1, patient_id);
+            ResultSet rs = p.executeQuery();
+            while (rs.next()) {
+                Disease d = new Disease(rs.getInt("id"), rs.getString("disease"));
+                list.add(d);
+            }
+
+        } catch (SQLException e) {
+            System.out.println("database error");
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public boolean isDiseaseAssociatedWithPatient(int diseaseId, int patientId) {
+        String sql = "SELECT COUNT(*) FROM Patient_Disease WHERE disease_id = ? AND patient_id = ?";
+        try ( PreparedStatement p = c.prepareStatement(sql)) {
+            p.setInt(1, diseaseId);
+            p.setInt(2, patientId);
+            try ( ResultSet rs = p.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0; // Devuelve true si ya está asociado
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 
 }

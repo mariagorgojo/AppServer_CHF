@@ -19,6 +19,8 @@ public class JDBCPatientManager implements PatientManager {
         this.c = c;
     }
 
+    //cambios en insertPatient para que compruebe que se ha generado el id automatico correctamente
+    //no añade las previous diseases a la tabla patient porque eso está en la tabla n-n Patient_Disease
     @Override
     public void insertPatient(Patient patient, int doctor) {
         try {
@@ -35,6 +37,16 @@ public class JDBCPatientManager implements PatientManager {
             prep.setInt(9, doctor);
             prep.executeUpdate();
             prep.close();
+            
+            // Retrieve the generated ID
+            try (ResultSet keys = prep.getGeneratedKeys()) {
+                if (keys.next()) {
+                    patient.setId(keys.getInt(1));
+                } else {
+                    throw new SQLException("Failed to retrieve patient ID.");
+                }
+            }
+        
         } catch (SQLException e) {
             System.out.println("Error inserting patient.");
             e.printStackTrace();

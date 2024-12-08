@@ -166,6 +166,15 @@ public class ConnectionManager {
             s.executeUpdate(table_Recording);
             System.out.println("Table Recording created.");
             
+            // Tabla Patient_Disease (depende de Patient y Disease)
+            String table_Patient_Disease = "CREATE TABLE IF NOT EXISTS Patient_Disease ("
+                    + "patient_id INTEGER,"
+                    + "disease_id INTEGER,"
+                    + "FOREIGN KEY (patient_id) REFERENCES Patient(id) ON DELETE SET NULL,"
+                    + "FOREIGN KEY (disease_id) REFERENCES Disease(id) ON DELETE SET NULL,"
+                    + "PRIMARY KEY (patient_id, disease_id));";
+            s.executeUpdate(table_Patient_Disease);
+            System.out.println("Table Patient_Disease created.");
             
              insertDefaultData(s);
 
