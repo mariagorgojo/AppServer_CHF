@@ -17,6 +17,7 @@ import JDBC.JDBCPatientManager;
 import JDBC.JDBCRecordingManager;
 import JDBC.JDBCSurgeryManager;
 import JDBC.JDBCSymptomManager;
+import Utilities.Utilities;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -270,6 +271,7 @@ public class ServerConnection {
             }
         }
 
+        
         private void handleDoctorRegister(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
             JDBCDoctorManager doctorManager = new JDBCDoctorManager(connection);
 
@@ -295,9 +297,14 @@ public class ServerConnection {
 
         }
 
+        
+        // SÍ funciona!!!
+        //registra 1º el patient y lo inserta en la base de datos 
+        //y despues en base a ese paciente inserta las foreign keys correspondientes de sus previous diseases en la tabla n-n
         private void handlePatientRegister(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
             JDBCPatientManager patientManager = new JDBCPatientManager(connection);
             JDBCDoctorManager doctorManager = new JDBCDoctorManager(connection);
+            JDBCDiseaseManager diseaseManager = new JDBCDiseaseManager(connection);
 
             String dni = bufferedReader.readLine();
             System.out.println("DNI received: " + dni);
@@ -315,8 +322,10 @@ public class ServerConnection {
             Gender gender = Gender.valueOf(genderInput.toUpperCase());
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             LocalDate dateOfBirth = LocalDate.parse(dateOfBirthInput, formatter);
-            // Verificar si el patient ya existe en la base de datos
+            
             Patient patientFromDatabase = patientManager.getPatientByDNI(dni);
+                        
+            // Verificar si el patient ya existe en la base de datos
 
             // Comprobación de si el DNI ya está registrado
             if (patientFromDatabase != null && patientFromDatabase.getDNI().equals(dni)) {
@@ -330,9 +339,9 @@ public class ServerConnection {
                 }
 
                 try {
-                    int doctor_id = generateRandomInt(bound);
+                    int doctor_id = Utilities.generateRandomInt(bound);
                     Doctor doctor = doctorManager.getDoctorById(doctor_id);
-
+                    
                     //
                     if (dni == null || password == null || name == null || surname == null || telephone == null || email == null || dateOfBirth == null || gender == null) {
                         printWriter.println("INVALID");
@@ -340,7 +349,35 @@ public class ServerConnection {
                         return;
                     }
                     Patient patient = new Patient(dni, password, name, surname, email, gender, telephone, dateOfBirth, doctor);
+                    //patient.setPreviousDiseases(previousDiseases);
+                    
                     patientManager.insertPatient(patient, doctor.getId());
+                    
+                    // Validate ID
+                    if (patient.getId() == null) {
+                        throw new IllegalStateException("Patient ID was not generated after insertion.");
+                    }
+                    
+                    Integer patientId = patient.getId();
+            
+                    String line;
+                    while (!(line = bufferedReader.readLine()).equals("END_OF_PREVIOUS_DISEASES")) {
+                        String[] parts = line.split("\\|");
+                        switch (parts[0]) {
+                            case "DISEASE":
+                                String diseaseName = parts[1];
+                                int diseaseId = diseaseManager.getDiseaseId(diseaseName);
+                                if (diseaseId == -1) {
+                                    diseaseManager.insertDisease(diseaseName);
+                                    diseaseId = diseaseManager.getDiseaseId(diseaseName);
+                                }
+                                diseaseManager.assignDiseaseToPatient(diseaseId, patientId);
+                                break;
+                            default:
+                                throw new IllegalArgumentException("Tipo desconocido: " + parts[0]);
+                        }
+                    }
+                    
                     printWriter.println("VALID"); // Mensaje de confirmación de registro exitoso
                     System.out.println("Patient registered on db: " + patient);
 
@@ -352,11 +389,6 @@ public class ServerConnection {
                 }
 
             }
-        }
-
-        public static int generateRandomInt(int bound) {
-            Random random = new Random();
-            return random.nextInt(bound) + 1;
         }
 
         private void handleAdministratorRegister(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
@@ -713,16 +745,22 @@ public class ServerConnection {
 
         }
 
+       
+        // NO funciona, no conecta ??
         private void handleViewPatientInformation(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
-
+            JDBCDiseaseManager diseaseManager = new JDBCDiseaseManager(connection);            
             JDBCPatientManager patientManager = new JDBCPatientManager(connection);
             String dni = bufferedReader.readLine();
             Patient patientFromDatabase = patientManager.getPatientByDNI(dni);
+            Integer patient_id = patientFromDatabase.getId();
 
+            List<Disease> previousDiseases = diseaseManager.getPreviousDiseasesByPatient(patient_id);
+            
             // printWriter.println(patientFromDatabase.toString());        
             String patientData = String.format("%s;%s;%s;%s;%s;%s;%s;%s", patientFromDatabase.getId(), patientFromDatabase.getDNI(), patientFromDatabase.getName(), patientFromDatabase.getSurname(),
-                    patientFromDatabase.getEmail(), patientFromDatabase.getGender().toString(), patientFromDatabase.getPhoneNumber(), patientFromDatabase.getDob().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+                    patientFromDatabase.getEmail(), patientFromDatabase.getGender().toString(), patientFromDatabase.getPhoneNumber(), patientFromDatabase.getDob().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), previousDiseases.toString());
             printWriter.println(patientData); // Enviar los datos del paciente
+            printWriter.println("END_OF_PATIENT_DATA");
         }
 
         private void handleGetAvailableDiseases(PrintWriter printWriter) {
