@@ -103,6 +103,8 @@ public class JDBCDiseaseManager implements DiseaseManager {
                 Disease d = new Disease(rs.getInt("id"), rs.getString("disease"));
                 list.add(d);
             }
+              rs.close();
+            p.close();
         } catch (SQLException e) {
             System.out.println("database error");
             e.printStackTrace();
@@ -205,11 +207,11 @@ public class JDBCDiseaseManager implements DiseaseManager {
         }
     }
 
-    @Override
+    @Override  
     public ArrayList<Disease> getPreviousDiseasesByPatient(int patient_id) {
         ArrayList<Disease> list = new ArrayList<>();
         try {
-            String sql = "SELECT Disease.id, Disease.disease FROM Disease JOIN Patient_Disease ON Disease.id = Patient_Disease.disease_id WHERE Patient_Disease.patient_id = ?";
+            String sql = "SELECT Disease.* FROM Disease JOIN Patient_Disease ON Disease.id = Patient_Disease.disease_id WHERE Patient_Disease.patient_id = ?";
             PreparedStatement p = c.prepareStatement(sql);
             p.setInt(1, patient_id);
             ResultSet rs = p.executeQuery();
@@ -217,7 +219,8 @@ public class JDBCDiseaseManager implements DiseaseManager {
                 Disease d = new Disease(rs.getInt("id"), rs.getString("disease"));
                 list.add(d);
             }
-
+            rs.close();
+            p.close();
         } catch (SQLException e) {
             System.out.println("database error");
             e.printStackTrace();
