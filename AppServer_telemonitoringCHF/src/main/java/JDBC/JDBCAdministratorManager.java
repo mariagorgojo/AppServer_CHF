@@ -35,7 +35,7 @@ public class JDBCAdministratorManager implements AdministratorManager{
             prep.executeUpdate();
             prep.close();
         } catch (SQLException e) {
-            System.out.println("Error inserting doctor.");
+            System.out.println("Error inserting administrator.");
             e.printStackTrace();
         }
     }
@@ -57,7 +57,7 @@ public class JDBCAdministratorManager implements AdministratorManager{
             rs.close();
             prep.close();
         } catch (SQLException e) {
-            System.out.println("Error getting doctor by DNI.");
+            System.out.println("Error getting administrator by DNI.");
             e.printStackTrace();
         }
         return administrator;

@@ -351,6 +351,8 @@ public class ServerConnection {
         private void handleAdministratorRegister(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
             JDBCAdministratorManager administratorManager = new JDBCAdministratorManager(connection);
 
+            
+            
             String dni = bufferedReader.readLine();
             String password = bufferedReader.readLine();
 
