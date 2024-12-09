@@ -7,7 +7,6 @@ package pojos;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
-// should implement Serializable to establish the conncection with the server
 public class Patient {
 
     private Integer id; //el automatico de la db

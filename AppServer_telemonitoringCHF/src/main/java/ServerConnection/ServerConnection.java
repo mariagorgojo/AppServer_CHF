@@ -253,7 +253,7 @@ public class ServerConnection {
             if (availableDoctors == 0) {
                 printWriter.println("NO_DOCTORS");
             }else{
-                                printWriter.println("AVAILABLE_DOCTORS");
+                printWriter.println("AVAILABLE_DOCTORS");
 
             }
             
@@ -381,15 +381,12 @@ public class ServerConnection {
             Doctor doctorFromDatabase = doctorManager.getDoctorByDNI(dni);
             if (doctorFromDatabase != null && doctorFromDatabase.getDni().equals(dni)
                     && doctorFromDatabase.getPassword().equals(password)) {
-                //  System.out.println(password);
 
                 printWriter.println("VALID");
-                //System.out.println("Login successful for doctor: " + doctorFromDatabase.getName());
 
             } else {
 
                 printWriter.println("INVALID");
-                //  System.out.println("Invalid login attempt for doctor DNI: " + dni);
             }
         }
 
@@ -417,7 +414,6 @@ public class ServerConnection {
             String dni = bufferedReader.readLine();
             String password = bufferedReader.readLine();
 
-            // falta contraseña
             Administrator administratorDatabase = administratorManager.getAdministratorByDNI(dni);
             System.out.println(administratorDatabase.toString());
             if (administratorDatabase != null && administratorDatabase.getDni().equals(dni) && administratorDatabase.getPassword().equals(password)) {
@@ -482,9 +478,7 @@ public class ServerConnection {
             JDBCDoctorManager dM = new JDBCDoctorManager(connection);
             String dni = bufferedReader.readLine();
             Doctor doctor = dM.getDoctorByDNI(dni);
-            // System.out.println(doctor.getId());
             List<Patient> patients = patientManager.searchPatientsByDoctor(doctor.getId());
-            //  System.out.println(patients);
 
             if (patients.size() == 0) {
                 printWriter.println("EMPTY");
@@ -515,9 +509,7 @@ public class ServerConnection {
                 JDBCRecordingManager recordingManager = new JDBCRecordingManager(connection);
 
                 int selectedEpisodeId = Integer.parseInt(bufferedReader.readLine());
-                //  System.out.println("Read: " + selectedEpisodeId);
                 int patient_id = Integer.parseInt(bufferedReader.readLine());
-                //System.out.println("Read: " + selectedEpisodeId);
 
                 List<Surgery> surgeries = surgeryManager.getSurgeriesByEpisode(selectedEpisodeId, patient_id);
                 List<Symptom> symptoms = symptomManager.getSymptomsByEpisode(selectedEpisodeId, patient_id);
@@ -526,18 +518,14 @@ public class ServerConnection {
 
                 // Enviar detalles del episodio al cliente
                 if (!surgeries.isEmpty()) {
-                    // printWriter.println("SURGERIES");
                     for (Surgery surgery : surgeries) {
-                        //   System.out.println("Sending: " + String.format("SURGERIES;%s", surgery.getSurgery()));
 
                         printWriter.println(String.format("SURGERIES;%s", surgery.getSurgery()));
                     }
                 }
                 if (!symptoms.isEmpty()) {
 
-                    // printWriter.println("SYMPTOMS");
                     for (Symptom symptom : symptoms) {
-                        // System.out.println("Sending: " + String.format("SYMTOMS;%s", symptom.getSymptom()));
 
                         printWriter.println(String.format("SYMPTOMS;%s", symptom.getSymptom()));
 
@@ -546,16 +534,13 @@ public class ServerConnection {
                 }
                 if (!diseases.isEmpty()) {
 
-                    //  printWriter.println("DISEASES");
                     for (Disease disease : diseases) {
                         printWriter.println(String.format("DISEASES;%s", disease.getDisease()));
-                        // System.out.println("Sending: " + String.format("DISEASES;%s", disease.getDisease()));
 
                     }
                 }
                 if (!recordings.isEmpty()) { // para el doctor -> indicar printWriter-> DOCTOR y le mande la data
 
-                    // printWriter.println("RECORDINGS");
                     for (Recording recording : recordings) {
                         String id = String.valueOf(recording.getId());
                         String signalPath = recording.getSignal_path();
@@ -573,7 +558,6 @@ public class ServerConnection {
 
                         // Enviar el mensaje: ID, ruta, datos del array
                         String message = String.format("RECORDINGS;%s;%s;%s", id, signalPath, dataString.toString());
-                        // System.out.println("Sending: " + message);
                         printWriter.println(message); // Enviar mensaje completo
                     }
                 }
@@ -630,18 +614,14 @@ public class ServerConnection {
 
                 // Enviar detalles del episodio al cliente
                 if (!surgeries.isEmpty()) {
-                    // printWriter.println("SURGERIES");
                     for (Surgery surgery : surgeries) {
-                        //   System.out.println("Sending: " + String.format("SURGERIES;%s", surgery.getSurgery()));
 
                         printWriter.println(String.format("SURGERIES;%s", surgery.getSurgery()));
                     }
                 }
                 if (!symptoms.isEmpty()) {
 
-                    // printWriter.println("SYMPTOMS");
                     for (Symptom symptom : symptoms) {
-                        //  System.out.println("Sending: " + String.format("SYMTOMS;%s", symptom.getSymptom()));
 
                         printWriter.println(String.format("SYMPTOMS;%s", symptom.getSymptom()));
 
@@ -650,7 +630,6 @@ public class ServerConnection {
                 }
                 if (!diseases.isEmpty()) {
 
-                    // printWriter.println("DISEASES");
                     for (Disease disease : diseases) {
                         printWriter.println(String.format("DISEASES;%s", disease.getDisease()));
 
@@ -658,10 +637,8 @@ public class ServerConnection {
                 }
                 if (!recordings.isEmpty()) {
 
-                    // printWriter.println("RECORDINGS");
                     for (Recording recording : recordings) {
 
-                        //  System.out.println("Sending: " + String.format("RECORDINGS;%d;%s", recording.getId(), recording.getSignal_path()));
                         printWriter.println(String.format("RECORDINGS;%d;%s", recording.getId(), recording.getSignal_path())); // Enviar ID y ruta
 
                     }
@@ -718,11 +695,9 @@ public class ServerConnection {
             }
             printWriter.println("END_OF_DISEASES");
 
-            // printWriter.println(patientFromDatabase.toString());        
             String patientData = String.format("%s;%s;%s;%s;%s;%s;%s;%s", patientFromDatabase.getId(), patientFromDatabase.getDNI(), patientFromDatabase.getName(), patientFromDatabase.getSurname(),
                     patientFromDatabase.getEmail(), patientFromDatabase.getGender().toString(), patientFromDatabase.getPhoneNumber(), patientFromDatabase.getDob().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
             printWriter.println(patientData); // Enviar los datos del paciente
-            // printWriter.println("END_OF_PATIENT_DATA");
         }
 
         private void handleGetAvailableDiseases(PrintWriter printWriter) {
@@ -770,10 +745,8 @@ public class ServerConnection {
                     printWriter.println(symptom.getSymptom()); // Enviar cada enfermedad al cliente
                 }
                 printWriter.println("END_OF_LIST"); // Marcar el final de la lista
-                //printWriter.flush();
             } catch (Exception e) {
                 System.out.println("ERROR: " + e.getMessage());
-                // printWriter.flush();
                 e.printStackTrace();
             }
 
@@ -850,8 +823,7 @@ public class ServerConnection {
                                     return;
                                 }
 
-                                //System.out.println("Raw data string: " + dataString);
-                                //System.out.println("Parsed data points: " + data);
+                                
                                 // Crear y guardar la grabación
                                 Recording recording = new Recording(type, recordingDate, signalPath, data, episodeId);
                                 recordingManager.insertRecording(recording);

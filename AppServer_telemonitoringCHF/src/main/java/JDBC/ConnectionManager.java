@@ -21,10 +21,10 @@ public class ConnectionManager {
 
     public ConnectionManager() {
         try {
-            // Verificar si el directorio 'db' existe y crearlo si no
+            // verifies if directory 'db' exists, and if not, creates it
             File dbDir = new File("./db");
             if (!dbDir.exists()) {
-                dbDir.mkdirs(); // Crea el directorio 'db' si no existe
+                dbDir.mkdirs(); // creates 'db' directory
             }
 
             Class.forName("org.sqlite.JDBC");
@@ -56,7 +56,7 @@ public class ConnectionManager {
 
         try ( Statement s = c.createStatement()) {
 
-             // Tabla Administrator (sin dependencias)
+             // Table Administrator (without dependencies)
             String table_Administrator = "CREATE TABLE IF NOT EXISTS Administrator ("
                     + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + "dni TEXT NOT NULL,"
@@ -64,7 +64,7 @@ public class ConnectionManager {
             s.executeUpdate(table_Administrator);
             System.out.println("Table Administrator created.");
             
-            // Tabla Doctor (sin dependencias)
+            // Table Doctor (without dependencies)
             String table_Doctor = "CREATE TABLE IF NOT EXISTS Doctor ("
                     + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + "dni TEXT NOT NULL,"
@@ -76,7 +76,7 @@ public class ConnectionManager {
             s.executeUpdate(table_Doctor);
             System.out.println("Table Doctor created.");
 
-            // Tabla Patient (depende de Doctor)
+            // Table Patient (depends on Doctor)
             String table_Patient = "CREATE TABLE IF NOT EXISTS Patient ("
                     + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + "dni TEXT NOT NULL,"
@@ -92,28 +92,28 @@ public class ConnectionManager {
             s.executeUpdate(table_Patient);
             System.out.println("Table Patient created.");
 
-            // Tabla Surgery (sin dependencias)
+            // Table Surgery (without dependencies)
             String table_Surgery = "CREATE TABLE IF NOT EXISTS Surgery ("
                     + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + "surgery TEXT NOT NULL);";
             s.executeUpdate(table_Surgery);
             System.out.println("Table Surgery created.");
 
-            // Tabla Symptom (sin dependencias)
+            // Table Symptom (without dependencies)
             String table_Symptom = "CREATE TABLE IF NOT EXISTS Symptom ("
                     + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + "symptom TEXT NOT NULL);";
             s.executeUpdate(table_Symptom);
             System.out.println("Table Symptom created.");
 
-            // Tabla Disease (sin dependencias)
+            // Table Disease (without dependencies)
             String table_Disease = "CREATE TABLE IF NOT EXISTS Disease ("
                     + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + "disease TEXT NOT NULL);";
             s.executeUpdate(table_Disease);
             System.out.println("Table Disease created.");
 
-            // Tabla Episode (depende de Patient)
+            // Table Episode (depends on Patient)
             String table_Episode = "CREATE TABLE IF NOT EXISTS Episode ("
                     + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + "patient_id INTEGER,"
@@ -122,7 +122,7 @@ public class ConnectionManager {
             s.executeUpdate(table_Episode);
             System.out.println("Table Episode created.");
 
-            // Tabla Episode_Surgery (depende de Episode y Surgery)
+            // Table Episode_Surgery (depends on Episode and Surgery)
             String table_Episode_Surgery = "CREATE TABLE IF NOT EXISTS Episode_Surgery ("
                     + "episode_id INTEGER,"
                     + "surgery_id INTEGER,"
@@ -132,7 +132,7 @@ public class ConnectionManager {
             s.executeUpdate(table_Episode_Surgery);
             System.out.println("Table Episode_Surgery created.");
 
-            // Tabla Episode_Symptom (depende de Episode y Symptom)
+            // Table Episode_Symptom (depends on Episode and Symptom)
             String table_Episode_Symptom = "CREATE TABLE IF NOT EXISTS Episode_Symptom ("
                     + "episode_id INTEGER,"
                     + "symptom_id INTEGER,"
@@ -142,7 +142,7 @@ public class ConnectionManager {
             s.executeUpdate(table_Episode_Symptom);
             System.out.println("Table Episode_Symptom created.");
 
-            // Tabla Episode_Disease (depende de Episode y Disease)
+            // Table Episode_Disease (depends on Episode and Disease)
             String table_Episode_Disease = "CREATE TABLE IF NOT EXISTS Episode_Disease ("
                     + "episode_id INTEGER,"
                     + "disease_id INTEGER,"
@@ -152,21 +152,19 @@ public class ConnectionManager {
             s.executeUpdate(table_Episode_Disease);
             System.out.println("Table Episode_Disease created.");
 
-            // Tabla Recording (depende de Episode)
+            // Table Recording (depends on Episode)
             String table_Recording = "CREATE TABLE IF NOT EXISTS Recording ("
                     + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + "episode_id INTEGER,"
                     + "date DATE NOT NULL,"
-                    //+ "duration INTEGER NOT NULL,"
                     + "filepath TEXT NOT NULL, "
                     + "type TEXT, "
                     + "data TEXT ,"
-                    //                    + "data TEXT NOT NULL,"
                     + "FOREIGN KEY (episode_id) REFERENCES Episode(id) ON DELETE CASCADE);";
             s.executeUpdate(table_Recording);
             System.out.println("Table Recording created.");
             
-            // Tabla Patient_Disease (depende de Patient y Disease)
+            // Table Patient_Disease (depends on Patient and Disease)
             String table_Patient_Disease = "CREATE TABLE IF NOT EXISTS Patient_Disease ("
                     + "patient_id INTEGER,"
                     + "disease_id INTEGER,"
@@ -187,7 +185,7 @@ public class ConnectionManager {
     
      
     private void insertDefaultData(Statement s) throws SQLException {
-    // Insertar enfermedades solo si la tabla está vacía
+    // inserts diseases only if table is empty
     String checkDiseases = "SELECT COUNT(*) FROM Disease";
     ResultSet rsDiseases = s.executeQuery(checkDiseases);
     if (rsDiseases.next() && rsDiseases.getInt(1) == 0) {
@@ -201,7 +199,7 @@ public class ConnectionManager {
     }
     rsDiseases.close();
 
-    // Insertar síntomas solo si la tabla está vacía
+    // inserts symptoms only if table is empty
     String checkSymptoms = "SELECT COUNT(*) FROM Symptom";
     ResultSet rsSymptoms = s.executeQuery(checkSymptoms);
     if (rsSymptoms.next() && rsSymptoms.getInt(1) == 0) {
@@ -216,7 +214,7 @@ public class ConnectionManager {
     }
     rsSymptoms.close();
 
-    // Insertar cirugías solo si la tabla está vacía
+    // inserts surgeries only if table is empty
     String checkSurgeries = "SELECT COUNT(*) FROM Surgery";
     ResultSet rsSurgeries = s.executeQuery(checkSurgeries);
     if (rsSurgeries.next() && rsSurgeries.getInt(1) == 0) {

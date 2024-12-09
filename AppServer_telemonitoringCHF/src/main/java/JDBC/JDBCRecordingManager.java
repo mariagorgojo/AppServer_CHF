@@ -149,34 +149,5 @@ public class JDBCRecordingManager implements RecordingManager {
         return null;
     }
 }
-    /*
-    @Override
-    public ArrayList<Recording> getRecordingByPatient(int patient_id) {
-         ArrayList<Recording> recordings = new ArrayList<>();
-         String sql = "SELECT * FROM Recording JOIN Epispde ON Recording.episode_id = Episode.id JOIN Patient ON Episode.patient_id = Patient.id WHERE Patient.id = ?;";
-
-        try (PreparedStatement p = c.prepareStatement(sql)) {
-            p.setInt(1, patient_id);
-            ResultSet rs = p.executeQuery();
-            while (rs.next()) {
-                ArrayList<Integer> data = Arrays.stream(rs.getString("data").split(","))
-                                                .map(Integer::valueOf)
-                                                .collect(Collectors.toCollection(ArrayList::new));
-
-                Recording recording = new Recording(
-                        rs.getInt("id"),
-                        Type.valueOf(rs.getString("type")),
-                        rs.getDate("date").toLocalDateTime(),
-                        rs.getString("signal_path"),
-                        data, 
-                        rs.getInt(patient_id)
-                );
-                recordings.add(recording);
-            }
-        } catch (SQLException e) {
-            System.out.println("Database error");
-            e.printStackTrace();
-        }
-
-     }*/
+    
 

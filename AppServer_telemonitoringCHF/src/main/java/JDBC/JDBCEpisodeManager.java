@@ -135,31 +135,4 @@ public class JDBCEpisodeManager implements EpisodeManager {
     }
 
 
-    /* LA HIZO CARMEN LA MODIFICO
-    @Override
-    public Integer getEpisodeId(LocalDateTime date) {
-        try {
-            String sql = "SELECT id FROM Episode WHERE date = ?";
-            PreparedStatement p = c.prepareStatement(sql);
-            // Convertir LocalDateTime a java.sql.Timestamp antes de pasarlo al PreparedStatement
-            p.setTimestamp(1, java.sql.Timestamp.valueOf(date));
-            ResultSet rs = p.executeQuery();
-
-            // Verificar si hay resultados
-            if (rs.next()) {
-                int id = rs.getInt("id");
-                rs.close();
-                p.close();
-                return id;
-            } else {
-                rs.close();
-                p.close();
-                return null; // No se encontró el episodio
-            }
-        } catch (SQLException e) {
-            System.out.println("Database error while retrieving episode ID");
-            e.printStackTrace();
-        }
-        return null;
-    } */
 }
