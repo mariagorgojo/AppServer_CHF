@@ -253,7 +253,7 @@ public class ServerConnection {
             if (availableDoctors == 0) {
                 printWriter.println("NO_DOCTORS");
             }else{
-                                printWriter.println("GOOD");
+                                printWriter.println("AVAILABLE_DOCTORS");
 
             }
             
