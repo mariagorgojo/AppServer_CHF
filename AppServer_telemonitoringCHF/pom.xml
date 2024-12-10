@@ -75,7 +75,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <mainClass>BITalino.BitalinoDemo</mainClass>
+                    <mainClass>ServerConnection.ServerConnection</mainClass>
                 </configuration>
             </plugin>
             <!-- Generar JAR ejecutable -->

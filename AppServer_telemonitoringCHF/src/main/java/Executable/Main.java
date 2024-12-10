@@ -34,7 +34,7 @@ public class Main {
 	private static SymptomManager symptomMan;
         private static AdministratorManager administratorMan; 
 
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 
 		ConnectionManager conMan = new ConnectionManager();
 		doctorMan = new JDBCDoctorManager(conMan.getConnection());
@@ -45,7 +45,7 @@ public class Main {
                 diseaseMan = new JDBCDiseaseManager(conMan.getConnection());
 		symptomMan = new JDBCSymptomManager(conMan.getConnection());
                 administratorMan = new JDBCAdministratorManager(conMan.getConnection()); 
-        }
+        }*/
         
 }
 
