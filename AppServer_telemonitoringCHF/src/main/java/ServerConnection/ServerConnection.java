@@ -45,6 +45,7 @@ import pojos.Episode;
 import pojos.Patient;
 import pojos.Patient.Gender;
 import pojos.Recording;
+import pojos.Recording.Type;
 import pojos.Surgery;
 import pojos.Symptom;
 
@@ -543,6 +544,8 @@ public class ServerConnection {
 
                     for (Recording recording : recordings) {
                         String id = String.valueOf(recording.getId());
+                        Type type = recording.getType();
+                        String typeToString = type.toString(); 
                         String signalPath = recording.getSignal_path();
                         ArrayList<Integer> data = recording.getData();
 
@@ -557,7 +560,7 @@ public class ServerConnection {
                         dataString.append("]"); // Cerrar el array
 
                         // Enviar el mensaje: ID, ruta, datos del array
-                        String message = String.format("RECORDINGS;%s;%s;%s", id, signalPath, dataString.toString());
+                        String message = String.format("RECORDINGS;%s;%s;%s;%s", id, typeToString, signalPath, dataString.toString());
                         printWriter.println(message); // Enviar mensaje completo
                     }
                 }
