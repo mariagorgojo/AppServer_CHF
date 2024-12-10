@@ -7,6 +7,7 @@ package JDBC;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -51,6 +52,7 @@ public class ConnectionManager {
             e.printStackTrace();
         }
     }
+
 
     private void createTables() {
 
@@ -175,6 +177,7 @@ public class ConnectionManager {
             System.out.println("Table Patient_Disease created.");
 
             insertDefaultData(s);
+ 
 
         } catch (SQLException e) {
             System.out.println("Database error.");
