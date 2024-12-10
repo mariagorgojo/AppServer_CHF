@@ -56,14 +56,14 @@ public class ConnectionManager {
 
         try ( Statement s = c.createStatement()) {
 
-             // Table Administrator (without dependencies)
+            // Table Administrator (without dependencies)
             String table_Administrator = "CREATE TABLE IF NOT EXISTS Administrator ("
                     + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + "dni TEXT NOT NULL,"
                     + "password TEXT NOT NULL);";
             s.executeUpdate(table_Administrator);
             System.out.println("Table Administrator created.");
-            
+
             // Table Doctor (without dependencies)
             String table_Doctor = "CREATE TABLE IF NOT EXISTS Doctor ("
                     + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -163,7 +163,7 @@ public class ConnectionManager {
                     + "FOREIGN KEY (episode_id) REFERENCES Episode(id) ON DELETE CASCADE);";
             s.executeUpdate(table_Recording);
             System.out.println("Table Recording created.");
-            
+
             // Table Patient_Disease (depends on Patient and Disease)
             String table_Patient_Disease = "CREATE TABLE IF NOT EXISTS Patient_Disease ("
                     + "patient_id INTEGER,"
@@ -173,60 +173,74 @@ public class ConnectionManager {
                     + "PRIMARY KEY (patient_id, disease_id));";
             s.executeUpdate(table_Patient_Disease);
             System.out.println("Table Patient_Disease created.");
-            
-             insertDefaultData(s);
+
+            insertDefaultData(s);
 
         } catch (SQLException e) {
             System.out.println("Database error.");
             e.printStackTrace();
         }
     }
-    
-    
-     
+
     private void insertDefaultData(Statement s) throws SQLException {
-    // inserts diseases only if table is empty
-    String checkDiseases = "SELECT COUNT(*) FROM Disease";
-    ResultSet rsDiseases = s.executeQuery(checkDiseases);
-    if (rsDiseases.next() && rsDiseases.getInt(1) == 0) {
-        String insertDiseases = "INSERT INTO Disease (disease) VALUES " +
-                "('Chronic Heart Failure')," +
-                "('Hypertension')," +
-                "('Ischemic Heart Disease')," +
-                "('Dilated Cardiomyopathy');";
-        s.executeUpdate(insertDiseases);
-        System.out.println("Default diseases inserted.");
-    }
-    rsDiseases.close();
+        // Inserts diseases only if table is empty
+        String checkDiseases = "SELECT COUNT(*) FROM Disease";
+        ResultSet rsDiseases = s.executeQuery(checkDiseases);
+        if (rsDiseases.next() && rsDiseases.getInt(1) == 0) {
+            String insertDiseases = "INSERT INTO Disease (disease) VALUES "
+                    + "('Chronic Heart Failure'),"
+                    + "('Hypertension'),"
+                    + "('Ischemic Heart Disease'),"
+                    + "('Dilated Cardiomyopathy'),"
+                    + "('Arrhythmia'),"
+                    + "('Atrial Fibrillation'),"
+                    + "('Myocardial Infarction'),"
+                    + "('Congenital Heart Defect'),"
+                    + "('Pulmonary Hypertension'),"
+                    + "('Pericarditis');";
+            s.executeUpdate(insertDiseases);
+            System.out.println("Default diseases inserted.");
+        }
+        rsDiseases.close();
 
-    // inserts symptoms only if table is empty
-    String checkSymptoms = "SELECT COUNT(*) FROM Symptom";
-    ResultSet rsSymptoms = s.executeQuery(checkSymptoms);
-    if (rsSymptoms.next() && rsSymptoms.getInt(1) == 0) {
-        String insertSymptoms = "INSERT INTO Symptom (symptom) VALUES " +
-                "('Shortness of breath')," +
-                "('Fatigue')," +
-                "('Edema')," +
-                "('Orthopnea')," +
-                "('Nocturnal dyspnea');";
-        s.executeUpdate(insertSymptoms);
-        System.out.println("Default symptoms inserted.");
-    }
-    rsSymptoms.close();
+        // Inserts symptoms only if table is empty
+        String checkSymptoms = "SELECT COUNT(*) FROM Symptom";
+        ResultSet rsSymptoms = s.executeQuery(checkSymptoms);
+        if (rsSymptoms.next() && rsSymptoms.getInt(1) == 0) {
+            String insertSymptoms = "INSERT INTO Symptom (symptom) VALUES "
+                    + "('Shortness of breath'),"
+                    + "('Fatigue'),"
+                    + "('Edema'),"
+                    + "('Orthopnea'),"
+                    + "('Nocturnal dyspnea'),"
+                    + "('Chest Pain'),"
+                    + "('Palpitations'),"
+                    + "('Dizziness'),"
+                    + "('Syncope'),"
+                    + "('Cough with frothy sputum');";
+            s.executeUpdate(insertSymptoms);
+            System.out.println("Default symptoms inserted.");
+        }
+        rsSymptoms.close();
 
-    // inserts surgeries only if table is empty
-    String checkSurgeries = "SELECT COUNT(*) FROM Surgery";
-    ResultSet rsSurgeries = s.executeQuery(checkSurgeries);
-    if (rsSurgeries.next() && rsSurgeries.getInt(1) == 0) {
-        String insertSurgeries = "INSERT INTO Surgery (surgery) VALUES " +
-                "('Heart Transplant')," +
-                "('Left Ventricular Assist Device (LVAD)')," +
-                "('Coronary Artery Bypass Grafting (CABG)')," +
-                "('Implantable Cardioverter Defibrillator (ICD)');";
-        s.executeUpdate(insertSurgeries);
-        System.out.println("Default surgeries inserted.");
+        // Inserts surgeries only if table is empty
+        String checkSurgeries = "SELECT COUNT(*) FROM Surgery";
+        ResultSet rsSurgeries = s.executeQuery(checkSurgeries);
+        if (rsSurgeries.next() && rsSurgeries.getInt(1) == 0) {
+            String insertSurgeries = "INSERT INTO Surgery (surgery) VALUES "
+                    + "('Heart Transplant'),"
+                    + "('Left Ventricular Assist Device (LVAD)'),"
+                    + "('Coronary Artery Bypass Grafting (CABG)'),"
+                    + "('Implantable Cardioverter Defibrillator (ICD)'),"
+                    + "('Aortic Valve Replacement'),"
+                    + "('Mitral Valve Repair'),"
+                    + "('Transcatheter Aortic Valve Implantation (TAVI)'),"
+                    + "('Cardiac Resynchronization Therapy (CRT)'),"
+                    + "('Catheter Ablation');";
+                    
+            s.executeUpdate(insertSurgeries);
+            System.out.println("Default surgeries inserted.");
+        }
+        rsSurgeries.close();
     }
-    rsSurgeries.close();
-}
-
 }

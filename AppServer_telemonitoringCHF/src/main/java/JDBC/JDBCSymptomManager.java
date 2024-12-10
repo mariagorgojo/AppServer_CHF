@@ -139,11 +139,13 @@ public class JDBCSymptomManager implements SymptomManager {
     @Override
     public ArrayList<Symptom> getAllSymptoms() {
         ArrayList<Symptom> symptoms = new ArrayList<>();
+        int count=0;
         String sql = "SELECT id, symptom FROM Symptom";
         try ( Statement stmt = c.createStatement();  ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
+            while (rs.next()&&count<10) {
                 Symptom symptom = new Symptom(rs.getInt("id"), rs.getString("symptom"));
                 symptoms.add(symptom);
+                count++;
             }
         } catch (SQLException e) {
             System.err.println("Error retrieving symptoms: " + e.getMessage());

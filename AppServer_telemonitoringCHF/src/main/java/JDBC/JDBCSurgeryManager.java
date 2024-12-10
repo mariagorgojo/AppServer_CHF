@@ -137,11 +137,13 @@ public class JDBCSurgeryManager implements SurgeryManager {
     @Override
     public ArrayList<Surgery> getAllSurgeries() {
         ArrayList<Surgery> surgeries = new ArrayList<>();
+        int count=0;
         String sql = "SELECT id, surgery FROM Surgery";
         try ( Statement stmt = c.createStatement();  ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
+            while (rs.next() &&count<10) {
                 Surgery surgery = new Surgery(rs.getInt("id"), rs.getString("surgery"));
                 surgeries.add(surgery);
+                count++;
             }
         } catch (SQLException e) {
             System.err.println("Error retrieving surgeries: " + e.getMessage());
