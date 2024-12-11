@@ -4,14 +4,22 @@
  */
 package JDBC;
 
-import java.io.File;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 /**
  *
  * @author mariagorgojo
@@ -20,25 +28,39 @@ public class ConnectionManager {
 
     private Connection c;
 
-    public ConnectionManager() {
-        try {
-            // verifies if directory 'db' exists, and if not, creates it
-            File dbDir = new File("./db");
-            if (!dbDir.exists()) {
-                dbDir.mkdirs(); // creates 'db' directory
+   public ConnectionManager() {
+    try {
+        // Crear un directorio temporal para la base de datos
+        File tempDbFile = new File(System.getProperty("java.io.tmpdir"), "telemedicine.db");
+
+        // Verificar si la base de datos ya fue extraída al directorio temporal
+        if (!tempDbFile.exists()) {
+            // Cargar la base de datos desde el JAR
+            try (InputStream dbStream = getClass().getClassLoader().getResourceAsStream("db/telemedicine.db")) {
+                if (dbStream == null) {
+                    throw new FileNotFoundException("Database file '/db/telemedicine.db' not found in JAR.");
+                }
+                // Crear el directorio de destino si no existe
+                tempDbFile.getParentFile().mkdirs();
+                
+                Files.copy(dbStream, tempDbFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                System.out.println("Database extracted to: " + tempDbFile.getAbsolutePath());
             }
-
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:./db/telemedicine.db");
-            c.createStatement().execute("PRAGMA foreign_keys=ON");
-            System.out.println("Database connection opened.");
-            createTables();
-
-        } catch (Exception e) {
-            System.out.println("Database access error");
-            e.printStackTrace();
         }
+
+        // Establecer la conexión con SQLite usando la base de datos extraída
+        Class.forName("org.sqlite.JDBC");
+        c = DriverManager.getConnection("jdbc:sqlite:" + tempDbFile.getAbsolutePath());
+        c.createStatement().execute("PRAGMA foreign_keys=ON");
+        System.out.println("Database connection opened.");
+
+        // Crear tablas si es necesario
+        createTables();
+    } catch (Exception e) {
+        System.out.println("Database access error");
+        e.printStackTrace();
     }
+}
 
     public Connection getConnection() {
         return c;
@@ -46,13 +68,15 @@ public class ConnectionManager {
 
     public void closeConnection() {
         try {
-            c.close();
-        } catch (SQLException e) {
-            System.out.println("Database error.");
-            e.printStackTrace();
+           if (this.c != null && !this.c.isClosed()) {
+            this.c.close();
+            System.out.println("Database connection closed.");
         }
+    } catch (SQLException e) {
+        System.err.println("Error closing the database connection.");
+        e.printStackTrace();
     }
-
+    }
 
     private void createTables() {
 
@@ -177,7 +201,6 @@ public class ConnectionManager {
             System.out.println("Table Patient_Disease created.");
 
             insertDefaultData(s);
- 
 
         } catch (SQLException e) {
             System.out.println("Database error.");
@@ -240,7 +263,7 @@ public class ConnectionManager {
                     + "('Transcatheter Aortic Valve Implantation (TAVI)'),"
                     + "('Cardiac Resynchronization Therapy (CRT)'),"
                     + "('Catheter Ablation');";
-                    
+
             s.executeUpdate(insertSurgeries);
             System.out.println("Default surgeries inserted.");
         }

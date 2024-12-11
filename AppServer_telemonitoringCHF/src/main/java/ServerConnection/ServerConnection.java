@@ -18,6 +18,15 @@ import JDBC.JDBCRecordingManager;
 import JDBC.JDBCSurgeryManager;
 import JDBC.JDBCSymptomManager;
 import Utilities.Utilities;
+import java.net.BindException;
+import ifaces.AdministratorManager;
+import ifaces.DiseaseManager;
+import ifaces.DoctorManager;
+import ifaces.EpisodeManager;
+import ifaces.PatientManager;
+import ifaces.RecordingManager;
+import ifaces.SurgeryManager;
+import ifaces.SymptomManager;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -54,6 +63,15 @@ public class ServerConnection {
     // Lista sincronizada de clientes conectados
     private static final List<ClientHandler> connectedClients = Collections.synchronizedList(new ArrayList<>());
 
+    private static DoctorManager doctorManager;
+    private static PatientManager patientManager;
+    private static EpisodeManager episodeManager;
+    private static RecordingManager recordingManager;
+    private static SurgeryManager surgeryManager;
+    private static DiseaseManager diseaseManager;
+    private static SymptomManager symptomManager;
+    private static AdministratorManager administratorManager;
+
     // Método para agregar un cliente a la lista
     public static synchronized void addClient(ClientHandler client) {
         connectedClients.add(client);
@@ -72,30 +90,46 @@ public class ServerConnection {
     //private static ConnectionManager dataBaseManager;
     // private static Connection connection;
     public static void main(String args[]) throws IOException, SQLException {
+        ConnectionManager conMan = null;
+        try{
+        conMan = new ConnectionManager();
 
+        doctorManager = new JDBCDoctorManager(conMan.getConnection());
+        patientManager = new JDBCPatientManager(conMan.getConnection());
+        episodeManager = new JDBCEpisodeManager(conMan.getConnection());
+        recordingManager = new JDBCRecordingManager(conMan.getConnection());
+        surgeryManager = new JDBCSurgeryManager(conMan.getConnection());
+        diseaseManager = new JDBCDiseaseManager(conMan.getConnection());
+        symptomManager = new JDBCSymptomManager(conMan.getConnection());
+        administratorManager = new JDBCAdministratorManager(conMan.getConnection());
         ServerSocket serverSocket = new ServerSocket(9090);
-        System.out.println("Server started, waiting for connection...");
+        System.out.println("\nServer started, waiting for connection...");
 
         boolean running = true;
         while (running) {
             try {
                 Socket socket = serverSocket.accept();
                 System.out.println("Client connected");
-
-                Thread clientThread = new Thread(new ClientHandler(socket, serverSocket));
+                Thread clientThread = new Thread(new ClientHandler(socket, serverSocket, conMan));
                 clientThread.start();
             } catch (SocketException e) {
                 running = false;
-                if (!running) {
-                    System.out.println("Server is shutting down...");
-                    break; // Sale del bucle con normalidad al apagar el servidor
-                } else {
-                    e.printStackTrace();
-                }
+                System.out.println("Server shutting down...");
+            } catch (IOException e) {
+                System.err.println("Error accepting client connection: " + e.getMessage());
             }
         }
-
+    } catch (IOException e) {
+        System.err.println("Server initialization error: " + e.getMessage());
+    } finally {
+        if (conMan != null) {
+            conMan.closeConnection();
+        }
     }
+}
+
+        // Cerrar el servidor al finalizar el bucle
+        
 
     private static class ClientHandler implements Runnable {
 
@@ -106,9 +140,11 @@ public class ServerConnection {
         private ConnectionManager connectionManager; // Instancia específica para cada cliente
         private ServerSocket serverSocket; // Referencia al ServerSocket
 
-        public ClientHandler(Socket socket, ServerSocket serverSocket) {
+        public ClientHandler(Socket socket, ServerSocket serverSocket, ConnectionManager connectionManager) {
             this.socket = socket;
             this.serverSocket = serverSocket;
+            this.connectionManager = connectionManager;
+            this.connection = connectionManager.getConnection();
         }
 
         @Override
@@ -223,7 +259,7 @@ public class ServerConnection {
         }
 
         private void handleDoctorRegister(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
-            JDBCDoctorManager doctorManager = new JDBCDoctorManager(connection);
+            doctorManager = new JDBCDoctorManager(connection);
 
             String dni = bufferedReader.readLine();
             String password = bufferedReader.readLine();
@@ -253,11 +289,11 @@ public class ServerConnection {
             System.out.println(availableDoctors);
             if (availableDoctors == 0) {
                 printWriter.println("NO_DOCTORS");
-            }else{
+            } else {
                 printWriter.println("AVAILABLE_DOCTORS");
 
             }
-            
+
         }
 
         private void handlePatientRegister(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
@@ -352,8 +388,6 @@ public class ServerConnection {
         private void handleAdministratorRegister(BufferedReader bufferedReader, PrintWriter printWriter) throws IOException {
             JDBCAdministratorManager administratorManager = new JDBCAdministratorManager(connection);
 
-            
-            
             String dni = bufferedReader.readLine();
             String password = bufferedReader.readLine();
 
@@ -545,7 +579,7 @@ public class ServerConnection {
                     for (Recording recording : recordings) {
                         String id = String.valueOf(recording.getId());
                         Type type = recording.getType();
-                        String typeToString = type.toString(); 
+                        String typeToString = type.toString();
                         String signalPath = recording.getSignal_path();
                         ArrayList<Integer> data = recording.getData();
 
@@ -826,7 +860,6 @@ public class ServerConnection {
                                     return;
                                 }
 
-                                
                                 // Crear y guardar la grabación
                                 Recording recording = new Recording(type, recordingDate, signalPath, data, episodeId);
                                 recordingManager.insertRecording(recording);

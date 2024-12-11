@@ -23,7 +23,7 @@ import java.time.format.DateTimeFormatter;
  * @author carmengarciaprieto
  */
 public class Main {
-	private static BufferedReader r = new BufferedReader(new InputStreamReader(System.in));
+	/*private static BufferedReader r = new BufferedReader(new InputStreamReader(System.in));
 	private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 	private static DoctorManager doctorMan;
 	private static PatientManager patientMan;
@@ -34,7 +34,7 @@ public class Main {
 	private static SymptomManager symptomMan;
         private static AdministratorManager administratorMan; 
 
-	/*public static void main(String[] args) {
+	public static void main(String[] args) {
 
 		ConnectionManager conMan = new ConnectionManager();
 		doctorMan = new JDBCDoctorManager(conMan.getConnection());
